@@ -1,0 +1,28 @@
+name: Validate Curriculum Map
+
+on:
+  push:
+    paths:
+      - 'curricula/iuh/**/curriculum.md'
+      - 'scripts/generate_curriculum_map.py'
+      - 'references/curriculum-map.md'
+      - '.github/workflows/validate-curriculum-map.yml'
+  pull_request:
+    paths:
+      - 'curricula/iuh/**/curriculum.md'
+      - 'scripts/generate_curriculum_map.py'
+      - 'references/curriculum-map.md'
+      - '.github/workflows/validate-curriculum-map.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate generated curriculum map
+        run: python3 scripts/generate_curriculum_map.py --check

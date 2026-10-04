@@ -4,64 +4,76 @@
 
 Một AI learning agent mã nguồn mở dành cho việc học Khoa học Máy tính theo hướng có cấu trúc, thích nghi và tập trung vào thực hành.
 
-Project biến nội dung chương trình đào tạo thành một learning workflow thích nghi: chọn chủ đề đúng prerequisite, tránh lặp lại không cần thiết, tạo bài học tập trung từ nguồn đáng tin cậy, áp dụng retrieval practice và lưu tiến độ học xuyên suốt các phiên.
+Project biến nội dung chương trình đào tạo thành một learning workflow thích nghi: chọn topic đúng prerequisite, tránh lặp lại không cần thiết, tạo bài học tập trung từ nguồn đáng tin cậy, áp dụng retrieval practice và lưu tiến độ học xuyên suốt các phiên.
 
 ## Tài liệu
 
-Repository sử dụng Docsify và GitHub Pages để hiển thị tài liệu Markdown dưới dạng website có thể tìm kiếm.
+Website tài liệu song ngữ sử dụng Docsify và được deploy bằng GitHub Pages.
 
 - **English:** https://nguyenan97.github.io/computer-science-learning-agent/#/
 - **Tiếng Việt:** https://nguyenan97.github.io/computer-science-learning-agent/#/vi/
 
-English là ngôn ngữ mặc định. Vì website được host dưới dạng **GitHub Project Pages**, Docsify sử dụng **hash routing**. Do đó route đúng của bản tiếng Việt là `#/vi/`, không phải physical path `/vi/`.
+Website chủ động sử dụng Docsify **hash routing** vì được host dưới dạng GitHub Project Pages.
 
-Repository cũng có `404.html` để redirect các physical deep link bị mở nhầm trở lại Docsify router.
+## Kiến trúc đa ngôn ngữ
 
-## Mô hình ngôn ngữ và source of truth
+English là canonical authoring language cho curriculum facts. Tài liệu tiếng Việt được duy trì như bản mirror dành cho người đọc trong thư mục `vi/`.
 
-Để tránh curriculum drift, repository áp dụng quy tắc:
+Navigation tuân theo cơ chế multilingual native của Docsify:
 
-- Các file curriculum tiếng Anh trong `curricula/` là nguồn curriculum canonical.
-- Các file trong `vi/` là bản dịch tiếng Việt phục vụ người đọc.
-- `references/curriculum-map.md` và `vi/references/curriculum-map.md` được sinh từ cùng một canonical curriculum model.
-- Course code, curriculum fact, prerequisite relationship và các source inconsistency phải được cập nhật ở canonical curriculum trước.
+- `_sidebar.md` và `vi/_sidebar.md` **chỉ chứa navigation của tài liệu**.
+- `_navbar.md` và `vi/_navbar.md` chịu trách nhiệm cho **language switcher**.
+- `loadNavbar: true` bật top navigation.
+- `navbarPreservePath: true` giữ trang tương ứng khi đổi ngôn ngữ.
+- Markdown navigation sử dụng Docsify route như `/references/pedagogy` và `/vi/references/pedagogy`; **không hard-code `#/...`** trong `_sidebar.md` hoặc `_navbar.md`.
+- Docsify tự chuyển các route này thành hash URL trên browser.
+- `fallbackLanguages: ['vi']` cho phép route tiếng Việt chưa có bản dịch fallback về canonical English document.
+
+Repository vẫn giữ `404.html` để xử lý các physical deep link vô tình được mở trực tiếp trên GitHub Pages.
 
 ## Cấu trúc repository
 
 ```text
 computer-science-learning-agent/
-├── README.md                      # Trang chủ English
-├── index.html                     # Docsify bilingual + EN/VI switcher
-├── 404.html                       # Fallback cho GitHub Pages deep link
-├── _404.md                        # Trang not-found English trong Docsify
-├── _sidebar.md                    # Điều hướng English
-├── curricula/                     # Canonical curriculum sources (English)
+├── README.md
+├── index.html
+├── 404.html
+├── _404.md
+├── _sidebar.md
+├── _navbar.md
+├── curricula/
 │   └── iuh/
 │       ├── master/curriculum.md
 │       └── phd/curriculum.md
 ├── references/
-│   ├── curriculum-map.md          # Generated English dependency map
+│   ├── curriculum-map.md
 │   ├── pedagogy.md
 │   ├── source-policy.md
 │   └── lesson-template.md
 ├── state/
 │   └── learning-ledger.md
 ├── scripts/
-│   └── generate_curriculum_map.py
-└── vi/
-    ├── README.md                  # Trang chủ Tiếng Việt
-    ├── _404.md
-    ├── _sidebar.md               # Điều hướng Tiếng Việt
-    ├── curricula/iuh/
-    │   ├── master/curriculum.md
-    │   └── phd/curriculum.md
-    ├── references/
-    │   ├── curriculum-map.md      # Generated Vietnamese dependency map
-    │   ├── pedagogy.md
-    │   ├── source-policy.md
-    │   └── lesson-template.md
-    └── state/
-        └── learning-ledger.md
+│   ├── generate_curriculum_map.py
+│   └── validate_docs_navigation.py
+├── vi/
+│   ├── README.md
+│   ├── _404.md
+│   ├── _sidebar.md
+│   ├── _navbar.md
+│   ├── curricula/iuh/
+│   │   ├── master/curriculum.md
+│   │   └── phd/curriculum.md
+│   ├── references/
+│   │   ├── curriculum-map.md
+│   │   ├── pedagogy.md
+│   │   ├── source-policy.md
+│   │   └── lesson-template.md
+│   └── state/
+│       └── learning-ledger.md
+└── .github/workflows/
+    ├── pages.yml
+    ├── validate-curriculum-map.yml
+    └── validate-docs-navigation.yml
 ```
 
 ## Workflow học tập cốt lõi
@@ -75,24 +87,20 @@ computer-science-learning-agent/
 
 ## Curriculum implementations
 
-Learning engine được thiết kế curriculum-agnostic. Chương trình Thạc sĩ và Tiến sĩ Khoa học Máy tính IUH là các implementation/reference đầu tiên, không phải identity cố định của project.
+Learning engine được thiết kế curriculum-agnostic. Chương trình Thạc sĩ và Tiến sĩ Khoa học Máy tính IUH là các reference implementation đầu tiên, không phải identity cố định của project.
 
-Các PDF curriculum ban đầu đã được chuyển thành Markdown rút gọn theo hướng phục vụ learning agent. Nội dung giữ lại program structure, course objective, core content, prerequisite, research component và các inconsistency đáng chú ý trong source; các phần hành chính lặp lại, thông tin giảng viên, grading matrix và bibliography dài được loại bỏ.
+Các PDF curriculum ban đầu đã được chuyển thành Markdown rút gọn theo hướng phục vụ learning agent. Nội dung giữ lại program structure, course objective, core content, prerequisite, research component và các inconsistency đáng chú ý trong source.
 
 - [IUH Master's curriculum](curricula/iuh/master/curriculum.md)
 - [IUH PhD curriculum](curricula/iuh/phd/curriculum.md)
 
-Trong website Docsify, các link điều hướng tiếng Việt sử dụng explicit hash route `#/vi/...` để không thoát khỏi GitHub Project Pages base path.
-
 ## Generated curriculum maps
 
-Chạy:
+Sinh lại đồng thời curriculum map English và Vietnamese bằng:
 
 ```bash
 python scripts/generate_curriculum_map.py
 ```
-
-để sinh lại đồng thời curriculum map English và Vietnamese.
 
 Kiểm tra drift bằng:
 
@@ -100,12 +108,24 @@ Kiểm tra drift bằng:
 python scripts/generate_curriculum_map.py --check
 ```
 
-GitHub Actions tự động chạy check này khi curriculum/model thay đổi.
+## Kiểm tra navigation
 
-## Documentation stack
+Trước khi commit thay đổi tài liệu/navigation, chạy:
 
-Website dùng Docsify để render Markdown trực tiếp trên browser và GitHub Actions để deploy GitHub Pages. Selector `EN | VI` giữ nguyên trang tài liệu tương ứng khi chuyển ngôn ngữ.
+```bash
+python scripts/validate_docs_navigation.py
+```
+
+Validator kiểm tra:
+
+- mọi internal route trong sidebar/navbar đều trỏ tới Markdown file thực tế;
+- language switch nằm ở navbar, không nằm ở sidebar;
+- sidebar English và Vietnamese luôn là route mirror của nhau;
+- Docsify vẫn giữ hash routing, navbar loading và `navbarPreservePath`;
+- không đưa hard-coded `#/...` trở lại navigation Markdown.
+
+GitHub Actions tự động chạy validation này khi documentation thay đổi.
 
 ## License
 
-Nên chọn project license trước khi khuyến khích external contribution. Các Markdown được dẫn xuất từ curriculum công khai của IUH cần giữ source attribution rõ ràng.
+Nên chọn project license trước khi khuyến khích external contribution. Các Markdown dẫn xuất từ curriculum công khai của IUH cần giữ source attribution rõ ràng.

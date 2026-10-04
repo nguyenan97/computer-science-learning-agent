@@ -1,17 +1,17 @@
 - **Ngôn ngữ**
   - [English](#/)
-  - Tiếng Việt
+  - **Tiếng Việt**
 
 - **Tổng quan**
-  - [Trang chủ](/vi/)
+  - [Trang chủ](#/vi/)
 
 - **Hệ thống học tập**
-  - [Bản đồ chương trình](references/curriculum-map.md)
-  - [Phương pháp sư phạm](references/pedagogy.md)
-  - [Chính sách nguồn](references/source-policy.md)
-  - [Mẫu bài học](references/lesson-template.md)
-  - [Learning Ledger](state/learning-ledger.md)
+  - [Bản đồ chương trình](#/vi/references/curriculum-map)
+  - [Phương pháp sư phạm](#/vi/references/pedagogy)
+  - [Chính sách nguồn](#/vi/references/source-policy)
+  - [Mẫu bài học](#/vi/references/lesson-template)
+  - [Learning Ledger](#/vi/state/learning-ledger)
 
 - **Chương trình IUH**
-  - [Thạc sĩ Khoa học Máy tính](curricula/iuh/master/curriculum.md)
-  - [Tiến sĩ Khoa học Máy tính](curricula/iuh/phd/curriculum.md)
+  - [Thạc sĩ Khoa học Máy tính](#/vi/curricula/iuh/master/curriculum)
+  - [Tiến sĩ Khoa học Máy tính](#/vi/curricula/iuh/phd/curriculum)

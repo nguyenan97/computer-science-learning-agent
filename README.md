@@ -1,37 +1,63 @@
-# Master IUH Computer Science Learning Agent
+# Computer Science Learning Agent
 
-A reusable learning agent for the IUH Master's program in Computer Science.
+An open-source AI learning agent for structured, adaptive, and practice-driven Computer Science education.
 
-This repository packages the curriculum, pedagogy, source-selection rules, lesson template, and learning-state conventions used by the agent. The goal is to generate one focused lesson at a time, avoid unnecessary repetition, adapt difficulty to the learner, and keep a persistent learning history.
+The project turns curriculum material into an adaptive learning workflow: select prerequisite-safe topics, avoid unnecessary repetition, generate focused lessons from reliable sources, apply retrieval practice, and persist learning progress across sessions.
 
-## What is included
+## Documentation
 
-- `SKILL.md` — core agent instructions and lesson-selection workflow.
-- `curriculum-map.md` — curriculum topics, prerequisites, and coverage map.
-- `pedagogy.md` — learning-science principles used to design lessons.
-- `source-policy.md` — source hierarchy and verification rules.
-- `lesson-template.md` — standard lesson structure.
-- `learning-ledger.md` — persistent learning-state template.
-- `Master-IUH-Agent-Skills.md` — detailed Master's learning-agent specification.
-- `IUH-PhD-CS-Agent-Skills.md` — PhD-oriented learning-agent specification.
-- `Thạc-sĩ-Khoa-học-Máy-tính.txt` — program reference notes.
-- `Curriculum-v2020.pdf` — Master's curriculum reference.
-- `CTDT TS Khoa hoc may tinh 2022_v5.pdf` — PhD curriculum reference.
+The repository includes a Docsify documentation site deployed with GitHub Pages. Markdown files are rendered directly as a searchable web experience without a separate static-site build step.
 
-## Purpose
+Once GitHub Pages finishes its first deployment, the documentation is available at:
 
-The project is designed as an AI-assisted learning system rather than a static collection of notes. The agent should:
+`https://nguyenan97.github.io/computer-science-learning-agent/`
 
-1. Inspect the curriculum and learning ledger.
-2. Select a topic that is useful, prerequisite-safe, and not recently repeated.
-3. Build a concise lesson using reliable sources.
-4. Include retrieval practice and practical exercises.
-5. Record progress so future lessons can adapt.
+## Repository structure
 
-## Usage
+```text
+computer-science-learning-agent/
+├── README.md
+├── SKILL.md
+├── index.html
+├── _sidebar.md
+├── references/
+│   ├── curriculum-map.md
+│   ├── pedagogy.md
+│   ├── source-policy.md
+│   └── lesson-template.md
+├── curricula/
+│   └── iuh/
+│       ├── master/
+│       │   └── Curriculum-v2020.pdf
+│       └── phd/
+│           └── CTDT-TS-Khoa-hoc-may-tinh-2022-v5.pdf
+├── docs/
+│   ├── Master-IUH-Agent-Skills.md
+│   └── IUH-PhD-CS-Agent-Skills.md
+├── state/
+│   └── learning-ledger.md
+└── .github/workflows/pages.yml
+```
 
-Use `SKILL.md` as the primary entry point for an Agent Skills-compatible coding agent. Keep the supporting Markdown files available in the same project so the agent can consult the curriculum, pedagogy, source policy, and learning ledger when generating lessons.
+## Core workflow
 
-## Scope
+1. Inspect the curriculum and current learning ledger.
+2. Select a useful topic whose prerequisites are satisfied.
+3. Avoid recently repeated material unless spaced review is due.
+4. Build a concise lesson from authoritative sources.
+5. Include retrieval practice, self-explanation, and practical exercises.
+6. Record learning progress so future lessons can adapt.
 
-The initial curriculum references are based on IUH Computer Science Master's and PhD programs, but the learning-agent structure is intended to be reusable and adaptable to other Computer Science curricula.
+## Curriculum implementations
+
+The learning engine is intentionally curriculum-agnostic. IUH Computer Science Master's and PhD curricula are included as the first reference implementations and source material, rather than defining the identity of the project.
+
+Additional universities, certification tracks, self-study roadmaps, or custom Computer Science curricula can be added without changing the core learning model.
+
+## Documentation stack
+
+The web documentation uses [Docsify](https://docsify.js.org/) to render Markdown in the browser and GitHub Actions to deploy the repository to GitHub Pages.
+
+## License
+
+A project license should be selected before encouraging external contributions or redistribution of curriculum materials.

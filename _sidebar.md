@@ -1,17 +1,17 @@
 - **Language**
-  - English
+  - **English**
   - [Tiếng Việt](#/vi/)
 
 - **Overview**
-  - [Home](/)
+  - [Home](#/)
 
 - **Learning System**
-  - [Curriculum Map](references/curriculum-map.md)
-  - [Pedagogy](references/pedagogy.md)
-  - [Source Policy](references/source-policy.md)
-  - [Lesson Template](references/lesson-template.md)
-  - [Learning Ledger](state/learning-ledger.md)
+  - [Curriculum Map](#/references/curriculum-map)
+  - [Pedagogy](#/references/pedagogy)
+  - [Source Policy](#/references/source-policy)
+  - [Lesson Template](#/references/lesson-template)
+  - [Learning Ledger](#/state/learning-ledger)
 
 - **IUH Curricula**
-  - [Master's Curriculum](curricula/iuh/master/curriculum.md)
-  - [PhD Curriculum](curricula/iuh/phd/curriculum.md)
+  - [Master's Curriculum](#/curricula/iuh/master/curriculum)
+  - [PhD Curriculum](#/curricula/iuh/phd/curriculum)

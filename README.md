@@ -8,11 +8,14 @@ The project turns curriculum material into an adaptive learning workflow: select
 
 ## Documentation
 
-The repository includes a bilingual Docsify documentation site deployed with GitHub Pages:
+The repository includes a bilingual Docsify documentation site deployed with GitHub Pages.
 
-`https://nguyenan97.github.io/computer-science-learning-agent/`
+- **English:** https://nguyenan97.github.io/computer-science-learning-agent/#/
+- **Tiếng Việt:** https://nguyenan97.github.io/computer-science-learning-agent/#/vi/
 
-English is the default documentation language. Vietnamese documentation is available under `/vi/`.
+English is the default documentation language. The site uses **Docsify hash routing** because it is hosted as a GitHub Project Pages site. Documentation routes therefore use `#/...` rather than physical paths such as `/vi/`.
+
+A custom GitHub Pages `404.html` also redirects accidental physical deep links back into the Docsify hash router.
 
 ## Language model
 
@@ -28,7 +31,9 @@ To avoid curriculum drift, the repository uses this ownership model:
 ```text
 computer-science-learning-agent/
 ├── README.md                      # English home
-├── index.html                     # Docsify bilingual site
+├── index.html                     # Docsify bilingual site + EN/VI switcher
+├── 404.html                       # GitHub Pages deep-link fallback
+├── _404.md                        # English in-app not-found page
 ├── _sidebar.md                    # English navigation
 ├── curricula/                     # Canonical curriculum sources (English)
 │   └── iuh/
@@ -43,15 +48,20 @@ computer-science-learning-agent/
 │   └── learning-ledger.md
 ├── scripts/
 │   └── generate_curriculum_map.py
-├── vi/                            # Vietnamese documentation mirror
-│   ├── README.md
-│   ├── _sidebar.md
-│   ├── curricula/iuh/...
-│   ├── references/...
-│   └── state/learning-ledger.md
-└── .github/workflows/
-    ├── pages.yml
-    └── validate-curriculum-map.yml
+└── vi/
+    ├── README.md                  # Vietnamese home
+    ├── _404.md
+    ├── _sidebar.md               # Vietnamese navigation
+    ├── curricula/iuh/
+    │   ├── master/curriculum.md
+    │   └── phd/curriculum.md
+    ├── references/
+    │   ├── curriculum-map.md      # Generated Vietnamese dependency map
+    │   ├── pedagogy.md
+    │   ├── source-policy.md
+    │   └── lesson-template.md
+    └── state/
+        └── learning-ledger.md
 ```
 
 ## Core workflow
@@ -65,30 +75,36 @@ computer-science-learning-agent/
 
 ## Curriculum implementations
 
-The learning engine is intentionally curriculum-agnostic. IUH Computer Science Master's and PhD curricula are included as the first reference implementations rather than defining the identity of the project.
+The learning engine is intentionally curriculum-agnostic. IUH Computer Science Master's and PhD curricula are included as the first reference implementations and source material, rather than defining the identity of the project.
 
-The original curriculum PDFs were converted into condensed, learning-oriented Markdown documents. They preserve program structure, course objectives, core content, prerequisite relationships, research components, and relevant source inconsistencies while omitting repetitive administrative material, lecturer contact details, grading matrices, and long bibliography sections.
+The original curriculum PDFs have been converted into condensed, learning-oriented Markdown documents. They preserve program structure, course objectives, core content, prerequisite relationships, research components, and relevant source inconsistencies while intentionally omitting repetitive administrative material, lecturer contact details, grading matrices, and long bibliography sections.
 
 - [IUH Master's curriculum](curricula/iuh/master/curriculum.md)
 - [IUH PhD curriculum](curricula/iuh/phd/curriculum.md)
-- [IUH Master's curriculum — Vietnamese](vi/curricula/iuh/master/curriculum.md)
-- [IUH PhD curriculum — Vietnamese](vi/curricula/iuh/phd/curriculum.md)
 
 Additional universities, certification tracks, self-study roadmaps, or custom Computer Science curricula can be added without changing the core learning model.
 
-## Maintaining bilingual docs
+## Generated curriculum maps
 
-When curriculum facts change:
+Run:
 
-1. Update the canonical English curriculum file.
-2. Update the corresponding Vietnamese translation.
-3. Run `python scripts/generate_curriculum_map.py`.
-4. Run `python scripts/generate_curriculum_map.py --check`.
-5. Review both generated curriculum maps before committing.
+```bash
+python scripts/generate_curriculum_map.py
+```
+
+to regenerate both English and Vietnamese dependency maps.
+
+Validate committed maps with:
+
+```bash
+python scripts/generate_curriculum_map.py --check
+```
+
+GitHub Actions runs this check automatically when curriculum/model files change.
 
 ## Documentation stack
 
-The web documentation uses [Docsify](https://docsify.js.org/) to render Markdown in the browser and GitHub Actions to deploy the repository to GitHub Pages.
+The web documentation uses [Docsify](https://docsify.js.org/) to render Markdown in the browser and GitHub Actions to deploy the repository to GitHub Pages. The `EN | VI` selector preserves the equivalent documentation path when switching languages.
 
 ## License
 

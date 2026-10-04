@@ -14,5 +14,5 @@
   - [PhD Agent](docs/IUH-PhD-CS-Agent-Skills.md)
 
 - **IUH Curricula**
-  - [Master's Curriculum PDF](curricula/iuh/master/Curriculum-v2020.pdf)
-  - [PhD Curriculum PDF](curricula/iuh/phd/CTDT-TS-Khoa-hoc-may-tinh-2022-v5.pdf)
+  - [Master's Curriculum](curricula/iuh/master/curriculum.md)
+  - [PhD Curriculum](curricula/iuh/phd/curriculum.md)

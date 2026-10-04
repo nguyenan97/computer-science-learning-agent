@@ -144,8 +144,8 @@ When either canonical curriculum changes:
 
 1. Edit only the relevant `curricula/iuh/.../curriculum.md` source.
 2. Run `python scripts/generate_curriculum_map.py`.
-3. Review the generated diff in `references/curriculum-map.md`.
-4. If conceptual sequencing also changed, update the **Learning-agent synthesis** section in this generator, then regenerate.
+3. Review the generated diffs in both curriculum maps.
+4. If conceptual sequencing also changed, update the **Learning-agent synthesis** sections in this generator, then regenerate.
 5. Run `python scripts/generate_curriculum_map.py --check` before committing.
 
 This keeps official curriculum facts in one place while still giving the learning agent a compact dependency graph for topic selection.

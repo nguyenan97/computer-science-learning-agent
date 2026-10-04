@@ -8,60 +8,72 @@ The project turns curriculum material into an adaptive learning workflow: select
 
 ## Documentation
 
-The repository includes a bilingual Docsify documentation site deployed with GitHub Pages.
+The bilingual documentation site is built with Docsify and deployed with GitHub Pages.
 
 - **English:** https://nguyenan97.github.io/computer-science-learning-agent/#/
 - **Tiếng Việt:** https://nguyenan97.github.io/computer-science-learning-agent/#/vi/
 
-English is the default documentation language. The site uses **Docsify hash routing** because it is hosted as a GitHub Project Pages site. Documentation routes therefore use `#/...` rather than physical paths such as `/vi/`.
+The site intentionally uses Docsify **hash routing** because it is hosted as GitHub Project Pages.
 
-A custom GitHub Pages `404.html` also redirects accidental physical deep links back into the Docsify hash router.
+## Localization architecture
 
-## Language model
+English is the canonical authoring language for curriculum facts. Vietnamese documentation is maintained as a reader-facing mirror under `vi/`.
 
-To avoid curriculum drift, the repository uses this ownership model:
+Navigation follows Docsify's native multilingual pattern:
 
-- English curriculum files under `curricula/` are the canonical curriculum sources.
-- Vietnamese files under `vi/` are maintained translations for readers.
-- `references/curriculum-map.md` and `vi/references/curriculum-map.md` are generated from the same canonical curriculum model.
-- Course codes, curriculum facts, prerequisite relationships, and documented source inconsistencies should be updated in the canonical curriculum first.
+- `_sidebar.md` and `vi/_sidebar.md` contain **documentation navigation only**.
+- `_navbar.md` and `vi/_navbar.md` own the **language switcher**.
+- `loadNavbar: true` enables the top navigation.
+- `navbarPreservePath: true` keeps the corresponding document when changing language.
+- Navigation Markdown uses Docsify routes such as `/references/pedagogy` and `/vi/references/pedagogy`; do **not** hard-code `#/...` inside `_sidebar.md` or `_navbar.md`.
+- Docsify converts those routes to hash URLs in the browser.
+- `fallbackLanguages: ['vi']` lets an untranslated Vietnamese route fall back to the canonical English document instead of failing immediately.
+
+The repository also keeps `404.html` as a GitHub Pages fallback for accidental physical deep links.
 
 ## Repository structure
 
 ```text
 computer-science-learning-agent/
-├── README.md                      # English home
-├── index.html                     # Docsify bilingual site + EN/VI switcher
-├── 404.html                       # GitHub Pages deep-link fallback
-├── _404.md                        # English in-app not-found page
-├── _sidebar.md                    # English navigation
-├── curricula/                     # Canonical curriculum sources (English)
+├── README.md
+├── index.html
+├── 404.html
+├── _404.md
+├── _sidebar.md
+├── _navbar.md
+├── curricula/
 │   └── iuh/
 │       ├── master/curriculum.md
 │       └── phd/curriculum.md
 ├── references/
-│   ├── curriculum-map.md          # Generated English dependency map
+│   ├── curriculum-map.md
 │   ├── pedagogy.md
 │   ├── source-policy.md
 │   └── lesson-template.md
 ├── state/
 │   └── learning-ledger.md
 ├── scripts/
-│   └── generate_curriculum_map.py
-└── vi/
-    ├── README.md                  # Vietnamese home
-    ├── _404.md
-    ├── _sidebar.md               # Vietnamese navigation
-    ├── curricula/iuh/
-    │   ├── master/curriculum.md
-    │   └── phd/curriculum.md
-    ├── references/
-    │   ├── curriculum-map.md      # Generated Vietnamese dependency map
-    │   ├── pedagogy.md
-    │   ├── source-policy.md
-    │   └── lesson-template.md
-    └── state/
-        └── learning-ledger.md
+│   ├── generate_curriculum_map.py
+│   └── validate_docs_navigation.py
+├── vi/
+│   ├── README.md
+│   ├── _404.md
+│   ├── _sidebar.md
+│   ├── _navbar.md
+│   ├── curricula/iuh/
+│   │   ├── master/curriculum.md
+│   │   └── phd/curriculum.md
+│   ├── references/
+│   │   ├── curriculum-map.md
+│   │   ├── pedagogy.md
+│   │   ├── source-policy.md
+│   │   └── lesson-template.md
+│   └── state/
+│       └── learning-ledger.md
+└── .github/workflows/
+    ├── pages.yml
+    ├── validate-curriculum-map.yml
+    └── validate-docs-navigation.yml
 ```
 
 ## Core workflow
@@ -75,37 +87,45 @@ computer-science-learning-agent/
 
 ## Curriculum implementations
 
-The learning engine is intentionally curriculum-agnostic. IUH Computer Science Master's and PhD curricula are included as the first reference implementations and source material, rather than defining the identity of the project.
+The learning engine is intentionally curriculum-agnostic. IUH Computer Science Master's and PhD curricula are included as the first reference implementations rather than defining the identity of the project.
 
-The original curriculum PDFs have been converted into condensed, learning-oriented Markdown documents. They preserve program structure, course objectives, core content, prerequisite relationships, research components, and relevant source inconsistencies while intentionally omitting repetitive administrative material, lecturer contact details, grading matrices, and long bibliography sections.
+The original curriculum PDFs have been converted into condensed, learning-oriented Markdown documents. They preserve program structure, course objectives, core content, prerequisite relationships, research components, and relevant source inconsistencies while omitting repetitive administrative material.
 
 - [IUH Master's curriculum](curricula/iuh/master/curriculum.md)
 - [IUH PhD curriculum](curricula/iuh/phd/curriculum.md)
 
-Additional universities, certification tracks, self-study roadmaps, or custom Computer Science curricula can be added without changing the core learning model.
-
 ## Generated curriculum maps
 
-Run:
+Regenerate both English and Vietnamese dependency maps with:
 
 ```bash
 python scripts/generate_curriculum_map.py
 ```
 
-to regenerate both English and Vietnamese dependency maps.
-
-Validate committed maps with:
+Validate them with:
 
 ```bash
 python scripts/generate_curriculum_map.py --check
 ```
 
-GitHub Actions runs this check automatically when curriculum/model files change.
+## Navigation validation
 
-## Documentation stack
+Before committing documentation/navigation changes, run:
 
-The web documentation uses [Docsify](https://docsify.js.org/) to render Markdown in the browser and GitHub Actions to deploy the repository to GitHub Pages. The `EN | VI` selector preserves the equivalent documentation path when switching languages.
+```bash
+python scripts/validate_docs_navigation.py
+```
+
+The validator checks that:
+
+- every internal sidebar/navbar route resolves to a real Markdown file;
+- language switching exists in the navbar, not the sidebar;
+- English and Vietnamese sidebars remain route mirrors;
+- Docsify keeps hash routing, navbar loading, and `navbarPreservePath` enabled;
+- hard-coded `#/...` links do not re-enter navigation Markdown.
+
+GitHub Actions runs this validation automatically for documentation changes.
 
 ## License
 
-A project license should be selected before encouraging external contributions. Curriculum-derived Markdown is a condensed/transformative representation of public IUH curriculum material and should retain clear source attribution.
+A project license should be selected before encouraging external contributions. Curriculum-derived Markdown is a condensed representation of public IUH curriculum material and should retain clear source attribution.

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redirecting…</title>
+  <script>
+    (function () {
+      var base = '/computer-science-learning-agent';
+      var path = window.location.pathname || '/';
+      var route = '/';
+
+      if (path.indexOf(base) === 0) {
+        route = path.slice(base.length) || '/';
+      }
+
+      if (route.charAt(0) !== '/') route = '/' + route;
+
+      var target = base + '/#' + route;
+      if (window.location.search) target += window.location.search;
+      window.location.replace(target);
+    })();
+  </script>
+</head>
+<body>
+  Redirecting to documentation…
+</body>
+</html>

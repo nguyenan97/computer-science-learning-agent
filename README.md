@@ -8,7 +8,7 @@ The project turns curriculum material into an adaptive learning workflow: select
 
 The repository includes a Docsify documentation site deployed with GitHub Pages. Markdown files are rendered directly as a searchable web experience without a separate static-site build step.
 
-Once GitHub Pages finishes its first deployment, the documentation is available at:
+Documentation:
 
 `https://nguyenan97.github.io/computer-science-learning-agent/`
 
@@ -28,9 +28,9 @@ computer-science-learning-agent/
 ├── curricula/
 │   └── iuh/
 │       ├── master/
-│       │   └── Curriculum-v2020.pdf
+│       │   └── curriculum.md
 │       └── phd/
-│           └── CTDT-TS-Khoa-hoc-may-tinh-2022-v5.pdf
+│           └── curriculum.md
 ├── docs/
 │   ├── Master-IUH-Agent-Skills.md
 │   └── IUH-PhD-CS-Agent-Skills.md
@@ -52,6 +52,11 @@ computer-science-learning-agent/
 
 The learning engine is intentionally curriculum-agnostic. IUH Computer Science Master's and PhD curricula are included as the first reference implementations and source material, rather than defining the identity of the project.
 
+The original curriculum PDFs have been converted into condensed, learning-oriented Markdown documents. They preserve program structure, course objectives, core content, prerequisite relationships, research components, and relevant source inconsistencies while intentionally omitting repetitive administrative material, lecturer contact details, grading matrices, and long bibliography sections.
+
+- [IUH Master's curriculum](curricula/iuh/master/curriculum.md)
+- [IUH PhD curriculum](curricula/iuh/phd/curriculum.md)
+
 Additional universities, certification tracks, self-study roadmaps, or custom Computer Science curricula can be added without changing the core learning model.
 
 ## Documentation stack
@@ -60,4 +65,4 @@ The web documentation uses [Docsify](https://docsify.js.org/) to render Markdown
 
 ## License
 
-A project license should be selected before encouraging external contributions or redistribution of curriculum materials.
+A project license should be selected before encouraging external contributions. Curriculum-derived Markdown is a condensed/transformative representation of public IUH curriculum material and should retain clear source attribution.

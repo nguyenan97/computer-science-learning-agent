@@ -14,7 +14,7 @@ engine=importlib.util.module_from_spec(spec); spec.loader.exec_module(engine)
 
 
 def empty():
-    s=json.loads((ROOT/'state/learning-state.json').read_text()); s['fixture']=True
+    s=json.loads((ROOT/'state/learning-state.example.json').read_text()); s['fixture']=True
     return s
 
 
@@ -28,7 +28,7 @@ def lesson(status='generated'):
 
 
 def assessment(l, aid='practice',kind='practice',on='2026-10-05',outcome='independent'):
-    return {'id':aid,'lesson_id':l['id'],'topic_id':l['topic_id'],'kind':kind,'observed_on':on,'task':'Fixture task, not learner work','evidence':['FIXTURE: synthetic trace and test output'],'assessed_by':'fixture-test','outcome':outcome,'score':None,'score_basis':None,'hints':[],'misconceptions':[],'explanation_quality':None,'feedback':'Fixture feedback','next_action':'Fixture recheck'}
+    return {'id':aid,'lesson_id':l['id'],'topic_id':l['topic_id'],'kind':kind,'observed_on':on,'task':'Fixture task, not learner work','evidence':['FIXTURE: synthetic trace and test output'],'assessed_by':'fixture-test','outcome':outcome,'score':None,'score_basis':None,'hints':[],'misconceptions':[],'explanation_quality':None,'feedback':'Fixture feedback','next_action':'Fixture recheck','resolves_assessment_ids':[]}
 
 
 def completed(outcome='independent'):

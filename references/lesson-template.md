@@ -1,4 +1,4 @@
-<!-- contract-version: 1 -->
+<!-- contract-version: 2 -->
 # Lesson template
 
 This owns lesson structure. [Workflow](learning-workflow.md) owns selection/state; [pedagogy](pedagogy.md) owns instruction; [source policy](source-policy.md) owns evidence. Adapt section length to available time rather than copying a long form every day.
@@ -36,3 +36,5 @@ For each source: role, contribution, URL/pin, checked date and status/limits. De
 A separate schema-compatible generated lesson JSON; it records design, not results. All future lifecycle dates null, assessment_ids empty. No score, mastery or actual review event is created by lesson generation. On delivery/attempt/completion persist only observed lifecycle events via workflow. See the [sample](../lessons/boundary-search/lesson.md).
 
 Suggested mode budgets (design heuristics): short 25 = 3 check + 6 model/example + 10 lab + 4 independent + 2 exit; standard 55 = 5 check + 10 model/example + 20 lab + 10 independent + 5 repo + 5 feedback/exit; extended 85 adds 15 deeper transfer and 15 source/experiment. If setup alone exceeds the budget, use an offline trace or split the session.
+
+Store learner-specific artifacts relative to the private state directory, not in public `lessons/`. Pause at diagnostic and task prompts to collect actual answers; a draft may remain conditional.

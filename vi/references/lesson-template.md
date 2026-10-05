@@ -1,4 +1,4 @@
-<!-- contract-version: 1 -->
+<!-- contract-version: 2 -->
 # Mẫu bài học
 
 Bản Việt của [template chính](../../references/lesson-template.md). [Workflow](learning-workflow.md) sở hữu selection/state, [pedagogy](pedagogy.md) sở hữu instruction, [source policy](source-policy.md) sở hữu research. Co giãn theo thời gian, không sao chép form dài mỗi ngày.
@@ -36,3 +36,5 @@ Mỗi nguồn có role, contribution, URL/pin, ngày/status/limits. Prompt recal
 JSON generated theo schema riêng, ghi thiết kế, không ghi kết quả. Ngày lifecycle sau null; assessment_ids rỗng. Generation không sinh điểm/mastery/lượt ôn thật. Giao/thử/hoàn thành chỉ persist sự kiện đã quan sát. Xem [bài mẫu](../lessons/boundary-search/lesson.md).
 
 Ngân sách heuristic: ngắn 25 = 3 check + 6 model/example + 10 lab + 4 independent + 2 exit; tiêu chuẩn 55 = 5 check + 10 model/example + 20 lab + 10 independent + 5 repo + 5 feedback/exit; mở rộng 85 thêm 15 transfer và 15 source/experiment. Setup quá lâu → trace offline hoặc chia phiên.
+
+Lưu artifact riêng relative với thư mục state riêng, không vào public `lessons/`. Dừng ở diagnostic/task để nhận câu trả lời thật; bản nháp có thể giữ điều kiện chưa xác minh.

@@ -1,59 +1,126 @@
-<!-- contract-version: 1 -->
-# Daily workflow and state contract
+<!-- contract-version: 2 -->
+# Daily workflow and private state
 
-This page owns selection, lifecycle, assessment, review scheduling and persistence. [Pedagogy](pedagogy.md) owns instructional design; [source policy](source-policy.md) owns research; [lesson template](lesson-template.md) owns the lesson output. The short [skill](../skills/master-iuh-daily-learning/SKILL.md) dispatches to these contracts. English owns policy; Vietnamese pages translate the same version. JSON schema owns field names/types; this page explains their meaning.
+This owns selection, lifecycle, evidence, review and persistence. [Pedagogy](pedagogy.md)
+owns instruction, [source policy](source-policy.md) owns research and
+[lesson template](lesson-template.md) owns output. The [skill](../skills/master-iuh-daily-learning/SKILL.md)
+implements interaction gates. English owns policy; Vietnamese translates the same contract.
 
-## Before authoring
+## Start and select
 
-1. Read and validate **state/learning-state.json**, the only learner state. Never read the translated ledger as a second history. Inspect pending assigned/in-progress work, completed objectives, evidence and all due/overdue reviews using the learner timezone.
-2. If time, goal, background or tools are unknown, ask briefly. An empty ledger means unknown skill, not beginner or expert. Use 2–3 targeted prerequisite questions or a small task and save the actual answer/evidence. A diagnostic can be an in-progress remediation session linked to the intended topic; do not invent a prior completed lesson.
-3. Offer due retrieval first, with a time budget. A due item stays due until attempted and assessed; opening a lesson never clears it. Use a review-only session when appropriate. A weak prerequisite triggers a bridge/recheck. Resume assigned work instead of producing a duplicate.
-4. Select one next core objective from curriculum facts and the clearly labelled inferred dependencies. Compare a few useful candidates by readiness, goal fit, curriculum value, continuity and practical value. Record why this one won; no arbitrary score pretends to be scientific.
-5. For every candidate compare topic ID **and objective/concepts** with generated, assigned and completed core work. The validator blocks identical core IDs; the tutor must check semantic equivalence. A tag overlap can flag a candidate, never automatically prove a duplicate. Review/remediation intentionally revisit and name `related_to`; deepening must specify a new or harder objective.
-6. Research durable theory and directly relevant implementation guidance. Record the source roles and uncertainty. Technical lessons normally examine one useful repository; choose none when it would distract, with a reason. Research current facts at lesson time, without a fixed “update year.”
-7. Choose short (~25 min), standard (~55 min) or extended (~85 min), then trim to available time. These are editable product defaults. Preserve an independent attempt and feedback; move extra source reading or transfer depth to another session. Never squeeze every section into a tiny day.
+1. Locate the learner's private workspace and validate its state. Inspect due reviews,
+   unfinished assigned work, generated drafts and unresolved assessment IDs.
+2. Ask for unknown goal/time/background/tools/timezone. Empty history means unknown
+   skill. Ask 2–3 targeted prerequisite questions, wait and save the actual response.
+   Diagnostic may be a remediation session linked to the intended topic; do not invent
+   previous completion. If only a draft is requested, mark prerequisite fit conditional.
+3. Offer due retrieval within the time budget. Weak prerequisite → bridge/recheck;
+   assigned/in_progress → resume; generated → inspect and deliver only when appropriate.
+   An unresolved error takes priority over increasing difficulty. Opening content does
+   not clear due work.
+4. Compare a few curriculum objectives by readiness, goal fit, continuity and practical
+   value. Label official relationships versus inferred instructional sequencing. Check
+   IDs and objective/concepts against all core work, including generated drafts.
+   Review/remediation name related topics; deepening needs a changed objective.
+5. Research the smallest relevant source set and implementation slice. Use short
+   (~25), standard (~55) or extended (~85 minute) budgets, trimmed to actual time.
+   Preserve an observable independent attempt and feedback; split setup/extra reading.
 
-`python scripts/learning_state.py plan` returns advisory priorities; it neither chooses curriculum concepts nor certifies prerequisites. `--prerequisite ready/weak` is a tutor input grounded in an observed diagnostic, not automatic inference. Availability flags expose fallback planning, not source verification.
+`plan` is advisory, not a curriculum selector or prerequisite certificate.
+`--prerequisite ready/weak` must reflect observed diagnostic evidence.
+Inspect topic-level unresolved errors even for prerequisite topics that lack a completed lesson.
+An old positive topic never certifies readiness for another objective.
 
-## Canonical state (schema version 1)
+## Private storage and first use
 
-Use [schema](../state/learning-state.schema.json) and `python scripts/learning_state.py validate`. Python 3.12 and pinned development requirements are used in CI. Date-only records use `learner.timezone`; they do not distinguish attempts within one day. No database is needed.
+The only active state defaults to **.learning-private/learning-state.json** (ignored
+by Git), or a selected external `--state` path. Keep authored learner lessons, code
+and evidence under that state's parent, using artifact paths relative to it.
+The public [example](../state/learning-state.example.json) is an empty initialization
+template, not learner progress. Public ledgers are pointers. Never commit real state
+or artifacts to a public repository: excluding them from Pages alone is insufficient.
+Use a durable private workspace with one writer; atomic replacement does not implement
+concurrent-agent locking or backups. Never claim persistence if the host loses files.
 
-| Collection / fields | Meaning |
-|---|---|
-| learner | timezone, time budget, goals, background; null/empty means not yet known |
-| lessons | unique session `id`; stable `topic_id` (`course-slug.concept.depth`); course code, objective, concept tags, prerequisite topics; `kind` core/review/remediation/deepening; related topics; artifact path, review prompts, constraints |
-| lifecycle | generated: artifact exists; assigned: explicitly delivered/accepted; in_progress: learner reports a real attempt; completed: learner finishes the agreed work, with observed task evidence (practice, retrieval, transfer or prerequisite work). Completion can include errors or unassessed work; it is never mastery |
-| assessments | task and actual evidence (response, code path + revision, test output, trace); assessed_by; observed date; outcome needs_support/developing/independent/unassessed; nullable score/basis; hints actually used, misconceptions, nullable explanation quality; corrective feedback and next action |
-| reviews | one ongoing prompt with source completed lesson, initial/current due date, and append-only attempts referencing assessed retrieval/transfer evidence; each attempt keeps scheduled_for, next_due_on and reason |
-
-Leave missing results as null/unassessed. A rubric score needs an explicit basis; independent work cannot have used hints. Agent lab verification is **not** learner evidence. Save learner explanations verbatim or cite their artifact before evaluating them. `assessment.topic_id` can name a prerequisite; that assessment's lesson still names the real session in which it was observed. Save an independent new-context task as `transfer`, not merely a passing code test.
-
-Mastery is derived by the script, never manually assigned: unknown → developing / needs_remediation → provisional independent practice → retained_and_transferred if later independent recall and transfer exist. These are **scoped evidence summaries and conservative design heuristics**, not psychometric estimates. A date later than completion is the minimum observable delay, not an adequate scientific retention horizon. Look at the actual interval, task, rubric and newest contradictory evidence; reassess if old positive evidence is no longer reliable.
-
-## Safe local updates
-
-Install checks with `python -m pip install -r requirements-dev.txt`. Tutor prepares a record using the schema, shows the lesson and records only events actually observed. The CLI validates before replacing the local JSON file atomically; one writer at a time (no concurrent-agent locking).
+From repository root (Python 3.12):
 
 ```bash
+python -m pip install -r requirements-dev.txt
+python scripts/learning_state.py init
 python scripts/learning_state.py validate
 python scripts/learning_state.py plan
+# Set only values actually supplied by the learner:
+python scripts/learning_state.py profile --minutes 25 --goal 'Goal stated by learner'
 python scripts/learning_state.py add lessons /tmp/generated-lesson.json
 python scripts/learning_state.py transition session-id assigned
 python scripts/learning_state.py transition session-id in_progress
 python scripts/learning_state.py add assessments /tmp/observed-assessment.json
 python scripts/learning_state.py transition session-id completed
 python scripts/learning_state.py add reviews /tmp/review-prompt.json
-# After actual retrieval, add its assessment first, then:
-python scripts/learning_state.py review review-id assessment-id --next-due YYYY-MM-DD --reason 'Observed recall; selected interval fits learner goal'
+python scripts/learning_state.py review review-id assessment-id --next-due YYYY-MM-DD --reason 'Observed evidence and retention goal'
 ```
 
-Generated records have all later lifecycle dates null. Assignment/completion are not automatic side effects of adding assessments. Record partial work even when the lesson cannot be completed. Reviews start after completion; for an abandoned/partial lesson use its assessment `next_action` and resume/repair rather than fabricating completed state. Only tutor/learner chooses dates based on evidence: failure → corrective explanation and earlier retry; partial/hinted recall → maintain/reduce gap; independent recall plus transfer → consider a longer gap. No automatic fixed offset, no retroactive backfilling of missed reviews. Add new attempts instead of overwriting history. Do not edit old evidence to improve a score.
+Place global `--state /private/path/learning-state.json` before the subcommand to
+select another learner workspace. `init` never overwrites an existing destination.
+For v1: `python scripts/learning_state.py migrate --from-state /private/old-v1.json`.
+Migration writes a fresh v2 destination, preserves the source and all evidence, and
+adds empty repair links; it never invents that previous errors were repaired.
+For real v1 lessons, also supply `--artifact-root /original/repository-or-workspace`;
+lesson files are copied without overwriting. Preserve referenced code/output revisions
+alongside them and verify evidence references before resuming; free-text evidence links
+are not rewritten automatically.
+Do not delete legacy evidence after migration until its contents have been checked.
 
-Fixtures live under `tests/fixtures/`, explicitly `fixture: true`; CLI needs `--allow-fixture --state ...`. They never replace the canonical real state. The complete sample lesson's unassigned record is outside real state as well. Markdown ledgers are navigation pointers, not stored counters or progress mirrors.
+## Schema version 2 and event meaning
 
-## Feedback and fallback
+[Schema](../state/learning-state.schema.json) owns fields/types.
 
-Classify a gap as missing knowledge, wrong model, execution defect, tool/API misuse or unexamined trade-off. Give feedback tied to the error; ask for correction and a fresh attempt. Reduce scaffolding when independent delayed evidence supports it. Increase ambiguity/depth or move to a new prerequisite-safe objective; never increase difficulty merely because a lesson was completed.
+| Collection | Meaning |
+|---|---|
+| learner | timezone, minutes, goals, background; empty/null means unknown |
+| lessons | unique session, stable topic/course/objective/concepts, prerequisites, related topics, private artifact path, review hooks and constraints |
+| lifecycle | generated: artifact exists; assigned: delivered/accepted; in_progress: actual attempt; completed: agreed work finished with observed practice/retrieval/transfer/prerequisite evidence. Errors or unassessed work can coexist with completion |
+| assessments | actual response/code revision/output/trace, assessor, date, outcome, nullable score/basis, hints, misconceptions, explanation, feedback and next action; resolves_assessment_ids explicitly links repaired needs_support observations |
+| reviews | completed source lesson, prompt, initial/current due and append-only attempts; each keeps assessment ID, previous scheduled date, next due and rationale |
 
-If a source is inaccessible: mark unavailable, use an already verified pinned source for stable claims, or defer changing claims. If a lab cannot run: offer an offline trace/small equivalent, record the environmental limit and do not call it executed. If time runs out: keep in_progress; split the lab without awarding mastery. If the state is invalid: stop writing it and repair with evidence/history intact; do not silently reset progress.
+Preserve responses verbatim or cite an immutable artifact revision. Agent test runs
+are not learner attempts. Unknown results stay unassessed/null. Numeric scores need
+a rubric basis. Hinted/copied work is not independent. Save changed-context work as
+transfer only when its task truly changes the context.
+
+Dates use learner timezone. Assessment array order breaks ties within a day; append
+new observations and never reorder old ones. Same-day correction is allowed but does
+not establish delayed retention. Review observations must follow source completion;
+next due may equal observation date for an immediate retry, keeping the item due.
+Keep retry attempts in order and record early/late scheduling decisions honestly.
+
+## Evidence and repair
+
+Every needs_support observation remains unresolved until a later independent,
+non-exit assessment on the same topic explicitly lists it in resolves_assessment_ids.
+Tutor must establish that the new task addresses the same error with a fresh case;
+same-topic linkage alone cannot prove relevance. Unrelated exit answers, partial work,
+or absence of a new error do not resolve it. Retain both original and repair evidence.
+
+The summary is conservative and scoped: unknown → developing/needs_remediation →
+provisional independent practice → retained_and_transferred when independent recall
+and transfer occur after completion, with no unresolved errors. Read actual interval,
+difficulty, explanation and hints. One later date is only minimum observable delay,
+not a scientifically sufficient retention horizon. `plan --on YYYY-MM-DD` projects
+recorded lifecycle/review events through that date; it is not a full historical audit
+of profile edits or when a review was originally created.
+
+## Feedback, scheduling and recovery
+
+Give feedback after a real attempt, identify knowledge/model/execution/tool/trade-off
+gaps and request correction plus a fresh case. Schedule reviews after completion;
+for partial sessions preserve assessments/next_action and resume without inventing
+completion. Failure → correction and an earlier retry; assisted recall → shorter or
+maintained gap; independent delayed recall/transfer → consider a longer gap according
+to the retention goal. No universal fixed offsets or fabricated missed attempts.
+
+Fixtures require explicit `fixture:true`, `--allow-fixture` and a separate path;
+they never enter real progress. Sample artifacts remain public design examples.
+Inaccessible source → mark status/use verified stable material/defer. Unrun lab →
+paper trace or local equivalent with limits. Time exhausted → keep in_progress.
+Invalid state → preserve it and repair with evidence intact; never silently reset.

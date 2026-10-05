@@ -63,3 +63,5 @@ All links attempted on 2026-10-05; DOI full text unavailable in this environment
 7. Treat GitHub stars as discovery metadata, not an outcome or quality score. Pin the smallest relevant implementation/test slice, inspect its behavior and record what was actually verified.
 
 Policies implementing these choices: [pedagogy](../references/pedagogy.md), [workflow and state contract](../references/learning-workflow.md), [source policy](../references/source-policy.md), [sample lesson](../lessons/boundary-search/lesson.md).
+
+Additional directly read source: [runtime design review](runtime-design-review.md) records the IES/WWC 2007 practice guide and its evidence ratings. Earlier inaccessible candidate papers remain unverified; access to the new guide does not establish that they were read.

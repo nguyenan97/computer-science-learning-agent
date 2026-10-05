@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "fixture": true,
   "learner": {
     "timezone": "Asia/Bangkok",
@@ -67,7 +67,8 @@
       "misconceptions": [],
       "explanation_quality": null,
       "feedback": "Fixture feedback",
-      "next_action": "Fixture recheck"
+      "next_action": "Fixture recheck",
+      "resolves_assessment_ids": []
     }
   ],
   "reviews": []

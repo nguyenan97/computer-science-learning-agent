@@ -13,6 +13,7 @@
   - [Review repo](/vi/research/repository-review)
   - [Bài học mẫu](/vi/lessons/boundary-search/lesson)
   - [Kết quả kiểm chứng](/vi/research/verification)
+  - [Thiết kế runtime và skill](/vi/research/runtime-design-review)
 
 - **Chương trình IUH**
   - [Thạc sĩ Khoa học Máy tính](/vi/curricula/iuh/master/curriculum)

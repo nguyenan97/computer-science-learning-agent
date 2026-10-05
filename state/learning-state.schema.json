@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/csla/learning-state-v1.schema.json",
+  "$id": "https://example.invalid/csla/learning-state-v2.schema.json",
   "type": "object",
   "additionalProperties": false,
   "properties": {
     "schema_version": {
-      "const": 1
+      "const": 2
     },
     "fixture": {
       "type": "boolean"
@@ -294,6 +294,14 @@
           "next_action": {
             "type": "string",
             "minLength": 1
+          },
+          "resolves_assessment_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
           }
         },
         "required": [
@@ -312,7 +320,8 @@
           "misconceptions",
           "explanation_quality",
           "feedback",
-          "next_action"
+          "next_action",
+          "resolves_assessment_ids"
         ]
       }
     },

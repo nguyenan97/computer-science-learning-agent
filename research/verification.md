@@ -1,44 +1,65 @@
 # Verification and remaining limitations
 
-Checked locally **2026-10-05**, Python **3.12.14**, jsonschema **4.26.0**. No deployment/publication, learner assessment or upstream CPython build was performed. The real state remains empty; sample record is generated outside it; synthetic low-result data is marked `fixture:true`.
+Runtime refactor checked locally **2026-10-05**, Python **3.12.14**, jsonschema
+**4.26.0**, PyYAML **6.0.3**. All walkthroughs use synthetic data in temporary workspaces; no actual
+learner history was created. These changes have not been pushed, merged or deployed.
+The earlier main commit had successful GitHub checks and a Pages deployment; that
+is separate from verification of this refactor.
 
-## Results
+## Current results
 
 | Check | Result / scope |
 |---|---|
-| `python scripts/generate_curriculum_map.py --check` | English/Vietnamese maps unchanged and up to date; generated files were not manually edited |
-| `python scripts/validate_docs_navigation.py` | Bilingual Docsify route mirrors and navbar/hash-routing contract pass |
-| `python scripts/learning_state.py validate` | Empty canonical version-1 state valid, no invented progress |
-| `python scripts/learning_state.py plan` | Diagnostic action, no due reviews, no pending work, unknown time budget |
-| `python scripts/validate_learning.py` | Real/fixture isolation, schema/semantic invariants, contract versions, sample sections, pinned targets/artifact paths and local Markdown links pass |
-| `python -m unittest discover -s tests -v` | 14 behavioral tests pass; synthetic only, including lifecycle/CLI rejection, delayed evidence and review history |
-| `python check.py --module mentor/solution.py --stage all` in lab | 3 tests pass: 1,260 small sorted-multiset/target cases, 18 large/access-budget cases and independent half-open-window cases; tests also check input preservation and reject slicing in the counted search |
-| `python observe.py` in lab | n=8/1024/65536: insertion indices 4/512/32768 and element reads 3/10/16; duplicate target index=1, missing target index=3 |
-| Pinned-source content | Four CPython source/test/doc/license downloads at resolved SHA match hashes of read release files |
+| Curriculum generator --check | EN/VI maps unchanged and up to date |
+| Docsify navigation | Route mirrors, navbar and hash routing pass |
+| Learning validator | Empty public v2 template, fixture isolation, semantic checks, matching contract versions, skill metadata/eval identifiers, sample artifacts and local links pass; rejects tracked private workspace |
+| Unittest discover | 27 behavioral tests pass, all synthetic |
+| Reference lab --stage all | 4 tests pass, including partition/search budget, window edge cases, input preservation and logarithmic window access |
+| Observer | n=8/1024/65536: indices 4/512/32768, reads 3/10/16; duplicate index 1, missing index 3 |
+| OpenAI skill-creator quick_validate | Skill frontmatter/name/description valid; this is structural, not a model-behavior evaluation |
+| Public-site builder | Stages public documentation/template/fixed sample; planted synthetic private state, legacy state and extra learner lesson excluded; symlink-based public inclusion rejected |
+| Diff whitespace | git diff --check passes |
 
-The starter intentionally contains TODO/NotImplementedError. Mentor-solution verification proves the reference exercise is runnable; it cannot establish learner success. The observer counts element accesses, not time or production speedup. No CI run on GitHub is claimed; the new workflow contains the same local gates and existing workflows remain present.
+Regression tests cover: an unrelated developing exit cannot erase needs_support;
+only valid explicit independent non-exit repair links resolve errors; unresolved
+prerequisite topics remain visible without a completed lesson; generated drafts are
+reused; lifecycle and review dates project through an earlier day; same-day failed
+review/retry retains order and true dates; linear or mutating challenge implementations
+are rejected; initialization never overwrites; invalid changes preserve file bytes;
+real artifact paths cannot escape the workspace; v1 migration preserves original
+bytes, keeps errors unresolved and copies lesson files from an explicit artifact root.
 
-## Required scenario coverage
+The seven-day synthetic CLI walkthrough executes generated → assigned → in_progress
+→ practice → completed → scheduled review → failed recall → same-day repair → delayed
+recall/transfer. It preserves three actual simulated review attempts and the original
+scheduled date. This proves script interoperability for the scenario, not learning.
 
-| Scenario | Observed expected behavior in synthetic tests |
-|---|---|
-| New learner / no history | Diagnostic, no inferred expertise/mastery |
-| Assigned but not attempted | Resume; status cannot jump to completed; mastery unknown |
-| Weak prerequisite | Bridge and recheck rather than new core topic |
-| Overdue review | Remains due until evidence-bearing review; old scheduled date preserved; next date must follow observation |
-| Low result | Completion permitted with real practice evidence, but remediation recommended and mastery not awarded |
-| Independent learner ready for more | Same-day evidence provisional; later unaided recall plus transfer supports deeper variation; newer failed/partial evidence can reduce confidence |
-| Inaccessible source / cannot run lab | Fallback flagged; offline trace/local equivalent or deferral, limitations retained; no fabricated execution |
+## Research and behavioral limits
 
-Extra negative checks reject fixture-as-real state, missing reciprocal assessment links, completion without practice, scores lacking a basis, hinted work labelled independent, duplicate core IDs and inconsistent review history. The CLI smoke test validates add/assign/start/evidence/complete/review/reschedule on a temporary fixture; a rejected completion leaves the saved bytes unchanged. Planning as of an earlier date excludes future assessment evidence.
+The [runtime design review](runtime-design-review.md) and [source log](runtime-source-checks.json)
+record Agent Skills/OpenAI engineering guidance and directly read IES/WWC practice-guide
+sections. The earlier Deans for Impact/Carpentries source checks remain historical
+records; inaccessible candidate primary papers are still not independently verified.
+No effect size, universal spacing schedule, token saving or learner improvement is claimed.
 
-## Limits and follow-up
+Six [skill evaluation specifications](../skills/master-iuh-daily-learning/evals/cases.json)
+cover cold start, interrupted drafts, contradictory evidence, same-day correction,
+offline short sessions and draft-only requests. They have not been run as isolated
+model trials against a baseline. Deterministic state tests do not prove tutor adherence.
 
-- **Primary learning-science papers were inaccessible through the restricted proxy.** Twelve DOI candidates were attempted and logged unavailable. The accessible Deans for Impact PDF and Carpentries teaching sections were directly read, but this is not independent full-text verification of those meta-analyses. Productive-failure/mastery guidance is provisional. Follow the source log to complete scholarly verification with authorized access; no precision effect claims were added.
-- GitHub API was inaccessible. Stars/archived/default-branch SHA and latest observed commit time were read from GitHub HTML/commit pages. Historical release pin and raw content were verified; no newest-release/support assertion or quantified downstream-adoption study was made.
-- Schema/evidence checks cannot prove that a human actually authored an artifact or that a rubric judgment is correct. Semantic duplication and translation meaning require tutor/reviewer judgment; version checks detect structural drift only.
-- Dates have day granularity; same-day review ordering is not modeled. A later day is only a minimum delay, not proof of long-term mastery. There is no validated psychometric model, automatic decay or universally optimal review scheduler. Human judgment chooses intervals with explicit reasons.
-- Local state uses atomic replacement and one writer; concurrent edits need coordination. History is append-oriented through the CLI, but manual editing remains possible. Preserve learner artifacts/revisions and review history when editing records.
-- No original curriculum PDF, live IUH regulations, interactive browser rendering, cloud/SQL/.NET lab or upstream CPython test suite was verified. The sample is deliberately a standard-library Python equivalent; docs distinguish this from an upstream build.
+Dates are day-granularity with append order within a day; no intra-day retention
+interval is inferred. Plan projections are not a historical audit of profile changes
+or review creation time. The evidence summary is a conservative heuristic, not a
+validated psychometric model; tutor must assess repair relevance, difficulty,
+explanation, independence and semantic duplication.
 
-Daily usage: ask for a time-bounded lesson → validate/read state and due work → diagnostic → choose/research one objective or repair/review → predict/run/explain lab → submit independent artifact and feedback → persist observed lifecycle/evidence → choose/reassess delayed review. See [workflow](../references/learning-workflow.md) and [sample](../lessons/boundary-search/lesson.md).
+Private files are Git-ignored, not encrypted. Do not force-add learner data to a public
+repository. One-writer coordination, durable storage and backups remain host tasks.
+Migration preserves free-text evidence references without rewriting them; keep their
+code/output revisions and check links before resuming.
+
+Translation checks are structural; bilingual semantic review is still required.
+Original curriculum PDFs/current IUH regulations, full upstream CPython tests,
+SQL/.NET/cloud labs, interactive browser rendering and real learner retention were
+not verified in this refactor. The starter remains intentionally unfinished, and
+mentor solutions are separated by tutoring convention rather than access control.

@@ -1,59 +1,112 @@
-<!-- contract-version: 1 -->
-# Workflow hằng ngày và contract trạng thái
+<!-- contract-version: 2 -->
+# Workflow hằng ngày và state riêng
 
-Trang này là bản Việt của [policy chính](../../references/learning-workflow.md), sở hữu cách chọn bài, lifecycle, đánh giá, lịch ôn và persistence. [Pedagogy](pedagogy.md) sở hữu thiết kế dạy học; [source policy](source-policy.md) sở hữu nghiên cứu; [template](lesson-template.md) sở hữu đầu ra. SKILL chỉ điều phối. Schema JSON sở hữu tên và kiểu field; không tạo schema hay ledger riêng bằng tiếng Việt.
+Bản dịch [policy chính](../../references/learning-workflow.md). Trang này sở hữu selection,
+lifecycle, evidence, lịch ôn và persistence; pedagogy/source policy/template sở hữu
+thiết kế dạy học/nguồn/đầu ra. Skill điều phối theo từng chặng tương tác.
 
-## Trước khi soạn bài
+## Bắt đầu và chọn bài
 
-1. Đọc và validate **state/learning-state.json**, nguồn trạng thái duy nhất. Xem bài đã giao/đang làm, mục tiêu đã hoàn thành, bằng chứng và tất cả lượt ôn đến/quá hạn theo timezone người học.
-2. Hỏi ngắn về thời gian, mục tiêu, nền tảng và công cụ nếu chưa biết. Ledger trống nghĩa là chưa biết trình độ, không đồng nghĩa mới bắt đầu hay chuyên gia. Thu 2–3 câu trả lời prerequisite hoặc bài tập nhỏ; lưu câu trả lời thật. Diagnostic có thể nằm trong phiên remediation đang làm, nối với chủ đề dự kiến, không bịa bài trước đã hoàn thành.
-3. Ưu tiên retrieval đến hạn trong ngân sách thời gian; có thể chỉ ôn hôm nay. Một lượt vẫn đến hạn cho tới khi đã thử và đánh giá. Prerequisite yếu → bridge và kiểm tra lại. Bài đã giao → tiếp tục, không sinh bản trùng.
-4. Chọn một mục tiêu core từ curriculum và quan hệ suy luận được ghi nhãn riêng. So sánh vài ứng viên theo readiness, mục tiêu, giá trị curriculum/thực hành và mạch nối; ghi lý do chọn, không coi điểm heuristic là khoa học.
-5. Kiểm tra cả topic ID lẫn mục tiêu/concepts với bài core đã tạo, đã giao và hoàn thành. Validator chặn core trùng ID; người hướng dẫn vẫn phải kiểm tra semantic duplicate. Độ trùng tag chỉ là dấu hiệu. Review/remediation nêu `related_to`; deepening phải nêu mục tiêu mới hoặc yêu cầu khó hơn.
-6. Research lý thuyết nền và hướng dẫn triển khai liên quan trực tiếp, ghi vai trò và mức xác minh. Bài kỹ thuật thường chỉ cần một repo; có thể không dùng khi không giúp mục tiêu, kèm lý do. Kiểm tra fact thay đổi tại thời điểm học, không gắn năm cố định.
-7. Chọn chế độ ngắn (~25 phút), tiêu chuẩn (~55), mở rộng (~85), rồi điều chỉnh theo thời gian thật. Đây là mặc định sản phẩm. Giữ một lần thử độc lập và feedback; dời đọc sâu/lab dài sang ngày khác nếu cần.
+1. Chọn workspace riêng và validate state. Xem ôn đến hạn, bài đã giao/đang làm,
+   bản generated chưa giao và ID assessment lỗi chưa giải quyết.
+2. Hỏi ngắn mục tiêu/time/background/tools/timezone chưa biết. State trống nghĩa là
+   chưa biết trình độ. Hỏi 2–3 task prerequisite, chờ câu trả lời và lưu response thật.
+   Diagnostic có thể nằm trong phiên remediation; không bịa completion trước đó.
+   Nếu chỉ yêu cầu soạn nháp, ghi prerequisite fit có điều kiện.
+3. Ưu tiên retrieval đến hạn trong time budget. Prerequisite yếu → bridge/recheck;
+   assigned/in_progress → tiếp tục; generated → xem lại rồi giao khi phù hợp.
+   Lỗi chưa sửa phải được xử lý trước tăng khó. Mở nội dung không xóa due.
+4. So sánh vài mục tiêu curriculum theo readiness, goal fit, continuity và giá trị
+   thực hành. Tách quan hệ official và suy luận. Kiểm ID cùng nghĩa objective/concepts
+   với mọi bài core, kể cả generated. Review/remediation nêu related_to; deepening
+   có mục tiêu thực sự thay đổi.
+5. Research bộ nguồn/lát cắt nhỏ. Mode ~25/55/85 phút chỉ là thiết kế, điều chỉnh theo
+   time thật; giữ attempt quan sát được và feedback, chia setup/đọc sâu khi cần.
 
-`python scripts/learning_state.py plan` chỉ gợi ý ưu tiên, không chọn concept hay chứng nhận prerequisite. `--prerequisite ready/weak` phải dựa trên diagnostic đã quan sát. Flag nguồn/lab không truy cập được chỉ hỗ trợ chọn fallback.
+`plan` chỉ gợi ý, không chọn curriculum hoặc chứng nhận prerequisite. Flag ready/weak
+phải từ diagnostic thật. Xem lỗi của cả prerequisite topic chưa có bài completed.
+Bằng chứng tốt của topic cũ không chứng nhận sẵn sàng cho topic khác.
 
-## Trạng thái canonical, schema version 1
+## Workspace riêng và lần đầu
 
-[Schema](../../state/learning-state.schema.json), Python 3.12 và requirements kiểm tra được ghim. Ngày dùng `learner.timezone`; schema theo ngày chưa phân biệt thứ tự trong cùng một ngày. Không cần database.
+State hoạt động duy nhất mặc định **.learning-private/learning-state.json**, được Git
+ignore, hoặc đường dẫn ngoài repo chọn bằng `--state`. Bài riêng/code/evidence nằm
+cùng workspace; artifact relative với thư mục chứa state. [Example công khai](../../state/learning-state.example.json)
+chỉ là mẫu khởi tạo trống. Ledger là pointer. Không commit tiến độ/bài làm thật vào
+repo công khai; loại khỏi Pages không bảo vệ dữ liệu đã push lên GitHub.
 
-| Collection/field | Ý nghĩa |
-|---|---|
-| learner | timezone, số phút, mục tiêu, nền tảng; null/rỗng là chưa biết |
-| lessons | session ID duy nhất, topic ID ổn định (`course-slug.concept.depth`), course code, objective, concepts, prerequisites; kind core/review/remediation/deepening; related_to; artifact, review_prompts, constraints |
-| lifecycle | generated: bài tồn tại; assigned: đã giao/chấp nhận; in_progress: người học báo đã thử thật; completed: hoàn tất phần việc đã thống nhất và có bằng chứng task (practice, retrieval, transfer hoặc prerequisite). Vẫn có thể sai/chưa chấm; completion không phải mastery |
-| assessments | task, bằng chứng thật (câu trả lời, file + revision, output, trace), người đánh giá/ngày quan sát; outcome needs_support/developing/independent/unassessed; score/basis nullable; hint thực sự dùng, misconception, chất lượng giải thích nullable; feedback và next_action |
-| reviews | prompt nối bài gốc đã hoàn thành, ngày hẹn đầu/hiện tại, từng attempt nối assessment retrieval/transfer; giữ scheduled_for, next_due_on và lý do |
+Dùng workspace bền vững, một writer. Atomic replacement chưa là locking/backup.
+Nếu host không giữ file qua phiên, nói rõ chưa có persistence.
 
-Chưa biết kết quả → null/unassessed. Điểm cần cơ sở rubric rõ; dùng hint không tính independent. Agent chạy lab không phải bằng chứng người học. Giữ lời giải thích nguyên văn hoặc trỏ artifact trước khi chấm. Assessment có thể ghi topic prerequisite; lesson_id vẫn là phiên thật nơi diagnostic diễn ra. Task đổi ngữ cảnh dùng kind transfer, không tự coi mọi test pass là transfer.
-
-Script suy ra mức bằng chứng, không ghi mastery thủ công: unknown → developing/needs_remediation → provisional khi thực hành độc lập → retained_and_transferred khi có recall và transfer độc lập ở ngày sau. Đây là heuristic thận trọng theo mục tiêu, không phải ước lượng tâm trắc. Một ngày sau chỉ là độ trễ tối thiểu quan sát được, không chứng minh nhớ bền vững; xem khoảng cách thật, độ khó, rubric và bằng chứng trái chiều mới nhất.
-
-## Ghi dữ liệu cục bộ
+Từ repo root, Python 3.12:
 
 ```bash
 python -m pip install -r requirements-dev.txt
+python scripts/learning_state.py init
 python scripts/learning_state.py validate
 python scripts/learning_state.py plan
+# Chỉ ghi giá trị người học đã cung cấp:
+python scripts/learning_state.py profile --minutes 25 --goal 'Mục tiêu người học nêu'
 python scripts/learning_state.py add lessons /tmp/generated-lesson.json
 python scripts/learning_state.py transition session-id assigned
 python scripts/learning_state.py transition session-id in_progress
 python scripts/learning_state.py add assessments /tmp/observed-assessment.json
 python scripts/learning_state.py transition session-id completed
 python scripts/learning_state.py add reviews /tmp/review-prompt.json
-python scripts/learning_state.py review review-id assessment-id --next-due YYYY-MM-DD --reason 'Kết quả recall thực tế và mục tiêu lưu giữ'
+python scripts/learning_state.py review review-id assessment-id --next-due YYYY-MM-DD --reason 'Bằng chứng thật và mục tiêu lưu giữ'
 ```
 
-Người hướng dẫn chuẩn bị JSON theo schema; chỉ ghi sự kiện đã quan sát. CLI validate trước khi thay file atomically; chỉ một writer, chưa hỗ trợ khóa nhiều agent. Record generated có ngày lifecycle sau null, assessment_ids rỗng. Thêm assessment không tự hoàn thành bài. Lưu cả bài dở; nếu chưa hoàn thành thì dùng next_action và tiếp tục/sửa lỗi, không bịa lịch ôn từ bài đã hoàn thành.
+Global `--state /private/path/learning-state.json` đứng trước subcommand. `init`
+không ghi đè. Migrate v1: `python scripts/learning_state.py migrate --from-state /private/old-v1.json`.
+Đích v2 phải mới; giữ nguyên nguồn/lịch sử, thêm repair links rỗng, không tự suy lỗi
+đã sửa. Kiểm nội dung trước khi bỏ bản cũ.
+Nếu v1 có bài thật, thêm `--artifact-root /original/repository-or-workspace`; copy
+lesson files không ghi đè. Giữ code/output revisions tham chiếu cùng workspace và kiểm
+evidence links trước resume; tham chiếu free-text không được tự viết lại.
 
-Tạo lịch ôn sau completion; chỉ cập nhật khi đã có assessment thật: sai → sửa misconception và retry sớm hơn; dùng hint/chưa ổn → giữ hoặc giảm khoảng cách; độc lập và transfer tốt → cân nhắc tăng khoảng cách theo mục tiêu. Không tự áp lịch cố định hay điền các lượt đã bỏ lỡ. Thêm attempt, không ghi đè lịch sử hay sửa điểm cũ để đẹp hơn.
+## Schema version 2 và ý nghĩa sự kiện
 
-Fixture trong tests/fixtures có `fixture:true`, chỉ dùng CLI với `--allow-fixture --state ...`. Bài mẫu chưa giao cũng nằm ngoài trạng thái thật. Ledger Markdown chỉ là trang điều hướng, không có counter/history riêng.
+[Schema](../../state/learning-state.schema.json) sở hữu tên/kiểu field.
 
-## Feedback và fallback
+| Collection | Ý nghĩa |
+|---|---|
+| learner | timezone, minutes, goals, background; null/rỗng là chưa biết |
+| lessons | session duy nhất, topic/course/objective/concepts ổn định, prerequisites/related_to, private artifact, review hooks và constraints |
+| lifecycle | generated: artifact tồn tại; assigned: đã giao/chấp nhận; in_progress: attempt thật; completed: xong phần việc thống nhất, có practice/retrieval/transfer/prerequisite evidence. Có thể còn sai/chưa chấm |
+| assessments | response/code revision/output/trace thật, người chấm/ngày/outcome, score/basis nullable, hints/misconceptions/explanation/feedback/next_action; resolves_assessment_ids nối observation needs_support đã sửa |
+| reviews | bài gốc completed, prompt, due đầu/hiện tại, attempts append-only; giữ assessment ID, ngày đã hẹn, next due và reason |
 
-Phân loại thiếu kiến thức, mental model sai, lỗi thực thi, dùng sai tool/API hoặc thiếu trade-off. Feedback gắn lỗi, yêu cầu sửa và thử case mới. Chỉ giảm scaffolding/tăng khó theo bằng chứng độc lập có độ trễ, không chỉ vì completion.
+Lưu lời giải nguyên văn hoặc artifact revision bất biến. Agent chạy test không phải
+attempt người học. Chưa biết → unassessed/null; score cần rubric; hinted/copied không
+independent. Chỉ dùng transfer khi task thực sự đổi ngữ cảnh.
 
-Nguồn không truy cập được → ghi unavailable, dùng nguồn ghim đã xác minh cho fact ổn định hoặc dời claim thay đổi. Lab không chạy → trace offline/bản nhỏ tương đương, ghi giới hạn, không nói đã chạy. Hết thời gian → giữ in_progress và chia lab. State invalid → dừng ghi và sửa với lịch sử còn nguyên, không reset âm thầm.
+Ngày theo timezone. Thứ tự assessment array phân biệt attempt cùng ngày; append,
+không reorder lịch sử. Sửa cùng ngày được phép nhưng không là delayed retention.
+Review phải sau completion gốc; next due có thể bằng ngày quan sát để retry ngay,
+khi đó item vẫn due. Giữ thứ tự và ghi quyết định làm sớm/muộn thật.
+
+## Bằng chứng và sửa lỗi
+
+Mỗi needs_support còn unresolved tới khi một assessment independent, non-exit,
+sau đó trên cùng topic ghi rõ ID trong resolves_assessment_ids. Tutor phải kiểm task
+mới sửa đúng lỗi bằng case mới; cùng topic thôi không chứng minh liên quan. Exit
+không liên quan, partial hoặc không có lỗi mới không xóa lỗi cũ. Giữ cả evidence gốc/sửa.
+
+Summary theo mục tiêu: unknown → developing/needs_remediation → provisional practice
+độc lập → retained_and_transferred khi recall/transfer độc lập sau completion và không
+lỗi unresolved. Xem interval, difficulty, explanation, hint; ngày sau chỉ là độ trễ tối
+thiểu quan sát, không chứng minh retention horizon đủ. `plan --on` chiếu lifecycle/
+review events tới ngày chọn, chưa là audit lịch sử profile edits hoặc ngày tạo review.
+
+## Feedback, lịch ôn và recovery
+
+Feedback sau attempt thật; phân loại knowledge/model/execution/tool/trade-off, yêu cầu
+sửa và case mới. Tạo ôn sau completion; phiên partial giữ assessment/next_action rồi
+resume, không bịa completion. Sai → correction/retry sớm; assisted → giữ/giảm gap;
+recall/transfer độc lập sau delay → cân nhắc tăng theo retention goal. Không lịch offset
+phổ quát hay bịa các lần bỏ lỡ.
+
+Fixture cần fixture:true, --allow-fixture và path riêng, không vào progress thật.
+Sample công khai là thiết kế. Nguồn unavailable → ghi rõ/dùng stable verified/defer;
+lab chưa chạy → trace/equivalent và limits; hết giờ → in_progress; state invalid →
+giữ nguyên, sửa theo evidence, không reset âm thầm.

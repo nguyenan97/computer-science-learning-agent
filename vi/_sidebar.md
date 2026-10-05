@@ -20,4 +20,4 @@
   - [Tiến sĩ Khoa học Máy tính](/vi/curricula/iuh/phd/curriculum)
 
 - **Bài học hằng ngày**
-  - [Bài 01: Big-O và cấu trúc dữ liệu](/vi/lessons/2026-10-05-cost-model/lesson)
+  - [Bài 01: Big-O với C#](/vi/lessons/2026-10-05-cost-model/lesson)

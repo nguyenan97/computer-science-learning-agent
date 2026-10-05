@@ -23,3 +23,25 @@ jobs:
       - name: Verify published Lesson 01 lab (not learner work)
         working-directory: labs/cost-model
         run: python check.py --module solution.py
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.401'
+      - name: Verify C# lesson and benchmark harness (not learner work)
+        working-directory: labs/cost-model/dotnet
+        run: |
+          dotnet run -c Release --project LessonLab -- --check
+          dotnet run -c Release --project Benchmarks -- --filter '*DedupeBenchmarks*' --job dry
+      - name: Install browser check dependencies
+        run: |
+          python -m pip install playwright==1.62.0
+          python -m playwright install --with-deps chromium
+      - name: Verify rendered lesson links and language switching
+        run: |
+          python scripts/build_public_site.py --output .site-build
+          python scripts/check_lesson_site.py --site .site-build
+      - name: Verify the downloadable lab without a checkout
+        run: |
+          python -m zipfile -e .site-build/labs/cost-model/dotnet-lab.zip /tmp/lesson01-download
+          cd /tmp/lesson01-download/dotnet
+          dotnet run -c Release --project LessonLab -- --check
+          dotnet build -c Release Benchmarks

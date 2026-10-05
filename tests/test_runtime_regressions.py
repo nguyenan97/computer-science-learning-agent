@@ -191,7 +191,7 @@ class PublicSiteTests(unittest.TestCase):
             for name in ('.learning-private','.git','tests','scripts','.github'):
                 self.assertFalse((out/name).exists())
             self.assertFalse((out/'lessons/private/lesson.md').exists())
-            self.assertFalse(any('SYNTHETIC_PRIVATE_MARKER' in p.read_text() for p in out.rglob('*') if p.is_file()))
+            self.assertFalse(any(b'SYNTHETIC_PRIVATE_MARKER' in p.read_bytes() for p in out.rglob('*') if p.is_file()))
             with self.assertRaises(ValueError):builder.build(source,out)
             (source/'index.html').unlink();(source/'index.html').symlink_to(source/'.learning-private/learning-state.json')
             with self.assertRaises(ValueError):builder.build(source,Path(directory)/'symlink-site')

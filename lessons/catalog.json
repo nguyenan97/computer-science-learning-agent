@@ -4,8 +4,8 @@
       "id": "2026-10-05-cost-model",
       "date": "2026-10-05",
       "title": {
-        "vi": "Bài 01 — Big-O và cấu trúc dữ liệu",
-        "en": "Lesson 01 — Big-O and data structures"
+        "vi": "Bài 01 — Big-O và khử trùng bằng C#",
+        "en": "Lesson 01 — Big-O and stable deduplication in C#"
       },
       "files": [
         "lessons/2026-10-05-cost-model/lesson.md",
@@ -16,7 +16,19 @@
         "labs/cost-model/check.py",
         "lessons/2026-10-05-cost-model/sources.json",
         "lessons/2026-10-05-cost-model/agent-observations.txt",
-        "lessons/2026-10-05-cost-model/agent-checks.txt"
+        "lessons/2026-10-05-cost-model/agent-checks.txt",
+        "lessons/2026-10-05-cost-model/benchmark-report.md",
+        "lessons/2026-10-05-cost-model/benchmark-run.txt",
+        "labs/cost-model/dotnet/global.json",
+        "labs/cost-model/dotnet/README.md",
+        "labs/cost-model/dotnet/README.vi.md",
+        "labs/cost-model/dotnet/Core/Core.csproj",
+        "labs/cost-model/dotnet/Core/Deduplication.cs",
+        "labs/cost-model/dotnet/LessonLab/LessonLab.csproj",
+        "labs/cost-model/dotnet/LessonLab/Program.cs",
+        "labs/cost-model/dotnet/LessonLab/Checks.cs",
+        "labs/cost-model/dotnet/Benchmarks/Benchmarks.csproj",
+        "labs/cost-model/dotnet/Benchmarks/Program.cs"
       ]
     }
   ]

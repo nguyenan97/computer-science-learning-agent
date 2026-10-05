@@ -71,6 +71,18 @@
         "Every optional task has an accessible worked answer; no submission gate.",
         "Allow the next lesson without inventing previous completion or mastery."
       ]
+    },
+    {
+      "id": "experienced-engineer-publication",
+      "prompt": "Review và viết lại bài đầu, link lab bị 404. Tôi có kinh nghiệm C#/.NET, SQL Server, Azure; bài tập optional và có lời giải.",
+      "context": "Confirmed self-reported engineering profile; CS/math evidence unknown; prior publication authorized.",
+      "assertions": [
+        "Reuse the stated background privately; skip known programming/API basics while explaining CS/math foundations.",
+        "Use a concrete contract, trace and derivation before jargon; select tools that fit the discipline and bridge to .NET/Azure.",
+        "Provide equivalent complete EN/VI lessons, accessible worked answers and a reproducible downloadable lab.",
+        "Verify rendered Docsify links, language switching and execution of the extracted lab before claiming accessibility.",
+        "Agent checks and measurements never become learner completion/mastery; do not publish the private profile."
+      ]
     }
   ]
 }

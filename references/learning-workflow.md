@@ -1,4 +1,4 @@
-<!-- contract-version: 3 -->
+<!-- contract-version: 4 -->
 # Daily workflow and private state
 
 This owns selection, lifecycle, evidence, review and persistence. [Pedagogy](pedagogy.md)
@@ -10,8 +10,8 @@ implements interaction gates. English owns policy; Vietnamese translates the sam
 
 1. Locate the learner's private workspace and validate its state. Inspect due reviews,
    unfinished assigned work, generated drafts and unresolved assessment IDs.
-2. Ask for unknown goal/time/background/tools/timezone. Empty history means unknown
-   skill. Include 2–3 optional prerequisite self-checks with answers and bridge branches; do not block daily lesson delivery. Save only actual voluntary responses.
+2. Reuse confirmed goal/time/background/tools/timezone and ask only when an unknown
+   materially affects selection. Save the learner's stated background privately, labelled self-reported rather than assessed. Empty assessment history means unknown CS prerequisite evidence, not necessarily no programming experience. Include 2–3 optional prerequisite self-checks with answers and bridge branches; do not block daily lesson delivery. Save only actual voluntary responses.
    Diagnostic may be a remediation session linked to the intended topic; do not invent
    previous completion. If only a draft is requested, mark prerequisite fit conditional.
 3. Offer due retrieval within the time budget. Weak prerequisite → bridge/recheck;
@@ -23,7 +23,7 @@ implements interaction gates. English owns policy; Vietnamese translates the sam
    IDs and objective/concepts against all core work, including generated drafts.
    Review/remediation name related topics; deepening needs a changed objective.
 5. Research the smallest relevant source set and implementation slice. Use short
-   (~25), standard (~55) or extended (~85 minute) budgets, trimmed to actual time.
+   sessions when explicitly time-constrained; otherwise use 90 minutes with an optional 180+ minute track.
    Offer optional independent attempts and feedback; split setup/extra reading.
 
 `plan` is advisory, not a curriculum selector or prerequisite certificate.

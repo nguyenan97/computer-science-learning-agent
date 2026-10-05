@@ -83,6 +83,6 @@ Use $master-iuh-daily-learning to write today's lesson automatically: complete V
 
 ## Published lessons
 
-- [Lesson 01 — Big-O and data structures](lessons/2026-10-05-cost-model/lesson.md)
+- [Lesson 01 — Big-O and stable deduplication in C#](lessons/2026-10-05-cost-model/lesson.md)
 
 Bilingual lesson content and shared labs can be committed/published on request. The public catalog lists exactly which lesson files deploy; learner state, submissions and assessments remain private.

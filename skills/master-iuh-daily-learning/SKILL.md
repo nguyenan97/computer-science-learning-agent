@@ -37,8 +37,9 @@ for offline lessons.
 On a daily call, autonomously plan and deliver a complete bilingual lesson. Default
 goals: CS foundations, IUH curriculum and practical work, with relevant current
 knowledge. Default budget: 90 minutes, with an optional 180+ minute deep-dive track.
-Reuse confirmed context instead of asking for it every day. Treat tool proficiency
-as unknown unless observed; use prerequisite self-checks and bridge branches inside
+Reuse confirmed context instead of asking for it every day. Use the learner's stated
+professional/tool background as prior context, explicitly self-reported rather than
+assessed. Unstated proficiency remains unknown; use prerequisite self-checks and bridge branches inside
 the lesson rather than blocking delivery. Exercises, labs, diagnostics, explain-back
 and submissions are optional. Offer a reading-only path and worked solutions for
 every task. Do not require completed exercises to request the next day; select a new
@@ -84,6 +85,22 @@ With weak prerequisites, model and bridge before an open-ended problem. With
 adequate evidence, fade guidance and change context. Default engineering tools
 are C#/.NET, T-SQL, TypeScript and Azure only when they fit the objective; prefer
 a smaller offline tool when setup would consume the session.
+
+For an experienced engineer, start with a concrete production contract and a small
+trace. Derive the CS model before introducing terminology, then connect runtime,
+allocation, trade-offs and failure modes. Skip programming/API/tool basics already
+confirmed; explain mathematical/CS foundations without assuming mastery. Use C# and
+BenchmarkDotNet for a .NET learner's algorithm lesson when they fit. For statistics,
+ML, big data or HPC, choose the discipline's appropriate ecosystem (Python/R, PyTorch,
+Spark, CUDA/C++ as needed), then provide a .NET/Azure translation bridge. Do not force
+one ecosystem or add setup solely to match a profile.
+
+Before publishing, stage the public site and verify rendered lesson links, language
+switching, downloadable assets and copyable commands. Repository-relative Markdown
+is normalized by `scripts/build_public_site.py`; code/data links must bypass Docsify
+hash routing. Verify the full downloaded lab includes project references and pins.
+HTTP 200 for the lesson Markdown alone is insufficient. Agent lab/benchmark runs
+verify artifacts, never learner progress or educational effectiveness.
 
 Mark inaccessible sources and unrun labs honestly; offer a trace or verified
 local equivalent. If time runs out, preserve work and resume. End with optional practice/review choices and a simple next-day invocation; never prewrite learner results.

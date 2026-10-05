@@ -21,4 +21,4 @@
   - [PhD Curriculum](/curricula/iuh/phd/curriculum)
 
 - **Daily Lessons**
-  - [Lesson 01: Big-O and Data Structures](/lessons/2026-10-05-cost-model/lesson)
+  - [Lesson 01: Big-O with C#](/lessons/2026-10-05-cost-model/lesson)

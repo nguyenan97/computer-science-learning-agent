@@ -1,4 +1,4 @@
-<!-- contract-version: 3 -->
+<!-- contract-version: 4 -->
 # Workflow hằng ngày và state riêng
 
 Bản dịch [policy chính](../../references/learning-workflow.md). Trang này sở hữu selection,
@@ -9,8 +9,8 @@ thiết kế dạy học/nguồn/đầu ra. Skill điều phối theo từng ch�
 
 1. Chọn workspace riêng và validate state. Xem ôn đến hạn, bài đã giao/đang làm,
    bản generated chưa giao và ID assessment lỗi chưa giải quyết.
-2. Hỏi ngắn mục tiêu/time/background/tools/timezone chưa biết. State trống nghĩa là
-   chưa biết trình độ. Đưa 2–3 self-check prerequisite tùy chọn có đáp án/nhánh bridge, không chặn giao bài. Chỉ lưu response người học thực sự gửi.
+2. Dùng lại mục tiêu/time/background/tools/timezone đã xác nhận, chỉ hỏi phần chưa biết
+   khi nó ảnh hưởng đáng kể đến chọn bài. Lưu background người học cung cấp vào workspace riêng, ghi là self-reported, không phải đã đánh giá. Chưa có assessment nghĩa là chưa có bằng chứng prerequisite CS, không có nghĩa chưa biết lập trình. Đưa 2–3 self-check prerequisite tùy chọn có đáp án/nhánh bridge, không chặn giao bài. Chỉ lưu response người học thực sự gửi.
    Diagnostic có thể nằm trong phiên remediation; không bịa completion trước đó.
    Nếu chỉ yêu cầu soạn nháp, ghi prerequisite fit có điều kiện.
 3. Ưu tiên retrieval đến hạn trong time budget. Prerequisite yếu → bridge/recheck;
@@ -20,8 +20,9 @@ thiết kế dạy học/nguồn/đầu ra. Skill điều phối theo từng ch�
    thực hành. Tách quan hệ official và suy luận. Kiểm ID cùng nghĩa objective/concepts
    với mọi bài core, kể cả generated. Review/remediation nêu related_to; deepening
    có mục tiêu thực sự thay đổi.
-5. Research bộ nguồn/lát cắt nhỏ. Mode ~25/55/85 phút chỉ là thiết kế, điều chỉnh theo
-   time thật; đề xuất attempt/feedback tùy chọn, chia setup/đọc sâu khi cần.
+5. Research bộ nguồn/lát cắt nhỏ. Chỉ dùng phiên ngắn khi có giới hạn thời gian rõ;
+   mặc định 90 phút và nhánh 180+ phút tùy chọn. Đề xuất attempt/feedback tùy chọn,
+   chia setup/đọc sâu khi cần.
 
 `plan` chỉ gợi ý, không chọn curriculum hoặc chứng nhận prerequisite. Flag ready/weak
 phải từ diagnostic thật. Xem lỗi của cả prerequisite topic chưa có bài completed.

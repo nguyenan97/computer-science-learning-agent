@@ -74,6 +74,6 @@ Dùng $master-iuh-daily-learning để tự soạn bài hôm nay: Việt và Anh
 
 ## Bài học đã xuất bản
 
-- [Bài 01 — Big-O và cấu trúc dữ liệu](lessons/2026-10-05-cost-model/lesson.md)
+- [Bài 01 — Big-O và khử trùng bằng C#](lessons/2026-10-05-cost-model/lesson.md)
 
 Bài song ngữ và lab dùng chung có thể commit/publish theo yêu cầu. Catalog công khai liệt kê chính xác các file được deploy; state, bài làm và đánh giá cá nhân luôn ở workspace riêng.

@@ -1,386 +1,271 @@
-# Lesson 01 — Big-O and data structures: removing duplicate order IDs
+# Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#
 
-**Date:** 5 October 2026, Asia/Bangkok · **90 minutes**, optional **180+ minutes**.
-**Topic:** advanced-algorithms.cost-model-membership.l1.
-**IUH:** Advanced Algorithms `6001127`; connection to Advanced Database `6001111`.
-[Tiếng Việt](../../vi/lessons/2026-10-05-cost-model/lesson.md) · [Lab](../../labs/cost-model/lab.py) · [Worked code](../../labs/cost-model/solution.py) · [Sources](../../lessons/2026-10-05-cost-model/sources.json).
+**90 minutes · Optional 180+ minute deep track · Updated 5 October 2026**
 
-**Main idea:** one visible loop can still cost O(n²) when each iteration searches an
-increasingly long list. Changing the data structure can reduce total work, but check
-output order, memory and hashing assumptions before claiming an improvement.
+[Tiếng Việt](../../vi/lessons/2026-10-05-cost-model/lesson.md) · [C# lab guide](../../labs/cost-model/dotnet/README.md) · [Download complete lab ZIP](https://nguyenan97.github.io/computer-science-learning-agent/labs/cost-model/dotnet-lab.zip) · [Complete worked code](../../labs/cost-model/dotnet/Core/Deduplication.cs)
 
-## Why this first lesson?
+**Today's idea:** the data structure determines the search cost inside a loop. Replacing `List.Contains` with `HashSet.Add` can reduce CPU work substantially, provided you preserve the business contract and examine memory costs.
 
-Your goals combine CS foundations, the IUH curriculum and useful current knowledge
-for work. Advanced Algorithms requires complexity/performance analysis and algorithm
-selection; Advanced Database includes indexing and hashing. This lesson is a tutor-selected
-foundation connecting those outcomes, **not an official IUH lesson or prerequisite**.
+This lesson is for an experienced C#/.NET, API and database engineer strengthening CS foundations. Loop syntax and REST basics are prior context. The mathematical analysis is explained from the beginning; programming experience alone does not establish Big-O proficiency.
 
-There is no observed evidence of your proficiency or earlier work, and no recorded
-review due. Compared with binary search, this topic requires less index/invariant
-background; compared with transactions, it needs less setup and develops a cost model
-first. Python/C#/SQL proficiency is not assumed. This is the first published daily lesson.
+This is a tutor-selected foundation for **IUH Advanced Algorithms `6001127`**: complexity analysis, practical performance and algorithm selection, with a connection to Advanced Database `6001111`. It is not an official IUH lesson plan. Topic: `advanced-algorithms.cost-model-membership.l1`.
 
-After reading, you can check whether you can:
-
-1. Count membership work during deduplication instead of just counting loops.
-2. Explain when a set reduces time and what additional memory it needs.
-3. Preserve first-occurrence order and transfer the idea to duplicate counting.
-
-All self-checks, labs and exercises are **optional, with immediately accessible answers**.
-You do not need to submit work to receive the next lesson. Reading worked answers is
-a valid study path; it does not itself establish independent proficiency.
+Three outcomes to check: explain the comparison count; choose stable deduplication; interpret CPU/allocation benchmarks with appropriate limits. **Every exercise, lab and submission is optional, with accessible solutions.** Reading only is a valid path; it is not evidence of independent proficiency.
 
 ## A 90-minute path
 
-| Time | Activity | Reading-only alternative |
+| Time | Study | Reading-only alternative |
 |---|---|---|
-| 0–10 | Prerequisite self-check and bridge | Read questions/answers; slow down where needed |
-| 10–35 | Cost model, Big-O, worst/expected/amortized | Follow the counting argument and table |
-| 35–55 | Trace two deduplication approaches | Read the steps and invariant |
-| 55–75 | Optional lab | Inspect verified output without installing Python |
-| 75–85 | Challenge and trade-offs | Read the duplicate-counting solution |
-| 85–90 | Recap and proposed review prompts | Read answers; take notes if useful |
+| 0–15 | Problem, contract and trace | Follow the small example without installing anything |
+| 15–40 | Count work and understand Big-O | Follow the derivation step by step |
+| 40–60 | HashSet, correctness and memory | Read the code and invariant |
+| 60–80 | Optional C# lab | Inspect verified output |
+| 80–90 | Variation and recap | Read the task followed by its solution |
 
-Budgets apply to **one language version**, not reading both translations.
+The budget applies to **one language version**. Benchmarking and runtime reading belong to the 180+ minute track; finishing them is not required for the next lesson. No actual learner work has been assessed and no review is due.
 
-## 1. Self-checks with answers
+## 1. Start with a small production requirement
 
-**A.** How many elements and distinct IDs are in `['B2','A1','B2']`?
-
-**Answer:** 3 elements, 2 distinct IDs. Input length n differs from distinct count u.
-
-**B.** With `result=['B2','A1']`, how many comparisons might a sequential scan need
-to determine whether C3 is present?
-
-**Answer:** 2. Absence requires checking the entire list. Finding B2 could stop immediately.
-
-**C.** Deduplicate `['B2','A1','B2','C3','A1']`, preserving first occurrence.
-
-**Answer:** `['B2','A1','C3']`. Alphabetical order has the same values but violates the requirement.
-
-**Bridge:** a list is an ordered sequence; `for value in values` visits its elements;
-`==` compares equality; `append` adds at the end; `in` tests membership. A set's `add`
-stores a value without creating a second equal entry. `{}` is an empty dictionary;
-an empty set is `set()`. If syntax is unfamiliar, use these definitions and the trace;
-no diagnostic submission is needed to continue reading.
-
-## 2. Work scenario and specification
-
-A job receives order IDs from logs, sometimes repeatedly. Return distinct IDs in
-first-received order, without changing the original input.
+A logistics job receives order IDs from logs or a message batch. IDs may recur. Return each ID **once, in first-occurrence order**.
 
 ```text
 Input : B2, A1, B2, C3, A1
 Output: B2, A1, C3
 ```
 
-Assume string IDs and exact, case-sensitive equality: a and A are different IDs.
-Do not silently trim or lowercase; identity rules are a business decision.
+Set three requirements before optimizing:
 
-**Optional prediction:** “There is one for loop, so the algorithm must be O(n).”
+- Exact equality with `StringComparer.Ordinal`: `a` differs from `A`; do not silently trim or lowercase.
+- First-occurrence order: sorting into `A1,B2,C3` violates the requirement.
+- Unchanged input. Neither input nor any ID may be null; the lab rejects null. Empty strings remain valid values for this example.
 
-**Answer:** not enough information. Inspect the work inside the loop; list membership
-can scan the accumulated output.
+This is deduplication **within one batch**, not exactly-once message processing.
 
-## 3. Cost model and Big-O
+**Optional self-check:** how many elements and distinct IDs are there? With partial output `[B2,A1]`, how do you determine whether C3 has appeared?
 
-Let n be input length and u the number of distinct IDs, with 0 ≤ u ≤ n. Initially
-assume bounded-cost key comparison/hashing; revisit key length in the trade-offs.
+**Solution:** `n=5` elements and `u=3` distinct IDs. A sequential search for C3 must check both B2 and A1. If “check every element before concluding absence” is unclear, follow the next trace slowly; that is the central prerequisite.
 
-Big-O describes an upper bound on how cost grows for large inputs, **not elapsed seconds**.
-If T(n) ≤ C·n² for sufficiently large n and a constant C, then T(n) is O(n²).
-Θ(n²) describes matching upper/lower growth bounds in that model; here it applies
-to scanning deduplication with all-distinct input.
+## 2. One loop can still do a lot of work
 
-| Growth | Rough change in the expression when n doubles | Example under suitable assumptions |
-|---|---:|---|
-| O(1) | Unchanged | A bounded-cost operation |
-| O(log n) | Adds a constant amount | Binary search on sorted data |
-| O(n) | 2× | One scan |
-| O(n log n) | Slightly more than 2× | Some comparison sorts |
-| O(n²) | 4× | Comparing each item with many others |
+A familiar implementation:
 
-This illustrates cost expressions, not guaranteed wall-clock ratios.
-
-### Approach 1: scan the accumulated output
-
-```python
-result = []
-for value in values:
-    if value not in result:
-        result.append(value)
+```csharp
+var result = new List<string>();
+foreach (string id in values)
+{
+    if (!result.Contains(id))
+        result.Add(id);
+}
 ```
 
-For all-distinct input, each new element compares with every earlier result:
+List.Contains searches existing elements and stops when it finds equality. On a miss it searches the entire list. A single API call can hide substantial work from the outer code.
+
+| Current ID | `result` before step | Sequential comparisons | `result` after step |
+|---|---|---|---|
+| B2 | [] | 0 | [B2] |
+| A1 | [B2] | A1 with B2: 1 | [B2,A1] |
+| B2 | [B2,A1] | B2 with B2: 1, stop | [B2,A1] |
+| C3 | [B2,A1] | C3 with B2 and A1: 2 | [B2,A1,C3] |
+| A1 | [B2,A1,C3] | A1 with B2 then A1: 2, stop | [B2,A1,C3] |
+
+The total is **6 equality comparisons** in this sequential model, although foreach has only five iterations. This models the algorithm; it does not count .NET runtime CPU instructions.
+
+### When every ID is distinct
+
+For `A,B,C,D`, the comparison counts are `0,1,2,3`. The kth ID checks k−1 previous IDs. For n IDs:
 
 ```text
-0 + 1 + 2 + ... + (n-1) = n(n-1)/2
+C(n) = 0 + 1 + 2 + ... + (n−1) = n(n−1)/2
 ```
 
-Thus worst-case cost is Θ(n²) with unit-cost comparisons. A bound using both n and
-u is O(n(1+u)); small u can make this approach nearly linear. When all IDs are equal,
-there are just n−1 comparisons after the first element. Not every input costs n².
+To derive it, write the sum forwards and backwards. Each aligned pair adds to n−1 and there are n pairs. Two sums equal n(n−1), so one sum is half that.
 
-### Approach 2: set for membership, list for output
+| n, all distinct | Model comparisons |
+|---:|---:|
+| 128 | 8,128 |
+| 256 | 32,640 |
+| 512 | 130,816 |
+| 100,000 | 4,999,950,000 |
 
-```python
-result = []
-seen = set()
-for value in values:
-    if value not in seen:
-        seen.add(value)
-        result.append(value)
+Doubling the input nearly quadruples the work. These counts cannot be converted directly into milliseconds: hardware, runtime and data affect actual execution time.
+
+## 3. What question does Big-O answer?
+
+A **cost model** states what we count. For now, treat comparing/hashing one ID as bounded-cost work; n is the input length. This is an analytical assumption, not a law about arbitrary strings.
+
+Big-O gives an **asymptotic upper bound**: T(n) is O(n²) if constants C and n₀ exist such that `T(n) ≤ Cn²` for every `n ≥ n₀`. It does not mean “n² seconds”.
+
+For distinct IDs, n(n−1)/2 has a quadratic leading term. The sequential model is **Θ(n²)**: matching upper and lower growth bounds. O(n²) is correct but less precise. An O(n) algorithm also satisfies an O(n²) upper bound, so use a tight order when explaining behavior.
+
+**What if every ID is A?** After the first ID, Contains succeeds immediately. There are just n−1 comparisons: Θ(n). Worst-case complexity does not say every input costs that much.
+
+With u distinct IDs, the accumulated list is at most u long. The entire scan approach is bounded by `O(n(1+u))`. A small u may make it adequate; when u grows with n, the worst case becomes quadratic.
+
+**Optional self-check:** can a single foreach prove O(n)?
+
+**Solution:** no. Sum the body cost over the iterations. Contains, database queries and service calls each have their own costs; source-code line counts are insufficient.
+
+## 4. Separate lookup from output ordering
+
+We need two different answers: “have we seen this ID?” and “what order should the output have?”. Use a HashSet for the first and a List for the second.
+
+```csharp
+var seen = new HashSet<string>(StringComparer.Ordinal);
+var result = new List<string>();
+foreach (string id in values)
+{
+    if (seen.Add(id))   // true: newly inserted; false: already present
+        result.Add(id);
+}
 ```
 
-Hashing directs lookup to table locations rather than always scanning from the start.
-With suitable hashing/equality and table management, lookup has expected O(1) cost;
-insertion also involves amortized analysis because resizing can occasionally be expensive.
-The overall process is expected O(n) under the key-cost assumptions. **This does not
-guarantee every lookup is O(1)**: collisions or expensive keys can slow it down; unfavorable
-cases can make the overall cost O(n²).
+Add already detects duplicates; a separate Contains followed by Add would search twice for a new ID. Do not depend on HashSet enumeration order: appending to result in input order establishes the output contract.
 
-- **Worst case:** the most unfavorable allowed input/behavior within the stated model.
-- **Expected:** an expectation under distribution/randomness assumptions, not every input.
-- **Amortized:** spread cost over a sequence of operations, including expensive resizes;
-  it is different from expectation and does not make every insertion cheap.
+### Why does hashing help?
 
-For strings of length L, initial hashing or equality can depend on L. Cached hashes
-can reduce some work, but not every key/comparison is O(1) in a real workload.
+Imagine a table with buckets. Hashing an ID chooses a bucket to search instead of scanning the entire List from the beginning. **Equal hashes do not prove equal IDs**: collisions still require equality checks.
 
-### Memory and correctness
+With sufficiently well-distributed hashing, controlled bucket occupancy and bounded key cost, expected lookup work in the hashing model is constant. However:
 
-Both return an O(u) output list. **Excluding output**, scanning needs O(1) additional
-state while hashing needs O(u) for seen. **Including output**, both use O(u), but the
-hashing version has extra overhead. Same Big-O does not mean the same number of bytes.
+- **Expected:** an expectation under distribution/randomness assumptions, not a guarantee for every input.
+- **Amortized:** total cost over a sequence of operations. One resize can cost O(u), but geometric growth avoids copying the whole table on every insertion. Work like `1+2+4+...` totals O(u). This illustrates the principle, not the exact .NET capacity sequence.
+- **Worst case:** an unfavorable comparer/hash can create long collision chains and make the batch O(n²). .NET has additional protection for certain string comparers; do not assume all custom comparers receive the same protection.
 
-Do not return `list(set(values))` when preserving first occurrence: sets **do not
-promise insertion order**. One run accidentally returning the desired order does not
-establish an ordering contract.
+Consequently the hash approach has **expected O(n)** total batch cost, including amortized growth, under these assumptions. The lab makes n Add calls; that is not the total hash/equality/resize work.
 
-## 4. Worked trace and invariant
+For maximum string length L, hashing or equality may depend on L. If L varies with input size, include it in the model: for example expected O(n(1+L)) for hashing under the remaining assumptions, counting both key work and per-item overhead. HashSet does not make key length disappear.
 
-| value | result after processing | seen as a mathematical set, not an ordering |
-|---|---|---|
-| B2 | [B2] | {B2} |
-| A1 | [B2, A1] | {B2, A1} |
-| B2 | [B2, A1] | {B2, A1} |
-| C3 | [B2, A1, C3] | {B2, A1, C3} |
-| A1 | [B2, A1, C3] | {B2, A1, C3} |
+### Prove the result remains correct with an invariant
 
-**Invariant:** after each processed prefix, seen contains exactly the IDs in that
-prefix; result contains each once, in first-occurrence order within the prefix.
+After each processed prefix, seen contains exactly the IDs encountered; result contains each once in first-occurrence order.
 
-Initially both are empty. For an already-seen ID, change neither. For a new ID, add
-to seen and append to result. The invariant remains true; processing the entire input
-therefore satisfies the specification.
+Initially both are empty. An existing ID makes Add return false, changing neither. A new ID makes Add return true and is appended to the output, preserving order. At the end the invariant is precisely the original contract. We changed cost while preserving behavior.
 
-**Optional question:** do n membership calls prove the algorithm always takes O(n)?
+### Memory: identical Big-O does not mean identical bytes
 
-**Answer:** no. Calls are not primitive work: one call may perform several hash/equality
-operations, and seen.add also costs something. The lab deliberately separates counts.
+| Approach | Time in the model | Auxiliary memory, excluding output | Output |
+|---|---|---|---|
+| List scan | O(n(1+u)); Θ(n²) for all-distinct input | O(1) | O(u) |
+| HashSet + List | Expected O(n), with assumptions | O(u) | O(u) |
 
-## 5. Reproducible optional lab
+HashSet stores additional bucket/entry arrays; List stores string references. This code does not clone input strings. Capacity growth allocates and copies arrays; old arrays may need garbage collection. **Allocated bytes, surviving memory and peak working set are different measurements.**
 
-Standard-library Python, deterministic synthetic input; no database server, network,
-or external package. The tutor ran **Python 3.12.14**, embedded SQLite **3.53.1**.
-These are reproducibility versions, not a latest-production-version recommendation.
+`new HashSet<string>(n, ...)` or `new List<string>(n)` can reduce resizing with an appropriate known capacity, but large n/small u can overallocate. Preallocating n makes that storage O(n), not O(u) when u is independently small. This optimization is outside the main lesson.
 
-From the repository root:
+## 5. Optional C# lab: check reasoning before measuring speed
+
+The [full guide](../../labs/cost-model/dotnet/README.md) provides the ZIP, setup, benchmark and troubleshooting. The core lab needs the .NET SDK, with no SQL Server, Docker, Python or third-party package. Verified environment: **SDK 10.0.401, runtime 10.0.12, Linux x64**; target net10.0. You need not retarget a production application.
+
+From an updated repository clone's root:
 
 ```bash
-cd labs/cost-model
-python --version
-python lab.py
-python check.py --module solution.py
+cd labs/cost-model/dotnet
+dotnet --version
+dotnet run -c Release --project LessonLab
+dotnet run -c Release --project LessonLab -- --check
 ```
 
-Without a runtime, inspect the trace/output below. A paper trace is not executed code.
-Starter intentionally needs implementation; reading/running solution.py is available now.
+**Step 1 — contract.** Predict the five-ID output, then read/run the lab. Checkpoint: `B2, A1, C3`; scan comparisons = 6. Solution: existing IDs are not appended; input and first-occurrence order are preserved.
 
-**Step 1 — specification:** predict the order-ID output, then run if desired.
-Checkpoint: `[B2,A1,C3]`. Explain that result preserves order while seen answers membership.
+**Step 2 — formula.** Predict n=128/256/512, then compare:
 
-**Step 2 — count a model:** unique_scan explicitly counts equality; unique_hash counts
-membership calls. For distinct inputs:
+```text
+n,scan_equality_comparisons,hash_add_calls (not hash-table work)
+128,8128,128
+256,32640,256
+512,130816,512
+128 identical IDs: 127 scan comparisons
+```
 
-| n | Scan equality checks | Hash membership calls |
-|---:|---:|---:|
-| 128 | 8,128 | 128 |
-| 256 | 32,640 | 256 |
-| 512 | 130,816 | 512 |
+Solution: distinct scan input matches n(n−1)/2; repeated input needs only n−1 comparisons. The Add column counts calls and does not prove every runtime operation is O(1).
 
-Verified order-ID input uses **6 scan equality checks** and **5 hash membership calls**.
-128 identical A1 IDs use **127 scan equality checks**.
+**Step 3 — behavior.** Run `--check`; expect **8 checks passed**. Cases include empty/singleton input, ordinal equality, input preservation, null policy, duplicate counting and a comparer forcing identical hashes. Collision solution: equality preserves correctness, but comparison counts become triangular. Reference-code tests do not establish that you completed the lesson.
 
-**Checkpoint answer:** the distinct scan count equals n(n−1)/2; doubling n roughly
-quadruples it. Hash membership calls equal n, not total hash-table work. This is not
-an elapsed-time benchmark or a “1,000× faster” claim. Explicit scan counters model the
-algorithm; they do not count every CPython list.__contains__ implementation optimization.
+Without an SDK, read the checkpoints and [complete code](../../labs/cost-model/dotnet/Core/Deduplication.cs). Writing code is not required to read solutions or request the next lesson.
 
-**Step 3 — implement only if desired:** fill unique_hash and duplicate_summary in
-[starter.py](../../labs/cost-model/starter.py), then:
+## 6. The 180+ minute track: measure CPU/allocation and read implementation
+
+Allow about 30 additional minutes for setup/benchmarking, 30 for interpreting reports and 30 for runtime reading. BenchmarkDotNet **0.15.8** needs NuGet/network for its first restore. Run Release without a debugger:
 
 ```bash
-python check.py --module starter.py
+# Still in labs/cost-model/dotnet
+dotnet run -c Release --project Benchmarks -- --filter '*DedupeBenchmarks*' --job short
 ```
 
-Expected for a correct implementation: **4 tests pass**. [solution.py](../../labs/cost-model/solution.py)
-contains full answers. Checks cover empty/duplicate/case sensitivity/order/input preservation,
-collisions and an equality model that detects scanning rather than hashing. They cannot
-prove every production workload is fast or establish the learner's reasoning.
+Input is created in GlobalSetup outside measurement. Each invocation creates fresh output; both methods have the same equality/output contract. The matrix is n=128/512/2048 with nominal 10%/100% distinct IDs of fixed width. **Optional prediction:** which allocates more? Does hashing retain as large an advantage when u is small?
 
-**Debug:** duplicates remain → check seen updates; order wrong → do not return the
-set; unhashable TypeError → choose a hashable key, such as a stable string ID, rather
-than a mutable list/dict. Import failure → use the stated working directory.
-NotImplementedError from an unchanged starter is intentional.
+**Solution:** Hash keeps an extra table and usually allocates more. Small u shortens the List, potentially reducing the time advantage. Measure actual time; do not infer a speed ratio from Big-O.
 
-## 6. Changed-context challenge with full solution
+The agent ran all **12 ShortRun cases**, with three warmup and three measurement iterations per case. Example: n=512, all distinct:
 
-**Optional task:** return IDs appearing more than once together with their frequencies,
-in first-occurrence order, without changing input. The order example should produce
-`[('B2',2),('A1',2)]`.
+| Approach | Mean | Error, half of 99.9% CI | Allocated per operation |
+|---|---:|---:|---:|
+| Scan | 922.355 µs | 2,261.779 µs | 8,384 B |
+| Hash | 22.218 µs | 19.147 µs | 42,896 B |
 
-**Solution:** a dictionary stores frequency. Python guarantees dictionary insertion
-order from version 3.7; updating an existing key does not move it to the end.
+Cloud Debian 13, Intel Xeon Platinum 8573C, .NET 10.0.12. The environment denied elevated process priority; wide intervals and a short run make timings **illustrative for this workload**, not production promises. The [full report](benchmark-report.md) and [execution log](benchmark-run.txt) preserve environment and limitations. Allocated excludes prebuilt input; it is not peak memory or service p99. The timing benchmark does not use CountScan's counters.
 
-```python
-def duplicate_summary(values):
-    counts = {}
-    for value in values:
-        counts[value] = counts.get(value, 0) + 1
-    return [(value, count) for value, count in counts.items() if count > 1]
+### Read a runtime slice without building all of .NET
+
+Official repository `dotnet/runtime`, release v10.0.12 pinned at commit `4271d88e0aebf3d04f188f1334c2220d80555ef6`:
+
+- [List.Contains](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs#L336): predict which call does the searching; follow IndexOf.
+- [HashSet.AddIfNotPresent](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs#L1411): locate hashing, buckets, equality, false return and resizing.
+- [Upstream capacity test](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Collections/tests/Generic/HashSet/HashSet.Generic.Tests.cs#L552): identify the behavior tested upstream.
+
+**Worked answer:** List.Contains calls IndexOf → Array.IndexOf. HashSet selects a bucket by hash and follows an entry chain; equality distinguishes colliding IDs. Existing IDs return false, and full storage can resize. The capacity test exercises growing element counts, not a universal O(1) proof. The agent read these sections and ran the local equivalent; **the upstream build/test suite was not executed**.
+
+## 7. Transfer: count repeated IDs and retain first-occurrence order
+
+**Optional exercise:** for `B2,A1,B2,C3,A1`, return `[(B2,2),(A1,2)]`, omitting IDs appearing once. Empty input returns `[]`; `A,A,A` returns `[(A,3)]`.
+
+**Solution:** use a Dictionary for counts and a separate List for new-ID order. After reading the input, traverse the order List and emit only counts greater than one. Do not depend on Dictionary enumeration order.
+
+```csharp
+var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+var order = new List<string>();
+foreach (string id in values)
+{
+    if (counts.TryGetValue(id, out int count)) counts[id] = count + 1;
+    else { counts.Add(id, 1); order.Add(id); }
+}
+var duplicates = new List<(string Id, int Count)>();
+foreach (string id in order)
+    if (counts[id] > 1) duplicates.Add((id, counts[id]));
 ```
 
-Expected O(n+u), simplified to O(n) because u≤n, under hashing/key assumptions; O(u)
-memory. Empty input → []; all distinct → []; three x values → `[('x',3)]`.
-check.py includes those cases.
+Invariant: counts equals occurrences in the processed prefix; order preserves first occurrences. Expected O(n+u)=O(n), auxiliary O(u), under hashing/key assumptions. The [runnable validated solution](../../labs/cost-model/dotnet/Core/Deduplication.cs) uses an OrderCount record rather than a tuple; behavior is equivalent.
 
-**Optional rubric:** correct edge cases; preserved input/order; justified invariant
-and complexity assumptions; honest independence/solution assistance; explanation of
-memory/key/collision trade-offs. No required score or submission.
+### Production bridge: batch deduplication and idempotency
 
-## 7. GitHub activity and verified implementation knowledge
+**Optional scenario:** two instances process message ID B2 concurrently with separate HashSets. Does this prevent system-wide duplicate processing?
 
-Selected **python/cpython**, official implementation, **77,493 stars**, archived=false,
-checked via GitHub API on 5 October 2026. Observed main commit:
-`182f3231542e84fd1b0c795898f69f61fe35df0e`, **10:09:25 Asia/Bangkok**.
-Teaching release pin: **v3.12.14 → 2abcf904b8dac8c999d2b3aac76681abb333798a**.
-Stars are discovery metadata, not proof of quality/adoption. LICENSE includes PSF
-license/history; API SPDX says NOASSERTION, which does not mean no license exists.
-No upstream build or upstream suite was run; the tutor read a small slice and ran a local lab.
+**Solution:** no. Both sets start empty and both insert successfully. Enforce storage identity using a unique constraint/index on the appropriate business key, such as tenant + event ID, with transaction/conflict handling. A separate SELECT-before-INSERT still races. SQL Server collation must match identity rules; C# Ordinal does not automatically make database equality identical.
 
-Alternative **dotnet/runtime** is official, 18,312 stars, archived=false at checking;
-not selected because standard-library Python teaches this cost model with less setup.
-This is not a judgment that .NET is worse. No downstream usage survey or upstream
-benchmark was conducted.
+If a side effect is outside the database transaction, a unique key alone does not guarantee exactly-once execution of that side effect; an appropriate idempotency/transaction protocol is needed. Today's lesson establishes this boundary without requiring a distributed-system implementation.
 
-Optional source-reading tasks, with answers:
+## 8. Recap and continuation
 
-- [listobject.c — list_contains](https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Objects/listobject.c#L441):
-  locate its loop and stopping condition. **Answer:** start at index 0, stop on equality
-  or exhaustion; one membership call can involve many comparisons.
-- [setobject.c — set_lookkey](https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Objects/setobject.c):
-  why does a hash lookup still have a loop? **Answer:** probing/collisions can require
-  multiple locations, with hash and equality checks; hashing is not always one step.
-- [test_set.py — test_contains/test_add](https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Lib/test/test_set.py):
-  inspect duplicate and unhashable cases. **Answer:** adding Q twice creates no duplicate;
-  mutable lists are invalid keys and TypeError cases are tested.
+**Three optional checks with answers:**
 
-**Current connection:** Python's 3.12-line docs were read for set/hashable and dictionary
-ordering. The online page was labeled **3.12.15**, while the lab/pin is 3.12.14;
-pinned docs confirm the semantics used here. Neither version observation establishes
-latest support/security guidance.
+1. Why can one foreach be Θ(n²)? **Answer:** its body searches a growing List, summing 0+1+…+n−1.
+2. Why both HashSet and List? **Answer:** membership and output ordering are separate responsibilities; the table costs additional memory.
+3. Can hashing always be faster, or an API singleton set prevent every duplicate? **Answer:** no. Small workloads, key/comparer costs and allocations matter; local sets do not solve retries/multiple instances, and unbounded shared sets introduce memory/concurrency concerns.
 
-## 8. A 180+ minute track
+For feedback you may send an explanation, code or report and state whether you read the solution. Rubric: contract/edge cases; reasoning with assumptions; operation counts versus measurements; production limits. Responses after solution exposure are assisted; a fresh task is needed for an independent assessment.
 
-Add these to the 90-minute reading path:
+Suggested 1/3/7-day review hooks: reconstruct comparison counts, explain expected/amortized costs, transfer to duplicate counts or tenant-scoped identity. Core answers are in sections 2/4/7. These are study suggestions, not recorded reviews or confirmed progress schedules.
 
-### 25 minutes — source reading and cost model
+Next invocation: **“Dùng master-iuh-daily-learning, viết bài hôm nay cho tôi.”** No submission required. Publication/reference execution does not record learner completion or mastery.
 
-Use the three targets above and describe “outer loop count × inner membership cost.”
-**Model answer:** scan over distinct data sums 0…n−1; set lookup probes and can resize,
-so expected/amortized costs need assumptions. Counted calls are not elapsed time.
+## Sources and verification limits
 
-### 25 minutes — SQL on a small equivalent dataset
+Checked **5 October 2026**. The [source dossier](sources.json) records pins, metadata and reading scope.
 
-```bash
-python lab.py --sql
-```
+- **Curriculum:** [IUH Master condensed curriculum](../../curricula/iuh/master/curriculum.md), course 6001127 outcomes. Current institutional PDFs/regulations were not reverified.
+- **Theory:** [MIT 6.006 Hashing II, pages 1–3](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/160b3b5f9da2e03815ca1e6ee0dba62a_MIT6_006F11_lec09.pdf): hashing assumptions, resizing and amortization; not a .NET benchmark.
+- **API/implementation:** [List.Contains](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.contains?view=net-10.0), [HashSet.Add](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1.add?view=net-10.0) and pinned runtime above. API documentation describes ordinary O(1) lookup; this lesson additionally states collision/key assumptions.
+- **Measurement:** [BenchmarkDotNet getting started](https://benchmarkdotnet.org/articles/guides/getting-started.html), [good practices](https://benchmarkdotnet.org/articles/guides/good-practices.html); reports are actual agent execution, not learning evidence.
+- **Database:** [SQL Server unique indexes](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/create-unique-indexes?view=sql-server-ver17); the production bridge is instructor synthesis. No SQL Server lab or production workload was run.
 
-```sql
-SELECT order_id, COUNT(*)
-FROM events
-GROUP BY order_id
-ORDER BY MIN(pos);
-```
-
-**Answer:** `B2:2, A1:2, C3:1`. To retain only duplicates, add `HAVING COUNT(*) > 1`
-before ORDER BY → B2:2, A1:2. pos explicitly stores ingestion order. SQL results
-have no guaranteed ordering without ORDER BY. GROUP BY does not prove the engine uses
-the same algorithm as Python: sorting/indexing/other plans can be used. Real workloads
-require query-plan, cardinality, index and I/O analysis; do not infer SQL performance here.
-
-### 25 minutes — intentional collisions
-
-```bash
-python lab.py --collisions
-```
-
-The worked lab creates Key objects whose __hash__ always returns 1. On the verified
-runtime, 100 calls caused **11,964 equality checks**, with correct output. That exact
-count is a runtime observation, not a universal bound. **Answer:** collisions affect
-cost without necessarily breaking correctness; equal hash values do not imply equal keys.
-
-### 15 minutes — choosing a design for a large job
-
-**Optional task:** 10 million records, long IDs and limited RAM. Is a set always best?
-
-**Answer:** no. Consider u, ID length, object overhead and how long seen must retain
-state. For large u consider external sorting/deduplication, database uniqueness or
-disk-backed state. Each has ordering/I/O/concurrency costs. RAM sets may suit small keys,
-moderate u and fast lookup; n alone does not determine a winner. Deduplication before
-an API call does not guarantee exactly-once behavior: concurrency, crashes and retries
-also require appropriate idempotency/unique constraints, a future topic.
-
-For more than 180 minutes, optionally run `python lab.py --timing`. The script uses
-timeit repeats and fixed input; the tutor **did not run timing** and reports no speedup.
-Measurements include instrumentation and depend on interpreter/hardware/cache/data;
-they do not replace a job-specific benchmark.
-
-## 9. Recap and proposed review, with answers
-
-1. **Is one for loop always O(n)?** No: its body can grow with accumulated data.
-2. **Why both list and set?** Membership efficiency versus ordered output.
-3. **Is set always O(1)?** No: assumptions, collisions, resizing and key costs matter.
-4. **Must O(n) beat O(n²) for small n?** No: constants, overhead and actual inputs matter.
-5. **Does reading answers mean mastery?** No; you can still use them and read the next lesson.
-
-Proposed review hooks, not actual scheduled reviews: on another day reconstruct
-n(n−1)/2 for new distinct data or count duplicates in event IDs. Answers use the
-same scan argument/dictionary solution above. After seeing answers, use a fresh unseen
-task if requesting an independent assessment.
-
-Possible next lesson: **binary search and invariants** if comparisons/loops are comfortable;
-otherwise first read **arrays, index access and loops**. This is conditional planning,
-not verified prerequisite mastery. Invoke the same skill for the next lesson; no submission needed.
-
-## 10. Source roles and verification boundary
-
-- **Curriculum:** condensed IUH Master 2020, Advanced Algorithms/Advanced Database,
-  read locally 5 October 2026. Official scope within the repo; original PDFs/current
-  institutional rules were not rechecked.
-- **Theory:** MIT OCW 6.006 Fall 2011, [Lecture 9 Hashing II](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/160b3b5f9da2e03815ca1e6ee0dba62a_MIT6_006F11_lec09.pdf),
-  pages 1–3 read 5 October 2026: expected lookup, load factor, resizing and amortization.
-  Chaining illustrates theory; CPython sets use open addressing, a different implementation.
-- **Official technical:** [Python set/dict docs](https://docs.python.org/3.12/library/stdtypes.html#set-types-set-frozenset),
-  [pinned stdtypes.rst](https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Doc/library/stdtypes.rst)
-  and CPython source/tests/license above; relevant sections read 5 October 2026.
-- **SQL semantics:** [SQLite SELECT](https://www.sqlite.org/lang_select.html), grouping/ordering
-  sections read 5 October 2026; local equivalent executed, not a SQL Server benchmark.
-- **Tutor synthesis:** order-ID scenario, topic choice, budgets, rubric and original lab.
-  Not a scientific claim about optimal study duration; no CPython code is vendored.
-
-The agent ran the reference lab and 4 tests. No learner submission or assessment exists.
-[sources.json](../../lessons/2026-10-05-cost-model/sources.json) preserves hashes/pin/metadata; [observations](../../lessons/2026-10-05-cost-model/agent-observations.txt)
-are agent output, not learner progress.
+Local lab/reference checks and a benchmark were executed. No learner study establishing the educational effectiveness of this lesson has been performed.

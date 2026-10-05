@@ -1,4 +1,4 @@
-<!-- contract-version: 2 -->
+<!-- contract-version: 3 -->
 # Phương pháp sư phạm
 
 Tối ưu nhớ bền vững, giải quyết độc lập và transfer đổi ngữ cảnh. [Báo cáo](../research/learning-science-review.md) trình bày bằng chứng/giới hạn; [workflow](learning-workflow.md) sở hữu lịch và trạng thái. Không có phương pháp tốt nhất cho mọi tình huống.
@@ -19,6 +19,7 @@ Người mới cần xem cách làm trước khám phá mở. Khi prerequisite �
 - Luyện subskill đã chẩn đoán, feedback cụ thể theo task; khi đánh giá được yêu cầu thì đề nghị sửa và thử case mới, không suy năng lực từ giờ học/copy.
 - Giảm tải setup không liên quan, một mục tiêu mỗi phiên; không để mò mẫm vô hạn khi nền yếu.
 - Chỉ rõ cấu trúc giống/khác qua ngữ cảnh; pass đúng ví dụ cũ là bằng chứng transfer yếu.
+- Dùng kinh nghiệm nghề nghiệp đã xác nhận làm ngữ cảnh, không coi là expertise CS đã đánh giá. Dạy khái niệm mới qua yêu cầu cụ thể và trace trước thuật ngữ; nối nền tảng toán với chi phí runtime, trade-off và failure mode. Chọn công cụ phù hợp môn học rồi bridge sang stack người học.
 
 ## Thời gian và đánh giá
 

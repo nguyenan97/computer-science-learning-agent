@@ -1,9 +1,9 @@
-test_collisions_preserve_correctness (__main__.Checks.test_collisions_preserve_correctness) ... ok
-test_counted_model_rejects_membership_scan (__main__.Checks.test_counted_model_rejects_membership_scan) ... ok
-test_duplicate_counts_and_order (__main__.Checks.test_duplicate_counts_and_order) ... ok
-test_stable_output_and_input_preservation (__main__.Checks.test_stable_output_and_input_preservation) ... ok
-
-----------------------------------------------------------------------
-Ran 4 tests in 0.001s
-
-OK
+PASS stable order and unchanged input
+PASS empty, singleton and repeated input
+PASS ordinal identity and explicit alternative comparer
+PASS null policy
+PASS triangular count and repeated-ID count
+PASS hash path avoids a membership scan on this workload
+PASS forced collisions preserve correctness and expose quadratic work
+PASS duplicate counts and first-occurrence order
+8 checks passed; reference-code verification, not learner mastery.

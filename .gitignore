@@ -3,3 +3,6 @@ __pycache__/
 .venv/
 .learning-private/
 .site-build/
+**/bin/
+**/obj/
+**/BenchmarkDotNet.Artifacts/

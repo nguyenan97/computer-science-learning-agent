@@ -1,4 +1,4 @@
-<!-- contract-version: 2 -->
+<!-- contract-version: 3 -->
 # Pedagogy
 
 Optimize for durable recall, independent problem solving and changed-context transfer. Evidence and limitations are in the [research review](../research/learning-science-review.md); scheduling/state are owned by [workflow](learning-workflow.md). No method is best in every context.
@@ -19,6 +19,7 @@ For a novice, model the process before open-ended exploration. With adequate pre
 - Target diagnosed errors with purposeful practice and specific task-focused feedback. When assessment is requested, ask for correction and a fresh case; do not infer competence from hours or copies.
 - Reduce irrelevant tool/setup demands and teach one objective per session. Keep useful difficulty while preventing unbounded search with weak prerequisites.
 - Teach structural similarities and differences across contexts. Passing the same example is weak evidence of transfer.
+- Use confirmed professional background as prior context, not assessed CS expertise. Teach a new concept through a concrete contract and trace before terminology; connect mathematical foundations to runtime costs, trade-offs and failure modes. Choose tools appropriate to the discipline and offer a translation bridge to the learner's stack.
 
 ## Time and assessment
 

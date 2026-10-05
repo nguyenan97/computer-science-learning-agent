@@ -1,0 +1,401 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/csla/learning-state-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "fixture": {
+      "type": "boolean"
+    },
+    "learner": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "timezone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "daily_minutes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 10
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "background": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "timezone",
+        "daily_minutes",
+        "goals",
+        "background"
+      ]
+    },
+    "lessons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "topic_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "course_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "objective": {
+            "type": "string",
+            "minLength": 1
+          },
+          "concepts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "kind": {
+            "enum": [
+              "core",
+              "review",
+              "remediation",
+              "deepening"
+            ]
+          },
+          "related_to": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "status": {
+            "enum": [
+              "generated",
+              "assigned",
+              "in_progress",
+              "completed"
+            ]
+          },
+          "created_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "assigned_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "started_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completed_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifact": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assessment_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "review_prompts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "constraints": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "course_code",
+          "title",
+          "objective",
+          "concepts",
+          "prerequisites",
+          "kind",
+          "related_to",
+          "status",
+          "created_on",
+          "assigned_on",
+          "started_on",
+          "completed_on",
+          "artifact",
+          "assessment_ids",
+          "review_prompts",
+          "constraints"
+        ]
+      }
+    },
+    "assessments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lesson_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "topic_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "prerequisite",
+              "practice",
+              "retrieval",
+              "transfer",
+              "exit"
+            ]
+          },
+          "observed_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "task": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "assessed_by": {
+            "type": "string",
+            "minLength": 1
+          },
+          "outcome": {
+            "enum": [
+              "needs_support",
+              "developing",
+              "independent",
+              "unassessed"
+            ]
+          },
+          "score": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 100
+          },
+          "score_basis": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hints": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "misconceptions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "explanation_quality": {
+            "enum": [
+              null,
+              "weak",
+              "adequate",
+              "strong"
+            ]
+          },
+          "feedback": {
+            "type": "string",
+            "minLength": 1
+          },
+          "next_action": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "lesson_id",
+          "topic_id",
+          "kind",
+          "observed_on",
+          "task",
+          "evidence",
+          "assessed_by",
+          "outcome",
+          "score",
+          "score_basis",
+          "hints",
+          "misconceptions",
+          "explanation_quality",
+          "feedback",
+          "next_action"
+        ]
+      }
+    },
+    "reviews": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lesson_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "topic_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "initial_due_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "due_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "attempts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "assessment_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scheduled_for": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "next_due_on": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "assessment_id",
+                "scheduled_for",
+                "next_due_on",
+                "reason"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "lesson_id",
+          "topic_id",
+          "prompt",
+          "initial_due_on",
+          "due_on",
+          "attempts"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "fixture",
+    "learner",
+    "lessons",
+    "assessments",
+    "reviews"
+  ]
+}

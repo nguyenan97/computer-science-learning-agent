@@ -1,0 +1,50 @@
+{
+  "checked_on": "2026-10-05",
+  "repository": "python/cpython",
+  "repository_url": "https://github.com/python/cpython",
+  "stars": 77489,
+  "stars_provenance": "repository GitHub HTML embedded stargazerCount, retrieved 2026-10-05",
+  "default_branch_sha": "5fecd448bb120378978a37dde65dfce233d88c0d",
+  "pin": "0b05ead877f909b7efe712db758012d9dbece7ce",
+  "release": "v3.12.7",
+  "archived": false,
+  "archived_note": "GitHub repository HTML embedded isArchived:false; API was unavailable",
+  "maintenance_note": "Repository and default-branch commit pages read; latest observed commit date is recorded. v3.12.7 tag resolved to SHA. This is a pinned teaching baseline, not a claim about the latest supported Python release.",
+  "read_targets": [
+    {
+      "path": "Lib/bisect.py",
+      "url": "https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py",
+      "read": true,
+      "sha256": "f1cf7b85fc36b5da249813fc5ab97d9464f8cc1bc817f7146206fa2713e35999"
+    },
+    {
+      "path": "Lib/test/test_bisect.py",
+      "url": "https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py",
+      "read": true,
+      "sha256": "96d0763f8218c9177bf1cf4dd0e27c69f898aad4cd34d4d773c8b4d86eccdb19"
+    },
+    {
+      "path": "Doc/library/bisect.rst",
+      "url": "https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Doc/library/bisect.rst",
+      "read": true,
+      "sha256": "1fb2fa097a86e3bd92049f3e6b791a9bbf3bdf54a1098fcbb369d3e0e5c56a5c"
+    },
+    {
+      "path": "LICENSE",
+      "url": "https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/LICENSE",
+      "read": true,
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+    }
+  ],
+  "latest_commit_at": "2026-10-05T01:49:56.000Z",
+  "latest_commit_url": "https://github.com/python/cpython/commit/5fecd448bb120378978a37dde65dfce233d88c0d",
+  "alternative": {
+    "repository": "dotnet/runtime",
+    "checked_on": "2026-10-05",
+    "stars": 18311,
+    "archived": false,
+    "default_branch_sha": "30f813606aed8f64dbb3e296dba3f99a7c77590f",
+    "decision": "Official default-stack alternative; not selected because local Python baseline and a small readable bisect slice reduce setup cost. C# runtime build/test complexity is unnecessary for the same partition objective. No quality inferiority is asserted."
+  },
+  "pin_content_verified": true
+}

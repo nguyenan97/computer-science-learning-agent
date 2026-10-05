@@ -1,105 +1,38 @@
+<!-- contract-version: 1 -->
 # Mẫu bài học
 
-# Ngày {N} — {Tiêu đề}
+Bản Việt của [template chính](../../references/lesson-template.md). [Workflow](learning-workflow.md) sở hữu selection/state, [pedagogy](pedagogy.md) sở hữu instruction, [source policy](source-policy.md) sở hữu research. Co giãn theo thời gian, không sao chép form dài mỗi ngày.
 
-**Môn học:** {Course}  
-**Topic ID:** `{topic_id}`  
-**Loại bài học:** core  
-**Thời lượng dự kiến:** {45-75 phút}
+## Header và chọn bài
 
-## Vì sao học chủ đề này tiếp theo
+Session/topic ID, course code và section curriculum; core/review/remediation/deepening; status generated. Vì sao học tiếp, prerequisite với diagnostic thật hoặc unknown, quyết định về ôn đến hạn và semantic duplicate. Có 2–4 outcome đo được, mode/thời gian và hạn chế môi trường.
 
-2-4 câu cho thấy dependency với các bài trước và mức độ liên quan với curriculum.
+## Retrieval và kiểm tra prerequisite
 
-## Outcomes
+Không ghi chú; lấy câu hỏi từ lượt ôn/bài trước. Chưa có lịch sử thì diagnostic, không giả định đã học. Task prerequisite ngắn, có nhánh ready → tiếp tục; weak → bridge/recheck; unknown → thu bằng chứng.
 
-Kết thúc bài học, bạn cần có thể:
+## Vấn đề, nền tảng và cập nhật
 
-1. ...
-2. ...
-3. ...
+Vấn đề cụ thể và dự đoán; mental model tối thiểu với assumption/invariant. Ghi riêng curriculum, theory, guidance theo version và instructor synthesis. Cập nhật chỉ khi liên quan trực tiếp, có ngày kiểm tra và uncertainty. Một worked example giải thích quyết định.
 
-## 0. Retrieval warm-up — không xem ghi chú
+## Lab hướng dẫn
 
-3-5 câu hỏi từ các chủ đề trước.
+Mục tiêu/prerequisite; OS/runtime/tool version, dependency/data, starter deterministic/setup, working directory và fallback. Mỗi bước có purpose, predict-before, checkpoint observable, self-check và explain-after. Có common errors/debug path; ưu tiên chạy cục bộ, không thêm hạ tầng vô ích.
 
-Không đưa đáp án ngay.
+## Hoạt động repo
 
-## 1. Problem first
+Dossier theo source policy hoặc lý do không dùng GitHub. Ghim target cụ thể, yêu cầu suy hành vi từ test, trace hoặc so trade-off. Tách xác minh upstream build và local equivalent.
 
-Một vấn đề kỹ thuật, phân tích hoặc nghiên cứu cụ thể tạo động lực cho bài học.
+## Challenge và feedback
 
-Yêu cầu người học dự đoán / phác thảo câu trả lời ban đầu.
+Yêu cầu đổi constraint/context, không có full solution trong đề. Hint/lời giải mentor tách riêng và mở theo policy. Rubric nối outcome, lưu evidence/independence/error/explanation/correction. Explain-back và exit ticket có câu transfer.
 
-## 2. Mental model
+## Nguồn và lịch ôn
 
-Giải thích ngắn gọn với lượng lý thuyết tối thiểu cần thiết.
+Mỗi nguồn có role, contribution, URL/pin, ngày/status/limits. Prompt recall và transfer cho ngày sau. Chọn due sau evidence thực hành/completion theo workflow; review hook dự kiến chưa phải lượt đã ôn.
 
-Bao gồm một diagram / equation / trace / table nếu nó thực sự làm model rõ hơn.
+## Record artifact
 
-## 3. Worked example
+JSON generated theo schema riêng, ghi thiết kế, không ghi kết quả. Ngày lifecycle sau null; assessment_ids rỗng. Generation không sinh điểm/mastery/lượt ôn thật. Giao/thử/hoàn thành chỉ persist sự kiện đã quan sát. Xem [bài mẫu](../lessons/boundary-search/lesson.md).
 
-Một ví dụ cho thấy các quyết định và reasoning.
-
-## 4. Lab A — guided
-
-Một hands-on task.
-
-Bao gồm:
-
-- objective
-- starter code/data khi hữu ích
-- expected observation, không phải full solution
-- 1-2 checkpoint
-
-## 5. Production Bridge
-
-Kết nối với real-world architecture, source code, performance, reliability, security hoặc maintainability.
-
-Khi hữu ích, trỏ tới source file, test, benchmark, issue hoặc merged PR cụ thể từ repository uy tín.
-
-## 6. Lab B — independent challenge
-
-Transfer task khó hơn.
-
-Không đưa complete solution ngay từ đầu.
-
-Chỉ cung cấp Hint 1 / Hint 2 sau khi người học đã thử hoặc khi được yêu cầu.
-
-## 7. Common traps
-
-3-5 misconception hoặc failure mode.
-
-## 8. Explain-back
-
-Đặt 2-3 prompt buộc người học giải thích khái niệm bằng lời của mình.
-
-## 9. Exit ticket
-
-3-5 câu hỏi:
-
-- một core concept
-- một application
-- một transfer / trade-off question
-
-## Sources used
-
-Với mỗi source, nêu rõ vai trò, ví dụ:
-
-- **Curriculum source** — xác lập learning objective.
-- **Microsoft Learn** — current production guidance.
-- **GitHub source/test** — bằng chứng triển khai thực tế.
-- **MIT/Stanford/etc.** — theory hoặc problem-set inspiration.
-
-Chỉ giữ các nguồn có giá trị cao.
-
-## Review hooks
-
-- +1 ngày: ...
-- +3 ngày: ...
-- +7 ngày: ...
-- +21 ngày: ...
-
-## Lesson record
-
-Xuất block `LESSON_RECORD` theo contract của learning skill.
+Ngân sách heuristic: ngắn 25 = 3 check + 6 model/example + 10 lab + 4 independent + 2 exit; tiêu chuẩn 55 = 5 check + 10 model/example + 20 lab + 10 independent + 5 repo + 5 feedback/exit; mở rộng 85 thêm 15 transfer và 15 source/experiment. Setup quá lâu → trace offline hoặc chia phiên.

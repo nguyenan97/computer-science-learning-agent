@@ -8,6 +8,12 @@
   - [Mẫu bài học](/vi/references/lesson-template)
   - [Learning Ledger](/vi/state/learning-ledger)
 
+  - [Workflow hằng ngày](/vi/references/learning-workflow)
+  - [Nghiên cứu learning science](/vi/research/learning-science-review)
+  - [Review repo](/vi/research/repository-review)
+  - [Bài học mẫu](/vi/lessons/boundary-search/lesson)
+  - [Kết quả kiểm chứng](/vi/research/verification)
+
 - **Chương trình IUH**
   - [Thạc sĩ Khoa học Máy tính](/vi/curricula/iuh/master/curriculum)
   - [Tiến sĩ Khoa học Máy tính](/vi/curricula/iuh/phd/curriculum)

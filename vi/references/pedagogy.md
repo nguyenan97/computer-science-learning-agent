@@ -1,124 +1,29 @@
+<!-- contract-version: 1 -->
 # Phương pháp sư phạm
 
-## Mô hình học tập
+Tối ưu nhớ bền vững, giải quyết độc lập và transfer đổi ngữ cảnh. [Báo cáo](../research/learning-science-review.md) trình bày bằng chứng/giới hạn; [workflow](learning-workflow.md) sở hữu lịch và trạng thái. Không có phương pháp tốt nhất cho mọi tình huống.
 
-Tối ưu cho khả năng ghi nhớ bền vững và chuyển giao kiến thức, không chỉ tạo cảm giác quen thuộc.
+## Vòng học
 
-Sử dụng:
+Retrieval không xem ghi chú → vấn đề cụ thể → mental model nhỏ → một worked example giải thích quyết định → lab hướng dẫn → bài độc lập → biến thể đổi ngữ cảnh → feedback, explain-back, exit ticket → recall và transfer sau độ trễ.
 
-- retrieval practice
-- spaced practice
-- interleaving
-- self-explanation
-- worked example sau đó giảm dần mức hướng dẫn
-- deliberate practice tập trung vào lỗi sai
-- project/problem-based learning
-- phản hồi ngay sau khi người học đã thử làm
+Người mới cần xem cách làm trước khám phá mở. Khi prerequisite đủ, cho thử/dự đoán ngắn trước ví dụ và debrief rõ. Thất bại thiếu consolidation không phải productive failure. Dự đoán trước chạy; giải thích chênh lệch sau chạy.
 
-## Vòng lặp học hằng ngày
+## Quy tắc thiết kế
 
-### 1. Retrieve
+- Retrieval phải tự tái dựng, không chỉ đọc lại/nhận diện; sửa lỗi sau lần thử, ghi hint và misconception.
+- Spacing theo kết quả thật và mục tiêu lưu giữ; khoảng cách là heuristic; đo độ trễ thực tế và kết quả sau đó.
+- Interleave phương án liên quan cần phân biệt sau học ban đầu; không đảo course ngẫu nhiên.
+- Self-explanation về quyết định/invariant; elaboration nối ý đã biết; kiểm tra đúng và giới hạn analogy.
+- Giảm hướng dẫn từ ví dụ → lab → biến thể độc lập theo bằng chứng expertise; giải thích dư cũng gây tải.
+- Luyện subskill đã chẩn đoán, feedback cụ thể theo task; yêu cầu sửa và thử case mới, không suy năng lực từ giờ học/copy.
+- Giảm tải setup không liên quan, một mục tiêu mỗi phiên; không để mò mẫm vô hạn khi nền yếu.
+- Chỉ rõ cấu trúc giống/khác qua ngữ cảnh; pass đúng ví dụ cũ là bằng chứng transfer yếu.
 
-Bắt đầu mà không xem ghi chú.
+## Thời gian và đánh giá
 
-Đặt 3-5 câu hỏi ngắn từ nội dung đã học trước đó. Trộn giữa recall và application.
+Ba chế độ giữ lần thử, feedback, exit response; thời gian từng phần và tỷ lệ thực hành là quyết định có thể chỉnh, không phải kết luận khoa học. Phiên ngắn có thể dời đọc sâu hoặc chia lab.
 
-### 2. Gặp một vấn đề trước
+Rubric trước khi làm: correctness/edge cases, invariant/reasoning, độc lập, giải thích và transfer. Điểm số tùy chọn, có cơ sở; chưa biết vẫn chưa biết. Completion, thành thạo cùng ngày và mastery bền vững khác nhau; cần tái dựng không hint và ngữ cảnh mới sau độ trễ. Xem kết quả cùng độ khó, hint và lỗi môi trường.
 
-Đưa ra một vấn đề thực tế tạo nhu cầu phải hiểu khái niệm mới.
-
-Người học cần biết mình đang cố giải quyết điều gì trước khi đọc phần giải thích.
-
-### 3. Xây mental model
-
-Dạy lượng lý thuyết tối thiểu cần thiết để suy luận về vấn đề.
-
-Dùng diagram, invariant, equation, execution trace hoặc data-flow model khi chúng thực sự hữu ích.
-
-### 4. Guided Practice
-
-Trình bày một worked example và giải thích các quyết định trong quá trình làm.
-
-Tránh đưa nhiều ví dụ gần như giống hệt nhau.
-
-### 5. Independent Practice
-
-Đưa một task với ít scaffolding hơn.
-
-Yêu cầu người học phải đưa ra quyết định, không chỉ lặp lại syntax.
-
-### 6. Feedback
-
-Phân loại lỗi:
-
-- thiếu kiến thức
-- mental model sai
-- lỗi thực thi do bất cẩn
-- dùng sai tool/API
-- chưa xem xét design trade-off
-
-Dùng loại lỗi để quyết định hint tiếp theo.
-
-### 7. Explain Back
-
-Yêu cầu người học tự giải thích:
-
-- khái niệm giải quyết vấn đề gì
-- nó hoạt động như thế nào
-- khi nào nó thất bại
-- có alternative nào
-- trade-off quan trọng là gì
-
-### 8. Ôn lại sau
-
-Đưa lại khái niệm vào warm-up và mixed problem trong tương lai.
-
-Lịch review mặc định gợi ý là +1 ngày, +3 ngày, +7 ngày và +21 ngày. Đây là scheduling heuristic và có thể điều chỉnh theo performance.
-
-## Phân bổ thời gian luyện tập
-
-Với bài học 60 phút, cấu hình mặc định phù hợp là:
-
-- 5 phút retrieval warm-up
-- 10-15 phút theory + worked example
-- 20 phút guided / semi-guided lab
-- 15 phút independent challenge
-- 5 phút explain-back + exit ticket
-
-## Interleaving
-
-Không chỉ luân phiên course một cách ngẫu nhiên.
-
-Hãy interleave những khái niệm buộc người học phải phân biệt, ví dụ:
-
-- index seek vs scan
-- optimistic vs pessimistic concurrency
-- BFS vs Dijkstra vs A*
-- confidence interval vs prediction interval
-- precision vs recall vs ROC-AUC
-- concurrency vs parallelism
-- retry vs circuit breaker
-
-## Productive Failure
-
-Với chủ đề phù hợp, cho người học thử một lời giải có vẻ hợp lý nhưng chưa hoàn chỉnh trước khi dạy canonical approach.
-
-Không để failure trở thành mò mẫm vô định. Giới hạn thời gian và debrief rõ ràng.
-
-## Dấu hiệu mastery
-
-Bằng chứng mạnh cho thấy đã học được:
-
-- giải được một biến thể mới
-- dự đoán được system behavior
-- giải thích được trade-off
-- debug được ví dụ bị lỗi
-- chọn được giữa các alternative và biện minh cho lựa chọn
-- kết nối được khái niệm sang course/domain khác
-
-Bằng chứng yếu:
-
-- nhận ra terminology
-- copy sample
-- làm theo step list mà không giải thích
-- chỉ trả lời được đúng ví dụ đã thấy trước đó
+Hint tăng dần conceptual → structural → implementation. Lời giải đầy đủ trong file mentor riêng; mở sau lần thử, yêu cầu rõ hoặc worked review. Không mở lời giải rồi chấm câu trả lời tiếp theo là independent.

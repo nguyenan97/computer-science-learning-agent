@@ -1,0 +1,107 @@
+{
+  "checked_on": "2026-10-05",
+  "sources": [
+    {
+      "id": "dunlosky2013",
+      "url": "https://doi.org/10.1177/1529100612453266",
+      "checked_at": "2026-10-05T02:09:14.407544+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "rowland2014",
+      "url": "https://doi.org/10.1037/a0037559",
+      "checked_at": "2026-10-05T02:09:14.408001+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "cepeda2006",
+      "url": "https://doi.org/10.1037/0033-2909.132.3.354",
+      "checked_at": "2026-10-05T02:09:14.408447+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "brunmair2019",
+      "url": "https://doi.org/10.1037/bul0000209",
+      "checked_at": "2026-10-05T02:09:14.408956+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "bisra2018",
+      "url": "https://doi.org/10.1007/s10648-018-9434-x",
+      "checked_at": "2026-10-05T02:09:14.413037+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "atkinson2000",
+      "url": "https://doi.org/10.3102/00346543070002181",
+      "checked_at": "2026-10-05T02:09:14.413508+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "renkl2002",
+      "url": "https://doi.org/10.1080/00220970209599510",
+      "checked_at": "2026-10-05T02:31:04.236094+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "macnamara2014",
+      "url": "https://doi.org/10.1177/0956797614535810",
+      "checked_at": "2026-10-05T02:09:14.418519+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "shute2008",
+      "url": "https://doi.org/10.3102/0034654307313795",
+      "checked_at": "2026-10-05T02:09:14.421687+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "sweller1988",
+      "url": "https://doi.org/10.1207/s15516709cog1202_4",
+      "checked_at": "2026-10-05T02:09:14.423971+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "sinha2021",
+      "url": "https://doi.org/10.3102/00346543211019105",
+      "checked_at": "2026-10-05T02:09:14.425356+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "kulik1990",
+      "url": "https://doi.org/10.3102/00346543060002265",
+      "checked_at": "2026-10-05T02:09:14.427428+00:00",
+      "status": "unavailable",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "id": "carpentries-memory",
+      "url": "https://raw.githubusercontent.com/carpentries/instructor-training/50745001271700a108de0622d80341965e249e5b/episodes/05-memory.md",
+      "checked_at": "2026-10-05T02:09:14.428550+00:00",
+      "status": "read",
+      "http_status": 200,
+      "bytes": 18720,
+      "sha256": "b95ff9bd6f3f8c5e47250b315b6c086606188a0ae9b20a5ef1d5915274728f86"
+    },
+    {
+      "id": "deans2015",
+      "url": "https://raw.githubusercontent.com/carpentries/instructor-training/50745001271700a108de0622d80341965e249e5b/episodes/files/papers/science-of-learning-2015.pdf",
+      "checked_at": "2026-10-05T02:09:14.431332+00:00",
+      "status": "read",
+      "http_status": 200,
+      "bytes": 696535,
+      "sha256": "b766c8e0824a9de4271e61e346449cbc1cd795cf468536df13d65c1b65f36963"
+    }
+  ]
+}

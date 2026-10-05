@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "fixture": false,
+  "learner": {
+    "timezone": "Asia/Bangkok",
+    "daily_minutes": null,
+    "goals": [],
+    "background": null
+  },
+  "lessons": [],
+  "assessments": [],
+  "reviews": []
+}

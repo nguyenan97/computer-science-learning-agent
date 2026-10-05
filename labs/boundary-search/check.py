@@ -41,9 +41,30 @@ class TransferChecks(unittest.TestCase):
         data=[10,10,20,30,30,40]
         for start,end in [(0,50),(10,30),(30,30),(11,39),(41,50),(10,10)]:
             with self.subTest(start=start,end=end):
+                before=data.copy()
                 self.assertEqual(MODULE.count_window(data,start,end),sum(start<=t<end for t in data))
+                self.assertEqual(data,before)
         self.assertEqual(MODULE.count_window([],0,1),0)
         with self.assertRaises(ValueError): MODULE.count_window(data,30,10)
+
+    def test_window_access_budget_and_no_copy(self):
+        class Counted:
+            def __init__(self,n): self.n=n; self.reads=0
+            def __len__(self): return self.n
+            def __getitem__(self,i):
+                if isinstance(i,slice): raise AssertionError('No copying a window')
+                if not 0<=i<self.n: raise IndexError(i)
+                self.reads+=1
+                if self.reads>2*self.n.bit_length(): raise AssertionError('Window query must use logarithmic access')
+                return i//2
+            def __setitem__(self,i,value): raise AssertionError('Input must not be mutated')
+        for n in (0,1,31,1024,65536):
+            for start,end in ((-1,n),(0,0),(2,7),(n,n+1)):
+                with self.subTest(n=n,start=start,end=end):
+                    values=Counted(n)
+                    expected=bisect.bisect_left([i//2 for i in range(n)],end)-bisect.bisect_left([i//2 for i in range(n)],start)
+                    self.assertEqual(MODULE.count_window(values,start,end),expected)
+                    self.assertLessEqual(values.reads,2*n.bit_length())
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(); p.add_argument('--module',default='starter.py'); p.add_argument('--stage',choices=['guided','all'],default='guided'); args=p.parse_args()

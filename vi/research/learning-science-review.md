@@ -46,3 +46,5 @@ Các citation này không chứng minh đã đọc methods. Cần quyền truy c
 7. Stars chỉ metadata discovery; pin lát cắt implementation/test, ghi việc xác minh thật.
 
 Xem [workflow](../references/learning-workflow.md), [bài mẫu](../lessons/boundary-search/lesson.md) và [review repo](repository-review.md).
+
+Nguồn đọc thêm: [runtime review](runtime-design-review.md) ghi practice guide IES/WWC 2007 và evidence ratings. Candidate paper trước vẫn chưa full-text verified; đọc guide mới không thay việc đọc chúng.

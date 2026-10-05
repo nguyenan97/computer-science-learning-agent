@@ -14,6 +14,8 @@
   - [Sample Lesson](/lessons/boundary-search/lesson)
   - [Verification Results](/research/verification)
 
+  - [Runtime and Skill Design](/research/runtime-design-review)
+
 - **IUH Curricula**
   - [Master's Curriculum](/curricula/iuh/master/curriculum)
   - [PhD Curriculum](/curricula/iuh/phd/curriculum)

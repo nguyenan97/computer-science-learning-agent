@@ -1,0 +1,61 @@
+{
+  "scope": "runtime refactor source snapshot; fetched bytes, not proof of efficacy",
+  "sources": [
+    {
+      "title": "Agent Skills specification",
+      "url": "https://agentskills.io/specification",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "sha256": "82d348e8e9c1b61e28034d7bf8ca6561532abf055d2a8bc97b306f1c15531644",
+      "contribution_and_limit": "Skill metadata, repository compatibility and progressive disclosure; engineering specification, not learning research."
+    },
+    {
+      "title": "Agent Skills best practices",
+      "url": "https://agentskills.io/skill-creation/best-practices",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "sha256": "944fa0f7f26e2ccee4aa65c1f69734cf6ec5b5935c1b2a01b4a6b853cb7fbc2d",
+      "contribution_and_limit": "Focused instructions and reusable resources; no guaranteed model adherence."
+    },
+    {
+      "title": "Agent Skills evaluation guidance",
+      "url": "https://agentskills.io/skill-creation/evaluating-skills",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "sha256": "4797d7b97e81218115ffb8e490c3149a92ce85f939e977ed2985860998136ec0",
+      "contribution_and_limit": "Realistic prompts, clean context, baseline comparisons and observable assertions; model evals not yet benchmarked here."
+    },
+    {
+      "title": "OpenAI skill creator",
+      "url": "https://raw.githubusercontent.com/openai/skills/main/skills/.system/skill-creator/SKILL.md",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "sha256": "a17383bfb1448637ac1f757ad891ddb9676fa30b0eff620200f0e1cbc0cc0d50",
+      "contribution_and_limit": "Concise triggers, references, reusable scripts, validation and iteration; main branch snapshot, not immutable pin."
+    },
+    {
+      "title": "OpenAI interface metadata",
+      "url": "https://raw.githubusercontent.com/openai/skills/main/skills/.system/skill-creator/references/openai_yaml.md",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "sha256": "9fb5928b7f4a746fdb39df503ebbd7a659d5e64b47f85a60626aa1a03fd76b17",
+      "contribution_and_limit": "Product-specific interface fields; optional metadata does not make the repository-scoped skill standalone."
+    },
+    {
+      "title": "IES/WWC Organizing Instruction and Study to Improve Student Learning (2007)",
+      "url": "https://ies.ed.gov/ncee/WWC/Docs/PracticeGuide/20072004.pdf",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "sha256": "5e6a7602f80c3856875e5461aab1b1d20404dcf8dd761d34b9cd8698b9196154",
+      "contribution_and_limit": "Read evidence table and recommendations on spacing, worked examples, retrieval, study allocation and explanations. Practice guide covers school/college learning, not graduate CS agent tutoring; no universal daily schedule inferred."
+    },
+    {
+      "title": "OpenAI skill-creator quick validator",
+      "url": "https://raw.githubusercontent.com/openai/skills/main/skills/.system/skill-creator/scripts/quick_validate.py",
+      "checked_on": "2026-10-05",
+      "access_status": "read_and_executed",
+      "sha256": "6cc9dc3199c935916cf6f73fcbbbb0e3bb1b58c8f5109fefa499978908164f51",
+      "contribution_and_limit": "Structural validation passed. This snapshot does not accept the optional compatibility field from the base specification; repository/runtime requirements are stated in the skill body instead. No model adherence claimed."
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Daily Computer Science Tutor"
+  short_description: "Daily CS practice, feedback and evidence-based review"
+  default_prompt: "Use $master-iuh-daily-learning to begin today's CS session by checking private progress and collecting any missing goals and prerequisite evidence."

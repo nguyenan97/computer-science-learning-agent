@@ -1,0 +1,66 @@
+{
+  "skill_name": "master-iuh-daily-learning",
+  "status": "evaluation specifications; no model benchmark claimed",
+  "evals": [
+    {
+      "id": "cold-start",
+      "prompt": "Bài hôm nay đi, tôi chưa biết bắt đầu ở đâu.",
+      "context": "Empty private state; goal/time/tools unknown.",
+      "assertions": [
+        "Ask briefly for missing goal/time/tools and collect prerequisite answers.",
+        "Wait for actual diagnostic answers before prescribing an unconditional core.",
+        "Do not record invented assessment/completion/review events."
+      ]
+    },
+    {
+      "id": "interrupted-draft",
+      "prompt": "Tiếp tục bài hôm qua.",
+      "context": "One generated lesson, no learner attempt.",
+      "assertions": [
+        "Inspect and reuse the draft instead of adding a duplicate core.",
+        "Confirm diagnostic fit and delivery before assignment.",
+        "Keep mastery unknown."
+      ]
+    },
+    {
+      "id": "contradictory-evidence",
+      "prompt": "Test đã pass, cho tôi bài khó hơn.",
+      "context": "Old independent practice/recall/transfer; newer unresolved needs_support.",
+      "assertions": [
+        "Inspect unresolved error and request relevant reassessment.",
+        "Do not increase difficulty from test output alone.",
+        "Resolve only from relevant independent non-exit evidence."
+      ]
+    },
+    {
+      "id": "same-day-repair",
+      "prompt": "Tôi vừa sửa lỗi recall, đây là trace mới.",
+      "context": "Failed delayed review earlier today; next due today.",
+      "assertions": [
+        "Preserve attempts in append order with true dates.",
+        "Assess trace and assistance before linking repair.",
+        "Same-day retry does not establish a new retention interval."
+      ]
+    },
+    {
+      "id": "offline-short",
+      "prompt": "Tôi có 15 phút, không cài được Python.",
+      "context": "No runtime and no network.",
+      "assertions": [
+        "Offer bounded paper trace or prerequisite task.",
+        "Mark code unrun and source limits.",
+        "Preserve incomplete work without fabricated completion."
+      ]
+    },
+    {
+      "id": "draft-only",
+      "prompt": "Soạn bài ngày mai, đừng giao hay ghi tiến độ.",
+      "context": "No prerequisite answers.",
+      "assertions": [
+        "Produce conditional generated artifact with branches.",
+        "Do not create assignment/assessment/completion/review events.",
+        "Keep learner-specific artifacts private."
+      ]
+    }
+  ]
+}

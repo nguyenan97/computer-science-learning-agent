@@ -105,7 +105,7 @@ Without mentor hints, implement `count_window` in `starter.py` for sorted intege
 python check.py --stage all
 ```
 
-Expected after your attempt is correct: 3 tests pass. This is a near-to-changed-context transfer task, not proof of transfer to all database systems. **Extended variant:** design event records with a timestamp key, distinguish a timestamp x from a full record argument, and explain what breaks with unsorted inputs or timezone-inconsistent timestamps. Propose an update-heavy workload where a sorted flat list is a poor choice; compare with an index without claiming identical complexity constants.
+Expected after your attempt is correct: 4 tests pass. This is a near-to-changed-context transfer task, not proof of transfer to all database systems. **Extended variant:** design event records with a timestamp key, distinguish a timestamp x from a full record argument, and explain what breaks with unsorted inputs or timezone-inconsistent timestamps. Propose an update-heavy workload where a sorted flat list is a poor choice; compare with an index without claiming identical complexity constants.
 
 Hints and full solution are separate mentor material. Ask for one hint at a time (conceptual → structural → implementation-specific); disclose the full solution only after an attempt, an explicit request or a worked review. Record actual hint use; assisted success is not independent evidence.
 
@@ -130,3 +130,5 @@ Explain-back: state the invariant in your own words; explain why the equality br
 - **Instructor synthesis:** diagnostic branch, this trace/lab, time budgets and rubric are designs to evaluate, not proven optimal methods.
 
 After observed completion, choose a next due date with the learner based on performance and retention goal. Prompt A: reconstruct invariant and predict a different duplicate boundary unaided. Prompt B later: implement/justify a changed-context window query and compare an update-heavy design. If wrong/hinted, correct the misconception and retry sooner; if independent with explanation, consider a longer interval. Keep actual scheduled date, observation date and next-date reason. No scheduled review or mastery has been written for this unassigned sample.
+
+For an actual assignment, create a new private session and copy the starter to its workspace. The public sample record remains outside real state; do not import its sample ID.

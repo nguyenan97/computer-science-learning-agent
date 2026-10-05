@@ -1,7 +1,9 @@
-# Learning ledger
+# Learning progress
 
-The only canonical learner history is [learning-state.json](learning-state.json), versioned and checked by [schema](learning-state.schema.json) and `python scripts/learning_state.py validate`.
+Active state is private: `.learning-private/learning-state.json`, or a selected
+external workspace. This page stores no learner records or counters.
 
-This page has no editable counters or LESSON_RECORD blocks. The Vietnamese page points to the same state. See [daily workflow](../references/learning-workflow.md) for lifecycle, evidence, review history and safe updates. Run `python scripts/learning_state.py plan` for due/overdue reviews, unfinished work and scoped mastery evidence.
-
-The initial state is empty because no learner attempts have been observed. Sample/fixture data is kept outside real progress. Historical Markdown ledgers had no records at migration.
+Use the [workflow](../references/learning-workflow.md) to initialize, validate and
+update it. The [empty example](learning-state.example.json) is a public template;
+[schema v2](learning-state.schema.json) defines fields. Do not commit learner state
+or submitted work to this public repository.

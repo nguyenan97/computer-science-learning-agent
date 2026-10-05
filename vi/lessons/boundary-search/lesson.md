@@ -86,7 +86,7 @@ Không mở mentor, implement `count_window` trong starter.py: sorted integer ti
 python check.py --stage all
 ```
 
-Đúng → 3 tests pass. Đây là transfer sang context mới gần, không chứng minh mọi database. Mở rộng: event record dùng timestamp key, phân biệt x key với full record; assumption sorted/timezone; workload nhiều insert khiến flat list kém phù hợp, so ordered index với cost model riêng.
+Đúng → 4 tests pass. Đây là transfer sang context mới gần, không chứng minh mọi database. Mở rộng: event record dùng timestamp key, phân biệt x key với full record; assumption sorted/timezone; workload nhiều insert khiến flat list kém phù hợp, so ordered index với cost model riêng.
 
 Hint/solution trong mentor riêng; chỉ mở theo attempt/request/worked review. Hint conceptual → structural → implementation. Ghi hint thật, assisted không independent.
 
@@ -108,3 +108,5 @@ Explain-back: invariant bằng lời mình; equality branch; data structure cho 
 Curriculum outcome `6001127` đã đọc 2026-10-05, không quy định sequence cụ thể. CPython source/test/docs chính thức ở pin đã đọc cùng ngày cho contract/key/insert cost, không claim support latest. [Deans for Impact 2015](https://github.com/carpentries/instructor-training/blob/50745001271700a108de0622d80341965e249e5b/episodes/files/papers/science-of-learning-2015.pdf), câu 1–4 đã đọc cùng ngày, hỗ trợ scaffolding/retrieval/spacing/transfer cấu trúc; giới hạn primary access trong [report](../../research/learning-science-review.md). Diagnostic, trace, time và rubric là instructor design cần đo, không tối ưu đã chứng minh.
 
 Sau completion thật, chọn due với người học theo performance/retention goal. Prompt A tái dựng invariant và duplicate boundary mới không hint; prompt B sau đó window đổi context và update-heavy trade-off. Sai/hint → correction và retry sớm hơn; independent giải thích tốt → cân nhắc gap dài hơn. Giữ ngày hẹn/ngày quan sát/reason đổi. Chưa ghi review hay mastery cho bài mẫu chưa giao.
+
+Khi giao thật, tạo session riêng và copy starter vào workspace đó. Record mẫu công khai không vào progress thật; không import sample ID.

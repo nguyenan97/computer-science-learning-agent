@@ -1,105 +1,38 @@
-# Lesson Template
+<!-- contract-version: 1 -->
+# Lesson template
 
-# Day {N} — {Title}
+This owns lesson structure. [Workflow](learning-workflow.md) owns selection/state; [pedagogy](pedagogy.md) owns instruction; [source policy](source-policy.md) owns evidence. Adapt section length to available time rather than copying a long form every day.
 
-**Course:** {Course}  
-**Topic ID:** `{topic_id}`  
-**Lesson type:** core  
-**Estimated work:** {45-75 min}
+## Header and selection
 
-## Why this is next
+Session ID, topic ID, course code and curriculum section; type core/review/remediation/deepening; status generated. State why next, prerequisites and actual diagnostic evidence/unknowns, due-review choice and semantic-duplication check. List 2–4 measurable outcomes, time mode and environment constraints.
 
-2-4 sentences showing dependency on prior lessons and curriculum relevance.
+## Retrieval and prerequisite check
 
-## Outcomes
+No-notes recall from due/previous material; for no history use a diagnostic, without assuming earlier knowledge. Include a short observable prerequisite task and branching instructions: ready → proceed; weak → bridge/recheck; unknown → gather evidence.
 
-By the end, you should be able to:
+## Problem, foundation and current connection
 
-1. ...
-2. ...
-3. ...
+Concrete motivating problem and prediction. Minimum mental model with assumptions/invariant; clearly label curriculum, foundational theory, current version-specific guidance and instructor synthesis. Include only directly relevant updates, with checked date and uncertainty. One worked example narrates decisions.
 
-## 0. Retrieval warm-up — no notes
+## Guided lab
 
-3-5 questions from previous topics.
+Objective and prerequisites; OS/runtime/tool versions, dependency/data versions, deterministic starter/setup commands, working directory and fallback. Each numbered step has a purpose, prediction before run, expected observable checkpoint, self-check and explain-after prompt. Include common errors and a debug path. Prefer local reproducibility; do not add infrastructure for its own sake.
 
-Do not provide answers immediately.
+## Repository activity
 
-## 1. Problem first
+A dated source dossier following source policy, or a reason to omit GitHub. Pin precise targets. Ask learner to infer behavior from tests, trace code or compare trade-offs. State upstream build versus local-equivalent verification separately.
 
-A concrete engineering, analytical, or research problem that motivates the lesson.
+## Independent challenge and feedback
 
-Ask the learner to predict / sketch an initial answer.
+Transfer to a changed requirement/context without full solution in the handout. Provide separately gated hints and mentor solution. Rubric maps directly to outcomes; capture evidence, independence, errors, explanation and corrective feedback. Ask explain-back and exit-ticket questions, including a new-context question.
 
-## 2. Mental model
+## Sources and review hooks
 
-Concise explanation with the minimum necessary theory.
+For each source: role, contribution, URL/pin, checked date and status/limits. Define later recall and transfer prompts. Choose due dates **after actual completion/attempt evidence** using workflow; proposed hooks are not performed reviews.
 
-Include one diagram / equation / trace / table when it materially clarifies the model.
+## Record artifact
 
-## 3. Worked example
+A separate schema-compatible generated lesson JSON; it records design, not results. All future lifecycle dates null, assessment_ids empty. No score, mastery or actual review event is created by lesson generation. On delivery/attempt/completion persist only observed lifecycle events via workflow. See the [sample](../lessons/boundary-search/lesson.md).
 
-One example showing decisions and reasoning.
-
-## 4. Lab A — guided
-
-A hands-on task.
-
-Include:
-
-- objective
-- starter code/data when useful
-- expected observations, not full solution
-- 1-2 checkpoints
-
-## 5. Production Bridge
-
-Connect to real-world architecture, source code, performance, reliability, security, or maintainability.
-
-When useful, point to a precise source file, test, benchmark, issue, or merged PR from a reputable repository.
-
-## 6. Lab B — independent challenge
-
-Harder transfer task.
-
-Do not include the complete solution initially.
-
-Provide Hint 1 / Hint 2 only after an attempt or when requested.
-
-## 7. Common traps
-
-3-5 misconceptions or failure modes.
-
-## 8. Explain-back
-
-Ask 2-3 prompts that force the learner to explain the concept in their own words.
-
-## 9. Exit ticket
-
-3-5 questions:
-
-- one core concept
-- one application
-- one transfer / trade-off question
-
-## Sources used
-
-For each source state its role, e.g.:
-
-- **Curriculum source** — establishes learning objective.
-- **Microsoft Learn** — current production guidance.
-- **GitHub source/test** — real implementation evidence.
-- **MIT/Stanford/etc.** — theory or problem set inspiration.
-
-Keep only high-value sources.
-
-## Review hooks
-
-- +1 day: ...
-- +3 days: ...
-- +7 days: ...
-- +21 days: ...
-
-## Lesson record
-
-Emit the required `LESSON_RECORD` block from SKILL.md.
+Suggested mode budgets (design heuristics): short 25 = 3 check + 6 model/example + 10 lab + 4 independent + 2 exit; standard 55 = 5 check + 10 model/example + 20 lab + 10 independent + 5 repo + 5 feedback/exit; extended 85 adds 15 deeper transfer and 15 source/experiment. If setup alone exceeds the budget, use an offline trace or split the session.

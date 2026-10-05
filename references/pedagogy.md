@@ -1,124 +1,29 @@
+<!-- contract-version: 1 -->
 # Pedagogy
 
-## Learning Model
+Optimize for durable recall, independent problem solving and changed-context transfer. Evidence and limitations are in the [research review](../research/learning-science-review.md); scheduling/state are owned by [workflow](learning-workflow.md). No method is best in every context.
 
-Optimize for durable recall and transfer, not the feeling of familiarity.
+## Instructional loop
 
-Use:
+Retrieve without notes → encounter a concrete problem → build a small mental model → one worked example explaining decisions → guided lab → independent task → changed-context variation → feedback, explain-back and exit ticket → delayed retrieval and transfer.
 
-- retrieval practice
-- spaced practice
-- interleaving
-- self-explanation
-- worked examples followed by faded guidance
-- deliberate practice on errors
-- project/problem-based learning
-- immediate feedback after an attempt
+For a novice, model the process before open-ended exploration. With adequate prerequisites, use a short prediction/attempt before the example and explicitly debrief it. Failure without consolidation is not productive failure. Ask the learner to predict before running, then explain discrepancies afterwards.
 
-## Daily Loop
+## Design choices
 
-### 1. Retrieve
+- Retrieval is an attempt to reconstruct knowledge, not rereading or recognizing an answer. Give correction after the attempt; record hints and misconceptions.
+- Space practice across days according to actual results and desired retention horizon. Review intervals are heuristics. Measure actual delay and later performance.
+- Interleave related alternatives that require strategy discrimination after initial learning; do not rotate unrelated courses just for variety.
+- Ask for self-explanations of a decision/invariant and elaborations connecting to known ideas. Check accuracy and the limits of analogies.
+- Fade support from example to lab to independent variation. Adapt to demonstrated expertise; more explanation can overload experienced learners too.
+- Target diagnosed errors with purposeful practice and specific task-focused feedback. Require correction and a fresh case; do not infer competence from hours or copies.
+- Reduce irrelevant tool/setup demands and teach one objective per session. Keep useful difficulty while preventing unbounded search with weak prerequisites.
+- Teach structural similarities and differences across contexts. Passing the same example is weak evidence of transfer.
 
-Start without notes.
+## Time and assessment
 
-Ask 3-5 short questions from prior material. Mix recall and application.
+Short, standard and extended modes preserve a learner attempt, feedback and an exit response. Section times and practice ratios are editable design decisions, not scientific conclusions; no mandated percentage. A short session may defer long source reading or split a lab while preserving the objective.
 
-### 2. Encounter a Problem
+Use task-specific rubrics established before practice: correctness/edge cases, reasoning/invariant, independence, explanation and transfer. Numeric scores are optional with a documented basis. Unknown stays unknown. Completion, same-day proficiency and durable mastery differ; use delayed unaided reconstruction and new-context tasks before increasing confidence. Read outcomes alongside task difficulty, hints and environment friction.
 
-Present a realistic problem that creates a need for the new concept.
-
-The learner should know what they are trying to solve before reading the explanation.
-
-### 3. Build the Mental Model
-
-Teach the minimum theory required to reason about the problem.
-
-Use diagrams, invariants, equations, execution traces, or data-flow models when useful.
-
-### 4. Guided Practice
-
-Show one worked example and narrate decisions.
-
-Avoid multiple near-identical examples.
-
-### 5. Independent Practice
-
-Give a task with less scaffolding.
-
-Require a decision, not just syntax reproduction.
-
-### 6. Feedback
-
-Classify errors:
-
-- knowledge gap
-- incorrect mental model
-- careless execution
-- tool/API misuse
-- design trade-off not considered
-
-Use the error class to determine the next hint.
-
-### 7. Explain Back
-
-Ask the learner to explain:
-
-- what problem the concept solves
-- how it works
-- when it fails
-- what alternative exists
-- what trade-off matters
-
-### 8. Revisit Later
-
-Reinsert the concept in future warm-ups and mixed problems.
-
-Suggested default review offsets are +1 day, +3 days, +7 days, and +21 days. These are a scheduling heuristic and may be adapted to performance.
-
-## Practice Allocation
-
-For a 60-minute lesson, a good default is:
-
-- 5 min retrieval warm-up
-- 10-15 min theory + worked example
-- 20 min guided / semi-guided lab
-- 15 min independent challenge
-- 5 min explain-back + exit ticket
-
-## Interleaving
-
-Do not only alternate courses randomly.
-
-Interleave concepts that force discrimination, for example:
-
-- index seek vs scan
-- optimistic vs pessimistic concurrency
-- BFS vs Dijkstra vs A*
-- confidence interval vs prediction interval
-- precision vs recall vs ROC-AUC
-- concurrency vs parallelism
-- retry vs circuit breaker
-
-## Productive Failure
-
-For suitable topics, let the learner attempt a plausible but incomplete solution before teaching the canonical approach.
-
-Do not let failure become aimless. Time-box it and debrief explicitly.
-
-## Mastery Signals
-
-Strong evidence of learning:
-
-- can solve a novel variation
-- can predict system behavior
-- can explain trade-offs
-- can debug a broken example
-- can choose between alternatives and justify the choice
-- can connect the concept to a different course / domain
-
-Weak evidence:
-
-- recognizes terminology
-- copies a sample
-- follows a step list without explanation
-- answers only the exact example previously shown
+Hints progress conceptual → structural → implementation-specific. Keep full challenge solutions in separate mentor files; reveal only after an attempt, an explicit request or worked review. Do not reveal a solution to assess an “independent” response afterwards.

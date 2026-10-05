@@ -1,116 +1,23 @@
-# Source Policy
+<!-- contract-version: 1 -->
+# Source policy
 
-## Goal
+This is the single research and repository-evaluation policy. Curriculum establishes scope; primary technical sources establish implementation behavior; academic research establishes theoretical or learning claims; open-source code demonstrates one implementation; instructor synthesis proposes connections. Label all five roles explicitly and never attribute inferred prerequisites to IUH.
 
-Use sources to create a defensible lesson, not to maximize citation count.
+## Research for each lesson
 
-## Source Tiers
+Read curriculum first, then research foundational theory and a directly related evolving detail. Prefer systematic reviews/meta-analyses and original academic studies for pedagogical claims; inspect participants, tasks, control conditions, delay, outcomes, uncertainty and moderators before claiming an effect. Prefer official documentation, standards and official implementation/tests for APIs. Old foundational theory may remain useful; newer is not inherently better evidence.
 
-### Tier A — Project Ground Truth
+Use the smallest source set that supports the actual objectives (often 3–6, heuristic). For each source log title/author, URL, role, claim/section used, checked date, version/commit when applicable, access status (`read`, `metadata_only`, `unavailable`) and limitations/conflicts. Reading an abstract or a citation is not reading methods. Do not turn inaccessible sources into invented findings or benchmarks. Clearly separate stable theory, verified version-specific behavior, unverified current guidance and instructor judgment.
 
-The user's Master IUH sources define curriculum scope, terminology, course outcomes, and institutional framing.
+Check volatile facts at lesson time: tool/dependency versions, support status, cloud limits, security advice, APIs and repo popularity/activity. Pin reproducibility versions separately; an old pinned example is not necessarily the latest or recommended production version. If live access fails, use verified stable material, mark limits, or defer. No hard-coded current year.
 
-Use them first when deciding what the program expects.
+## GitHub research protocol
 
-### Tier B — Primary Technical Authority
+1. Derive a narrow repository query from the objective and stack. Discover highly starred relevant projects and official/specialist alternatives. Shortlist only enough to compare; usually select one, occasionally two. For a nontechnical topic, explain why none is useful.
+2. At research time inspect the repository and record exact stars if obtainable, timestamp/date, maintainer identity, archived status, recent default-branch commit and release evidence. GitHub API is preferred when available; HTML is acceptable with field provenance. If unavailable/ambiguous use null plus a reason, never estimate. Star thresholds are discovery heuristics only.
+3. Evaluate objective fit, maintainer authority, evidence of usage (users/downstream references; stars alone do not establish adoption), maintenance/release activity, code/test/benchmark quality, docs, license, setup cost and learning complexity. State unknowns instead of inventing a composite score.
+4. Select based on pedagogical fit and manageable slice. Explain why a lower-star official/specialist repo can beat a popular tutorial; document the rejected alternative briefly. Verify archived status explicitly when possible; absence of a visible archive banner is weaker evidence.
+5. Pin a commit SHA or immutable release with resolved SHA, link exact file/function/test/benchmark/issue/PR targets, and explain each target's task. Require a prediction, trace, defect repair, benchmark experiment or comparison that connects implementation to theory and trade-offs.
+6. Record versions/data/commands, expected observations and what you actually ran. Full upstream build is optional; reading a pinned implementation slice and running a local equivalent must be labelled as such. License does not automatically grant permission to redistribute all dependencies or curriculum materials.
 
-Examples:
-
-- Microsoft Learn / .NET documentation
-- Azure Architecture Center / Well-Architected Framework
-- official product documentation
-- standards / RFCs
-- official framework design documents
-- official source repositories
-
-Use these for current behavior, API semantics, architecture guidance, support status, limits, and recommended patterns.
-
-### Tier C — Rigorous Academic Sources
-
-Prefer:
-
-- textbooks named by the curriculum
-- peer-reviewed papers
-- MIT OpenCourseWare
-- Stanford / CMU / Berkeley / Harvard / Cornell and comparable university material
-- authoritative lecture notes / problem sets
-
-Use these for theory, proofs, problem sets, experimental method, and durable mental models.
-
-### Tier D — Production OSS Evidence
-
-Use mature repositories to show how concepts are implemented in real systems.
-
-Evaluate:
-
-1. relevance to the lesson
-2. maintainer authority
-3. recency of commits / releases
-4. quality of tests / benchmarks
-5. issue and PR discussion quality
-6. real adoption
-7. stars / forks / contributors as secondary signals
-
-For community repositories, >= 5k stars is a useful discovery threshold, not a guarantee.
-
-Read the smallest useful slice:
-
-- implementation file
-- unit / integration test
-- benchmark
-- design note
-- issue
-- merged PR
-
-Do not ask the learner to browse a huge repository without a precise target.
-
-### Tier E — Secondary Sources
-
-Blogs, tutorials, videos, Q&A sites.
-
-Use only when they provide a uniquely clear explanation or practical reproduction that primary sources do not.
-
-Never let Tier E override a current primary source.
-
-## Currentness Rules
-
-External facts that may change must be verified at lesson time:
-
-- .NET / C# / Angular / SQL Server / Azure versions and features
-- package APIs
-- cloud service behavior / limits
-- GitHub stars / activity
-- security guidance
-- AI model / SDK behavior
-
-Prefer recent sources, but do not discard old foundational theory merely for being old.
-
-## Source Triangulation
-
-For claims with production impact, try to triangulate:
-
-- what the curriculum teaches
-- what official docs recommend today
-- what real source code / tests show
-
-If they differ, explain why.
-
-## Suggested Search Patterns
-
-- `<concept> site:learn.microsoft.com`
-- `<concept> site:github.com/dotnet`
-- `<concept> site:ocw.mit.edu problem set`
-- `<concept> Stanford course notes`
-- `<concept> paper survey`
-- `<concept> benchmark GitHub`
-
-## Anti-Patterns
-
-Avoid:
-
-- SEO listicles as primary evidence
-- stale Stack Overflow answers for current framework behavior
-- star count as the only repository quality metric
-- summarizing a paper without reading methodology / evaluation
-- presenting benchmark numbers without environment and workload context
-- using generated code as evidence that an API exists
+No README-only link dump, no stars-as-quality guarantee, no benchmark speed claims without workload/environment, no unchecked generated API claims. Do not force GitHub or the default C#/.NET/T-SQL/TypeScript/Azure stack where a smaller or more appropriate tool teaches the objective better.

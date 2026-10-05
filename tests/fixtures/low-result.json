@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "fixture": true,
+  "learner": {
+    "timezone": "Asia/Bangkok",
+    "daily_minutes": null,
+    "goals": [
+      "FIXTURE ONLY: diagnose boundary errors"
+    ],
+    "background": null
+  },
+  "lessons": [
+    {
+      "id": "fixture-session",
+      "topic_id": "advanced-algorithms.boundary-search.l1",
+      "course_code": "6001127",
+      "title": "Boundary search and half-open time windows",
+      "objective": "Implement and justify lower_bound; transfer partition reasoning to time-window counting",
+      "concepts": [
+        "binary-search",
+        "partition-invariant",
+        "half-open-interval",
+        "complexity"
+      ],
+      "prerequisites": [
+        "sorted-order",
+        "array-indexing",
+        "loops"
+      ],
+      "kind": "core",
+      "related_to": [],
+      "status": "completed",
+      "created_on": "2026-10-05",
+      "assigned_on": "2026-10-05",
+      "started_on": "2026-10-05",
+      "completed_on": "2026-10-05",
+      "artifact": "lessons/boundary-search/lesson.md",
+      "assessment_ids": [
+        "practice"
+      ],
+      "review_prompts": [
+        "Reconstruct the partition invariant without notes",
+        "Count a changed time window with duplicate endpoints"
+      ],
+      "constraints": [
+        "Sample only; not assigned and not learner evidence",
+        "Python 3.12; offline lab"
+      ]
+    }
+  ],
+  "assessments": [
+    {
+      "id": "practice",
+      "lesson_id": "fixture-session",
+      "topic_id": "advanced-algorithms.boundary-search.l1",
+      "kind": "practice",
+      "observed_on": "2026-10-05",
+      "task": "Fixture task, not learner work",
+      "evidence": [
+        "FIXTURE: synthetic trace and test output"
+      ],
+      "assessed_by": "fixture-test",
+      "outcome": "needs_support",
+      "score": null,
+      "score_basis": null,
+      "hints": [],
+      "misconceptions": [],
+      "explanation_quality": null,
+      "feedback": "Fixture feedback",
+      "next_action": "Fixture recheck"
+    }
+  ],
+  "reviews": []
+}

@@ -1,0 +1,22 @@
+name: Validate Learning Workflow
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python scripts/generate_curriculum_map.py --check
+      - run: python scripts/validate_docs_navigation.py
+      - run: python scripts/validate_learning.py
+      - run: python -m unittest discover -s tests -v
+      - name: Verify reference lab (not learner work)
+        working-directory: labs/boundary-search
+        run: python check.py --module mentor/solution.py --stage all

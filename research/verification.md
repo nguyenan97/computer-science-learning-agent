@@ -63,3 +63,7 @@ Original curriculum PDFs/current IUH regulations, full upstream CPython tests,
 SQL/.NET/cloud labs, interactive browser rendering and real learner retention were
 not verified in this refactor. The starter remains intentionally unfinished, and
 mentor solutions are separated by tutoring convention rather than access control.
+
+Follow-up preference update: daily delivery now includes complete Vietnamese/English versions, optional exercises with accessible solutions, 90-minute default and optional 180+ minute depth. No submission gate for a new lesson. Assessment still requires actual evidence. Seven evaluation specifications are defined; no model benchmark claimed.
+
+Public lesson follow-up: Lesson 01 is published in paired EN/VI paths with its shared lab and source/agent-check assets. Pages reads an explicit lesson catalog. Packaging tests now verify both public language versions, reject private catalog paths, and still exclude synthetic private markers. Personal session state is not included.

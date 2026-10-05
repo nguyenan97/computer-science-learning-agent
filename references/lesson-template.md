@@ -1,4 +1,4 @@
-<!-- contract-version: 2 -->
+<!-- contract-version: 3 -->
 # Lesson template
 
 This owns lesson structure. [Workflow](learning-workflow.md) owns selection/state; [pedagogy](pedagogy.md) owns instruction; [source policy](source-policy.md) owns evidence. Adapt section length to available time rather than copying a long form every day.
@@ -25,7 +25,7 @@ A dated source dossier following source policy, or a reason to omit GitHub. Pin 
 
 ## Independent challenge and feedback
 
-Transfer to a changed requirement/context without full solution in the handout. Provide separately gated hints and mentor solution. Rubric maps directly to outcomes; capture evidence, independence, errors, explanation and corrective feedback. Ask explain-back and exit-ticket questions, including a new-context question.
+Make practice optional. Transfer to a changed requirement/context and include a full worked solution after every exercise, including self-checks and exit questions. Keep task and answer visually separate, optionally collapsed, but accessible without submission. Assessment is optional; use a fresh unseen task for any later independence claim. Rubric maps directly to outcomes; capture evidence, independence, errors, explanation and corrective feedback. Ask explain-back and exit-ticket questions, including a new-context question.
 
 ## Sources and review hooks
 
@@ -37,4 +37,8 @@ A separate schema-compatible generated lesson JSON; it records design, not resul
 
 Suggested mode budgets (design heuristics): short 25 = 3 check + 6 model/example + 10 lab + 4 independent + 2 exit; standard 55 = 5 check + 10 model/example + 20 lab + 10 independent + 5 repo + 5 feedback/exit; extended 85 adds 15 deeper transfer and 15 source/experiment. If setup alone exceeds the budget, use an offline trace or split the session.
 
-Store learner-specific artifacts relative to the private state directory, not in public `lessons/`. Pause at diagnostic and task prompts to collect actual answers; a draft may remain conditional.
+Store learner-specific artifacts relative to the private state directory, not in public `lessons/`. Deliver a complete lesson without waiting for diagnostic/task responses. Use conditional prerequisite branches; wait for real responses only when assessment is requested.
+
+## Daily bilingual delivery
+
+Provide complete Vietnamese and English versions with the same objectives, examples, commands, optional exercises, worked answers and sources. Store paired private artifacts (`lesson.vi.md`, `lesson.en.md`) for one session/topic; do not create two progress records. Default 90 minutes plus an optional 180+ minute deep-dive track; budgets apply to one language path, not reading both translations. Include a reading-only path. Exercises and submission are optional and never unlock the next lesson.

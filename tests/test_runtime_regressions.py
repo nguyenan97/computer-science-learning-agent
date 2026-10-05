@@ -176,12 +176,16 @@ class PublicSiteTests(unittest.TestCase):
             source=Path(directory)/'source';source.mkdir()
             for name in (*builder.PUBLIC_FILES, *(f'labs/boundary-search/{p}' for p in builder.PUBLIC_LAB_FILES), *(f'vi/{p}' for p in ('README.md','_404.md','_sidebar.md','_navbar.md'))):
                 target=source/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/name,target)
+            for path in builder.catalog_files(ROOT):
+                target=source/path.relative_to(ROOT);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(path,target)
             for name in builder.PUBLIC_DOC_DIRS: shutil.copytree(ROOT/name,source/name,dirs_exist_ok=True)
             for name in ('.learning-private/learning-state.json','state/learning-state.json','lessons/private/lesson.md'):
                 p=source/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('SYNTHETIC_PRIVATE_MARKER')
             out=Path(directory)/'site';builder.build(source,out)
             self.assertTrue((out/'index.html').is_file())
             self.assertTrue((out/'lessons/boundary-search/lesson.md').is_file())
+            self.assertTrue((out/'lessons/2026-10-05-cost-model/lesson.md').is_file())
+            self.assertTrue((out/'vi/lessons/2026-10-05-cost-model/lesson.md').is_file())
             self.assertTrue((out/'state/learning-state.example.json').is_file())
             self.assertFalse((out/'state/learning-state.json').exists())
             for name in ('.learning-private','.git','tests','scripts','.github'):
@@ -191,6 +195,9 @@ class PublicSiteTests(unittest.TestCase):
             with self.assertRaises(ValueError):builder.build(source,out)
             (source/'index.html').unlink();(source/'index.html').symlink_to(source/'.learning-private/learning-state.json')
             with self.assertRaises(ValueError):builder.build(source,Path(directory)/'symlink-site')
+            catalog={'lessons':[{'id':'invalid','files':['.learning-private/learning-state.json']}]}
+            (source/'lessons/catalog.json').write_text(json.dumps(catalog))
+            with self.assertRaises(ValueError):builder.catalog_files(source)
 
 
 class LabRegressionTests(unittest.TestCase):

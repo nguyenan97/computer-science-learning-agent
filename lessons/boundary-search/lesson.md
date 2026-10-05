@@ -50,7 +50,7 @@ For a different example `[1,3,3,8]`, x=3:
 | 0 | 1 | 0 | 1 | lo=1: index 0 is strictly smaller and cannot be the boundary |
 | 1 | 1 | — | — | Return 1; both partitions satisfy the contract |
 
-Why not immediately return mid on equality? That gives an arbitrary matching index, not necessarily the boundary. Explain this difference before moving to code. This example teaches the guided function; the independent window solution is withheld.
+Why not immediately return mid on equality? That gives an arbitrary matching index, not necessarily the boundary. Explain this difference before moving to code. This example teaches the guided function; the optional window solution is available below.
 
 ## Guided lab: implement and observe the invariant
 
@@ -99,7 +99,7 @@ Network fallback: use the local lab and state that upstream targets were not ava
 
 ## Independent challenge: time windows
 
-Without mentor hints, implement `count_window` in `starter.py` for sorted integer timestamps. Contract: count `start <= t < end`, retain input, accept equal endpoints/empty data and raise ValueError when end < start. Avoid a scan, copying a slice or sorting per query; reuse partition reasoning. First design at least three tests covering duplicate endpoints, an empty window and missing endpoints. Predict each result before running.
+Optionally try without hints: implement `count_window` in `starter.py` for sorted integer timestamps. Contract: count `start <= t < end`, retain input, accept equal endpoints/empty data and raise ValueError when end < start. Avoid a scan, copying a slice or sorting per query; reuse partition reasoning. First design at least three tests covering duplicate endpoints, an empty window and missing endpoints. Predict each result before running.
 
 ```bash
 python check.py --stage all
@@ -107,7 +107,7 @@ python check.py --stage all
 
 Expected after your attempt is correct: 4 tests pass. This is a near-to-changed-context transfer task, not proof of transfer to all database systems. **Extended variant:** design event records with a timestamp key, distinguish a timestamp x from a full record argument, and explain what breaks with unsorted inputs or timezone-inconsistent timestamps. Propose an update-heavy workload where a sorted flat list is a poor choice; compare with an index without claiming identical complexity constants.
 
-Hints and full solution are separate mentor material. Ask for one hint at a time (conceptual → structural → implementation-specific); disclose the full solution only after an attempt, an explicit request or a worked review. Record actual hint use; assisted success is not independent evidence.
+Hints and the full worked solution are accessible below; attempting or submitting work is optional. Record actual hint use; assisted success is not independent evidence.
 
 ## Rubric, feedback and explain-back
 
@@ -132,3 +132,29 @@ Explain-back: state the invariant in your own words; explain why the equality br
 After observed completion, choose a next due date with the learner based on performance and retention goal. Prompt A: reconstruct invariant and predict a different duplicate boundary unaided. Prompt B later: implement/justify a changed-context window query and compare an update-heavy design. If wrong/hinted, correct the misconception and retry sooner; if independent with explanation, consider a longer interval. Keep actual scheduled date, observation date and next-date reason. No scheduled review or mastery has been written for this unassigned sample.
 
 For an actual assignment, create a new private session and copy the starter to its workspace. The public sample record remains outside real state; do not import its sample ID.
+
+## Optional practice and worked answers
+
+Reading only is valid; no task or submission is required to request another lesson.
+Try the questions first if useful, or read the answers immediately. Solution-assisted
+work does not establish independence.
+
+- Warm-up: `[lo,hi)` includes lo and excludes hi; insertion at the front shifts old
+  indices by one. Repeated integer halving takes logarithmically many iterations.
+- Diagnostic: `[2,4,4,9]` has values <4 only at index 0; the boundary is 1. For
+  mid=2 with equality, hi=2 retains the earlier boundary; the boundary itself may
+  equal hi. Sorted order ensures discarded partitions satisfy their inequalities.
+  Bridge recheck `[1,1,3]`, target 1 gives boundary 0.
+- Missing/beyond-range traces: target 0 returns 0, target 10 returns 4; empty input
+  returns 0. Each update shrinks hi-lo. `hi=mid-1` can skip a valid boundary: `[1,3]`,
+  target 3 would incorrectly terminate at 0 after mid=1.
+- Full guided and window implementation: [worked code](../../labs/boundary-search/mentor/solution.py).
+  Initialize lo=0, hi=n; equality moves hi to mid, values < target move lo to mid+1.
+  For a window subtract `lower_bound(end)-lower_bound(start)`; reject end<start.
+  Two searches use O(log n) accesses and O(1) extra space.
+- Window tests on `[10,10,20,30,30,40]`: [10,30) counts 3; [30,30) counts 0;
+  [11,39) counts 3. Empty input counts 0; reversed endpoints raise ValueError.
+- Exit answers: invariant partitions are <x before lo and >=x at/after hi. Returning
+  an arbitrary equal midpoint loses the first duplicate. With records and a key,
+  search x is already the key. Flat-list insertion is O(n); a database index also
+  depends on page I/O, concurrency and its update/query cost model.

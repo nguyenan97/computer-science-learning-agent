@@ -1,0 +1,10 @@
+orders: ['B2', 'A1', 'B2', 'C3', 'A1']
+scan: ['B2', 'A1', 'C3'] equality_checks: 6
+hash: ['B2', 'A1', 'C3'] membership_calls: 5
+duplicates: [('B2', 2), ('A1', 2)]
+n=128 scan_equality_checks=8128 hash_membership_calls=128
+n=256 scan_equality_checks=32640 hash_membership_calls=256
+n=512 scan_equality_checks=130816 hash_membership_calls=512
+all_equal_n=128 scan_equality_checks=127
+SQLite: 3.53.1 counts_in_first_occurrence_order: [('B2', 2), ('A1', 2), ('C3', 1)]
+collision_n=100 membership_calls=100 actual_equality_checks=11964

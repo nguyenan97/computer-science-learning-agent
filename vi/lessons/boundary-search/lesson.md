@@ -35,7 +35,7 @@ Service lưu timestamps sorted, integer có duplicates; hỏi nhiều lần số
 
 ## Worked example nêu quyết định
 
-`[1,3,3,8]`, x=3: (lo,hi,mid)=(0,4,2), value 3 → hi=2 vì equality thuộc partition phải và có thể có 3 trước; (0,2,1), value 3 → hi=1; (0,1,0), value 1 → lo=1 vì index 0 nhỏ hơn; (1,1) → return 1. Vì sao return ngay mid khi equality chỉ cho một matching index mà không phải boundary? Giải thích trước code; solution window vẫn được giữ riêng.
+`[1,3,3,8]`, x=3: (lo,hi,mid)=(0,4,2), value 3 → hi=2 vì equality thuộc partition phải và có thể có 3 trước; (0,2,1), value 3 → hi=1; (0,1,0), value 1 → lo=1 vì index 0 nhỏ hơn; (1,1) → return 1. Vì sao return ngay mid khi equality chỉ cho một matching index mà không phải boundary? Giải thích trước code; lời giải window truy cập ngay ở phần dưới.
 
 ## Lab hướng dẫn từng bước
 
@@ -80,7 +80,7 @@ Network lỗi → local lab, ghi không đọc được upstream, không bịa. 
 
 ## Challenge độc lập và biến thể transfer
 
-Không mở mentor, implement `count_window` trong starter.py: sorted integer timestamps, đếm start<=t<end; input không đổi; endpoints bằng nhau/empty hợp lệ; end<start raise ValueError. Không scan/slice/sort mỗi query. Tự thiết kế ít nhất ba test duplicate endpoint/empty window/missing endpoint và predict trước chạy.
+Tùy chọn thử trước khi xem đáp án: implement `count_window` trong starter.py: sorted integer timestamps, đếm start<=t<end; input không đổi; endpoints bằng nhau/empty hợp lệ; end<start raise ValueError. Không scan/slice/sort mỗi query. Tự thiết kế ít nhất ba test duplicate endpoint/empty window/missing endpoint và predict trước chạy.
 
 ```bash
 python check.py --stage all
@@ -88,7 +88,7 @@ python check.py --stage all
 
 Đúng → 4 tests pass. Đây là transfer sang context mới gần, không chứng minh mọi database. Mở rộng: event record dùng timestamp key, phân biệt x key với full record; assumption sorted/timezone; workload nhiều insert khiến flat list kém phù hợp, so ordered index với cost model riêng.
 
-Hint/solution trong mentor riêng; chỉ mở theo attempt/request/worked review. Hint conceptual → structural → implementation. Ghi hint thật, assisted không independent.
+Hint/solution truy cập ngay, không cần attempt hay nộp bài. Có thể chọn hint conceptual → structural → implementation. Ghi hint thật, assisted không independent.
 
 ## Rubric, feedback và exit
 
@@ -110,3 +110,24 @@ Curriculum outcome `6001127` đã đọc 2026-10-05, không quy định sequence
 Sau completion thật, chọn due với người học theo performance/retention goal. Prompt A tái dựng invariant và duplicate boundary mới không hint; prompt B sau đó window đổi context và update-heavy trade-off. Sai/hint → correction và retry sớm hơn; independent giải thích tốt → cân nhắc gap dài hơn. Giữ ngày hẹn/ngày quan sát/reason đổi. Chưa ghi review hay mastery cho bài mẫu chưa giao.
 
 Khi giao thật, tạo session riêng và copy starter vào workspace đó. Record mẫu công khai không vào progress thật; không import sample ID.
+
+## Bài tập tùy chọn và lời giải
+
+Đọc-only hợp lệ; không cần làm/nộp task để đọc bài ngày sau. Có thể thử trước hoặc
+xem lời giải ngay; làm theo đáp án không là bằng chứng independent.
+
+- Warm-up: `[lo,hi)` gồm lo, không gồm hi; chèn đầu mảng tăng index cũ một đơn vị.
+  Chia đôi số nguyên liên tục có số bước logarithmic.
+- Diagnostic `[2,4,4,9]`: chỉ index 0 có giá trị <4; boundary là 1. mid=2 equality
+  → hi=2 vẫn giữ boundary trước đó; boundary có thể bằng hi. Sorted order bảo đảm
+  inequality của các partition đã loại. Bridge `[1,1,3]`, target 1 → boundary 0.
+- Trace target 0 → 0, target 10 → 4, empty → 0. Mỗi update giảm hi-lo.
+  `hi=mid-1` có thể bỏ biên đúng: `[1,3]`, target 3, mid=1 khiến trả sai 0.
+- [Code lời giải đầy đủ](../../../labs/boundary-search/mentor/solution.py): lo=0, hi=n;
+  equality → hi=mid, nhỏ hơn → lo=mid+1. Window = lower_bound(end)-lower_bound(start);
+  end<start → ValueError. Hai lần search O(log n) access, O(1) extra space.
+- `[10,10,20,30,30,40]`: [10,30) có 3; [30,30) có 0; [11,39) có 3. Empty có 0;
+  reversed endpoints lỗi ValueError.
+- Exit: partition trước lo <x, từ hi trở đi >=x; return midpoint equal không bảo đảm
+  duplicate đầu. Record/key search nhận x là key. Chèn flat list O(n); database index
+  còn phụ thuộc page I/O, concurrency và cost model update/query.

@@ -1,0 +1,23 @@
+{
+  "lessons": [
+    {
+      "id": "2026-10-05-cost-model",
+      "date": "2026-10-05",
+      "title": {
+        "vi": "Bài 01 — Big-O và cấu trúc dữ liệu",
+        "en": "Lesson 01 — Big-O and data structures"
+      },
+      "files": [
+        "lessons/2026-10-05-cost-model/lesson.md",
+        "vi/lessons/2026-10-05-cost-model/lesson.md",
+        "labs/cost-model/lab.py",
+        "labs/cost-model/solution.py",
+        "labs/cost-model/starter.py",
+        "labs/cost-model/check.py",
+        "lessons/2026-10-05-cost-model/sources.json",
+        "lessons/2026-10-05-cost-model/agent-observations.txt",
+        "lessons/2026-10-05-cost-model/agent-checks.txt"
+      ]
+    }
+  ]
+}

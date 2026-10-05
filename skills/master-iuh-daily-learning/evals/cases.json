@@ -7,8 +7,8 @@
       "prompt": "Bài hôm nay đi, tôi chưa biết bắt đầu ở đâu.",
       "context": "Empty private state; goal/time/tools unknown.",
       "assertions": [
-        "Ask briefly for missing goal/time/tools and collect prerequisite answers.",
-        "Wait for actual diagnostic answers before prescribing an unconditional core.",
+        "Deliver a complete Vietnamese and English lesson with optional prerequisite self-checks, answers and bridge branches.",
+        "Do not block lesson delivery on diagnostic responses; unknown prerequisite evidence remains explicit.",
         "Do not record invented assessment/completion/review events."
       ]
     },
@@ -47,7 +47,7 @@
       "prompt": "Tôi có 15 phút, không cài được Python.",
       "context": "No runtime and no network.",
       "assertions": [
-        "Offer bounded paper trace or prerequisite task.",
+        "Offer a reading-only path and optional bounded paper trace with a worked solution in both languages.",
         "Mark code unrun and source limits.",
         "Preserve incomplete work without fabricated completion."
       ]
@@ -60,6 +60,16 @@
         "Produce conditional generated artifact with branches.",
         "Do not create assignment/assessment/completion/review events.",
         "Keep learner-specific artifacts private."
+      ]
+    },
+    {
+      "id": "optional-bilingual",
+      "prompt": "Bài hôm nay Việt và Anh, có lời giải; tôi không muốn nộp bài.",
+      "context": "Previous lesson delivered, no assessment evidence.",
+      "assertions": [
+        "Deliver full Vietnamese and English versions for one session, 90-minute default and optional 180+ minute depth.",
+        "Every optional task has an accessible worked answer; no submission gate.",
+        "Allow the next lesson without inventing previous completion or mastery."
       ]
     }
   ]

@@ -1,4 +1,4 @@
-<!-- contract-version: 1 -->
+<!-- contract-version: 2 -->
 # Phương pháp sư phạm
 
 Tối ưu nhớ bền vững, giải quyết độc lập và transfer đổi ngữ cảnh. [Báo cáo](../research/learning-science-review.md) trình bày bằng chứng/giới hạn; [workflow](learning-workflow.md) sở hữu lịch và trạng thái. Không có phương pháp tốt nhất cho mọi tình huống.
@@ -16,14 +16,14 @@ Người mới cần xem cách làm trước khám phá mở. Khi prerequisite �
 - Interleave phương án liên quan cần phân biệt sau học ban đầu; không đảo course ngẫu nhiên.
 - Self-explanation về quyết định/invariant; elaboration nối ý đã biết; kiểm tra đúng và giới hạn analogy.
 - Giảm hướng dẫn từ ví dụ → lab → biến thể độc lập theo bằng chứng expertise; giải thích dư cũng gây tải.
-- Luyện subskill đã chẩn đoán, feedback cụ thể theo task; yêu cầu sửa và thử case mới, không suy năng lực từ giờ học/copy.
+- Luyện subskill đã chẩn đoán, feedback cụ thể theo task; khi đánh giá được yêu cầu thì đề nghị sửa và thử case mới, không suy năng lực từ giờ học/copy.
 - Giảm tải setup không liên quan, một mục tiêu mỗi phiên; không để mò mẫm vô hạn khi nền yếu.
 - Chỉ rõ cấu trúc giống/khác qua ngữ cảnh; pass đúng ví dụ cũ là bằng chứng transfer yếu.
 
 ## Thời gian và đánh giá
 
-Ba chế độ giữ lần thử, feedback, exit response; thời gian từng phần và tỷ lệ thực hành là quyết định có thể chỉnh, không phải kết luận khoa học. Phiên ngắn có thể dời đọc sâu hoặc chia lab.
+Attempt, feedback và exit response là tùy chọn; đọc-only hợp lệ; thời gian từng phần và tỷ lệ thực hành là quyết định có thể chỉnh, không phải kết luận khoa học. Phiên ngắn có thể dời đọc sâu hoặc chia lab.
 
 Rubric trước khi làm: correctness/edge cases, invariant/reasoning, độc lập, giải thích và transfer. Điểm số tùy chọn, có cơ sở; chưa biết vẫn chưa biết. Completion, thành thạo cùng ngày và mastery bền vững khác nhau; cần tái dựng không hint và ngữ cảnh mới sau độ trễ. Xem kết quả cùng độ khó, hint và lỗi môi trường.
 
-Hint tăng dần conceptual → structural → implementation. Lời giải đầy đủ trong file mentor riêng; mở sau lần thử, yêu cầu rõ hoặc worked review. Không mở lời giải rồi chấm câu trả lời tiếp theo là independent.
+Hint tăng dần conceptual → structural → implementation. Mọi task tùy chọn có lời giải đầy đủ truy cập được, tách khỏi đề để người học có thể thử trước; không khóa theo nộp bài. Không mở lời giải rồi chấm câu trả lời tiếp theo là independent.

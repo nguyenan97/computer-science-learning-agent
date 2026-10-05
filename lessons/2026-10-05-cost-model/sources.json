@@ -1,0 +1,153 @@
+{
+  "sources": [
+    {
+      "title": "IUH Master condensed curriculum",
+      "author": "IUH; repository condensation",
+      "url": "https://github.com/nguyenan97/computer-science-learning-agent/blob/a4f4eeb2979e09d1a3b86e60f2aff39851eab202/curricula/iuh/master/curriculum.md",
+      "role": "curriculum",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "contribution": "Advanced Algorithms 6001127 complexity/performance/selection; Advanced Database 6001111 indexing/hashing",
+      "version_or_pin": "2020 curriculum; repo a4f4eeb",
+      "limitations": "Original institutional PDFs and current regulations not reverified; selected daily lesson is tutor synthesis.",
+      "sha256": "1f334b4a0c23ed75c63b40448fde203bca275b4c9fc8fa9e3ed47e5a78bd49e2"
+    },
+    {
+      "title": "6.006 Lecture 9: Hashing II",
+      "author": "MIT OCW, Erik Demaine and Srini Devadas",
+      "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/160b3b5f9da2e03815ca1e6ee0dba62a_MIT6_006F11_lec09.pdf",
+      "role": "foundational theory",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "contribution": "Pages 1-3: expected lookup, load factor, resizing and amortized sequence cost",
+      "version_or_pin": "Fall 2011",
+      "limitations": "Chaining model illustrates theory; CPython set uses different open-addressing implementation. No full course study claimed.",
+      "sha256": "f28b9d3a412ee79c02ff5a7af3584f6a8ae1c9201afbcf366b30543c19c975b3"
+    },
+    {
+      "title": "Python built-in types: sets and dictionaries",
+      "author": "Python Software Foundation",
+      "url": "https://docs.python.org/3.12/library/stdtypes.html",
+      "role": "official technical semantics",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "contribution": "Hashable keys, unordered sets, dictionary insertion-order guarantee",
+      "version_or_pin": "Page label 3.12.15",
+      "limitations": "Mutable documentation endpoint; pinned 3.12.14 docs independently read; no latest-support/security claim.",
+      "sha256": "71f0518841d019a0ba058f321082930d4e0d7f7aca704d76a3e54987383b3e97"
+    },
+    {
+      "title": "SQLite SELECT",
+      "author": "SQLite project",
+      "url": "https://www.sqlite.org/lang_select.html",
+      "role": "official SQL semantics",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "contribution": "Grouping, counts and need for ORDER BY to guarantee result order",
+      "version_or_pin": "Local SQLite 3.53.1",
+      "limitations": "Current mutable docs; small local equivalent only, not SQL Server performance evidence.",
+      "sha256": "a6d38ca170dff62177e74e63297b44e567f673e7d2111de923e33b481560c140"
+    },
+    {
+      "title": "Objects/listobject.c",
+      "author": "CPython contributors",
+      "url": "https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Objects/listobject.c",
+      "role": "official implementation/tests",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "contribution": "list_contains loops and early termination",
+      "version_or_pin": "2abcf904b8dac8c999d2b3aac76681abb333798a",
+      "limitations": "Relevant sections read, not full upstream build/test execution.",
+      "sha256": "5f33dd1d97bfcc33e60495011fad7d9d02587a966999f28c159971f31aa91531"
+    },
+    {
+      "title": "Objects/setobject.c",
+      "author": "CPython contributors",
+      "url": "https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Objects/setobject.c",
+      "role": "official implementation/tests",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "contribution": "set_lookkey probing, hash/equality and collision handling",
+      "version_or_pin": "2abcf904b8dac8c999d2b3aac76681abb333798a",
+      "limitations": "Relevant sections read, not full upstream build/test execution.",
+      "sha256": "e633e7ae4e427ecead8879965910e27427d34ae0fc5b956142bc337f741a367c"
+    },
+    {
+      "title": "Lib/test/test_set.py",
+      "author": "CPython contributors",
+      "url": "https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Lib/test/test_set.py",
+      "role": "official implementation/tests",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "contribution": "test_contains, test_add, duplicate and unhashable cases",
+      "version_or_pin": "2abcf904b8dac8c999d2b3aac76681abb333798a",
+      "limitations": "Relevant sections read, not full upstream build/test execution.",
+      "sha256": "fa67cfeed736874f9abfa6065cd37a41fe73112a8382b8ec1ec3f6425c6edf56"
+    },
+    {
+      "title": "Doc/library/stdtypes.rst",
+      "author": "CPython contributors",
+      "url": "https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/Doc/library/stdtypes.rst",
+      "role": "official implementation/tests",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "contribution": "Pinned set/dict semantic contracts",
+      "version_or_pin": "2abcf904b8dac8c999d2b3aac76681abb333798a",
+      "limitations": "Relevant sections read, not full upstream build/test execution.",
+      "sha256": "3c61e89ca96738cba12cd45632b2728e4fcb3637c340996f59f97fa4eb8614b0"
+    },
+    {
+      "title": "LICENSE",
+      "author": "CPython contributors",
+      "url": "https://github.com/python/cpython/blob/2abcf904b8dac8c999d2b3aac76681abb333798a/LICENSE",
+      "role": "license",
+      "checked_on": "2026-10-05",
+      "access_status": "read",
+      "contribution": "PSF license and license history; API SPDX NOASSERTION is not proof of no license",
+      "version_or_pin": "2abcf904b8dac8c999d2b3aac76681abb333798a",
+      "limitations": "Relevant sections read, not full upstream build/test execution.",
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+    }
+  ],
+  "repository_evaluation": {
+    "repository": "python/cpython",
+    "checked_on": "2026-10-05",
+    "stars": 77493,
+    "archived": false,
+    "default_branch": "main",
+    "default_branch_sha": "182f3231542e84fd1b0c795898f69f61fe35df0e",
+    "default_branch_committed_at": "2026-10-05T03:09:25Z",
+    "metadata_provenance": "GitHub API via gh api repos/python/cpython and commits/main",
+    "release": "v3.12.14",
+    "tag_object_sha": "4b65faa0b452113bf130086fb1519be6d9cd9b06",
+    "pin": "2abcf904b8dac8c999d2b3aac76681abb333798a",
+    "pin_resolution": "GitHub annotated tag object resolved to commit",
+    "license_spdx_api": "NOASSERTION",
+    "maintainer_authority": "Official Python implementation; PSF license file inspected",
+    "usage_evidence": "Official runtime identity; no quantified downstream survey performed",
+    "setup_cost": "No upstream clone/build; standard-library Python local lab",
+    "alternative": {
+      "repository": "dotnet/runtime",
+      "stars": 18312,
+      "archived": false,
+      "checked_on": "2026-10-05",
+      "provenance": "GitHub API",
+      "reason_not_selected": "Official alternative; Python minimizes setup for a language-independent cost-model objective."
+    }
+  },
+  "agent_verification": {
+    "python": "3.12.14",
+    "sqlite": "3.53.1",
+    "commands": [
+      "python lab.py --sql --collisions",
+      "python check.py --module solution.py"
+    ],
+    "tests_passed": 4,
+    "observations_file": "agent-observations.txt",
+    "checks_file": "agent-checks.txt",
+    "timing_executed": false,
+    "upstream_suite_executed": false,
+    "learner_evidence": false
+  },
+  "lesson_id": "2026-10-05-cost-model"
+}

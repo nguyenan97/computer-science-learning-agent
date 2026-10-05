@@ -20,3 +20,6 @@ jobs:
       - name: Verify reference lab (not learner work)
         working-directory: labs/boundary-search
         run: python check.py --module mentor/solution.py --stage all
+      - name: Verify published Lesson 01 lab (not learner work)
+        working-directory: labs/cost-model
+        run: python check.py --module solution.py

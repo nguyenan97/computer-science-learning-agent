@@ -42,3 +42,7 @@ code/output revisions và kiểm trước resume.
 Translation semantic parity, PDF curriculum gốc/quy định IUH live, upstream CPython
 suite, SQL/.NET/cloud lab, browser rendering và retention người thật chưa verified.
 Starter cố ý chưa điền; mentor solution tách theo quy ước tutor, không access control.
+
+Cập nhật sở thích sau refactor: bài hằng ngày Việt/Anh đầy đủ, bài tập tùy chọn có lời giải xem ngay, mặc định 90 phút và nhánh sâu 180+ phút. Không khóa bài tiếp theo bằng submission. Chấm tiến độ vẫn cần evidence thật. Có bảy eval specification, chưa claim model benchmark.
+
+Cập nhật bài công khai: Bài 01 có path EN/VI cùng lab dùng chung và nguồn/output kiểm tra của agent. Pages đọc catalog tường minh. Test đóng gói kiểm cả hai bản, chặn path private trong catalog và vẫn loại marker private synthetic. Không đưa state cá nhân vào.

@@ -41,7 +41,7 @@ python -m unittest discover -s tests -v
 python scripts/learning_state.py --state tests/fixtures/low-result.json --allow-fixture plan --prerequisite ready
 ```
 
-`starter.py` cố ý chưa hoàn thành. Solution challenge nằm riêng mentor, chỉ mở sau attempt/request/worked review. CI chạy mentor, không ghi completion người học. Số test pass không là mastery score.
+`starter.py` cố ý chưa hoàn thành. Bài tập tùy chọn, lời giải truy cập ngay sau đề. CI chạy mentor, không ghi completion người học. Số test pass không là mastery score.
 
 ## Curriculum, generated và song ngữ
 
@@ -66,4 +66,14 @@ Repo vẫn chưa chọn project license; cần chọn trước khuyến khích �
 
 ## Bắt đầu phiên thật
 
-Giữ repo đầy đủ, không copy SKILL.md riêng. Prompt: “Dùng master-iuh-daily-learning, đọc tiến độ riêng, hỏi mục tiêu/time/tools chưa biết, cho task prerequisite ngắn và chờ tôi trả lời.” Tutor dừng nhận bài làm trước khi chấm. CLI profile cập nhật giá trị thật; [workflow](references/learning-workflow.md) hướng dẫn migrate v1, repair links và retry cùng ngày. Sáu [eval case](../skills/master-iuh-daily-learning/evals/cases.json) là đặc tả hành vi, chưa claim model benchmark. Copy starter vào workspace phiên riêng để làm bài.
+Giữ repo đầy đủ, không copy SKILL.md riêng. Prompt: “Dùng master-iuh-daily-learning, đọc tiến độ riêng, hỏi mục tiêu/time/tools chưa biết, soạn bài Việt–Anh đầy đủ, self-check tùy chọn có lời giải.” Giao bài không chờ nộp; chỉ chấm bài làm thật người học tự nguyện gửi. CLI profile cập nhật giá trị thật; [workflow](references/learning-workflow.md) hướng dẫn migrate v1, repair links và retry cùng ngày. Bảy [eval case](../skills/master-iuh-daily-learning/evals/cases.json) là đặc tả hành vi, chưa claim model benchmark. Copy starter vào workspace phiên riêng để làm bài.
+
+## Gọi mỗi ngày
+
+Dùng $master-iuh-daily-learning để tự soạn bài hôm nay: Việt và Anh đầy đủ, mặc định 90 phút, nhánh sâu 180+ phút tùy chọn. Mọi bài tập có lời giải; làm/nộp bài tùy chọn. Không cần nộp bài hôm trước để đọc bài mới. Tiến độ/mastery vẫn chỉ theo bằng chứng thật.
+
+## Bài học đã xuất bản
+
+- [Bài 01 — Big-O và cấu trúc dữ liệu](lessons/2026-10-05-cost-model/lesson.md)
+
+Bài song ngữ và lab dùng chung có thể commit/publish theo yêu cầu. Catalog công khai liệt kê chính xác các file được deploy; state, bài làm và đánh giá cá nhân luôn ở workspace riêng.

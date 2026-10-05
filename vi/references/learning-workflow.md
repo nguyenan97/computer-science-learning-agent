@@ -1,4 +1,4 @@
-<!-- contract-version: 2 -->
+<!-- contract-version: 3 -->
 # Workflow hằng ngày và state riêng
 
 Bản dịch [policy chính](../../references/learning-workflow.md). Trang này sở hữu selection,
@@ -10,7 +10,7 @@ thiết kế dạy học/nguồn/đầu ra. Skill điều phối theo từng ch�
 1. Chọn workspace riêng và validate state. Xem ôn đến hạn, bài đã giao/đang làm,
    bản generated chưa giao và ID assessment lỗi chưa giải quyết.
 2. Hỏi ngắn mục tiêu/time/background/tools/timezone chưa biết. State trống nghĩa là
-   chưa biết trình độ. Hỏi 2–3 task prerequisite, chờ câu trả lời và lưu response thật.
+   chưa biết trình độ. Đưa 2–3 self-check prerequisite tùy chọn có đáp án/nhánh bridge, không chặn giao bài. Chỉ lưu response người học thực sự gửi.
    Diagnostic có thể nằm trong phiên remediation; không bịa completion trước đó.
    Nếu chỉ yêu cầu soạn nháp, ghi prerequisite fit có điều kiện.
 3. Ưu tiên retrieval đến hạn trong time budget. Prerequisite yếu → bridge/recheck;
@@ -21,7 +21,7 @@ thiết kế dạy học/nguồn/đầu ra. Skill điều phối theo từng ch�
    với mọi bài core, kể cả generated. Review/remediation nêu related_to; deepening
    có mục tiêu thực sự thay đổi.
 5. Research bộ nguồn/lát cắt nhỏ. Mode ~25/55/85 phút chỉ là thiết kế, điều chỉnh theo
-   time thật; giữ attempt quan sát được và feedback, chia setup/đọc sâu khi cần.
+   time thật; đề xuất attempt/feedback tùy chọn, chia setup/đọc sâu khi cần.
 
 `plan` chỉ gợi ý, không chọn curriculum hoặc chứng nhận prerequisite. Flag ready/weak
 phải từ diagnostic thật. Xem lỗi của cả prerequisite topic chưa có bài completed.
@@ -110,3 +110,11 @@ Fixture cần fixture:true, --allow-fixture và path riêng, không vào progres
 Sample công khai là thiết kế. Nguồn unavailable → ghi rõ/dùng stable verified/defer;
 lab chưa chạy → trace/equivalent và limits; hết giờ → in_progress; state invalid →
 giữ nguyên, sửa theo evidence, không reset âm thầm.
+
+## Tự học tùy chọn và bài tiếp theo
+
+Mỗi ngày giao bài Việt và Anh đầy đủ, mặc định 90 phút, thêm nhánh 180+ phút tùy chọn. Bài tập/nộp bài tùy chọn, lời giải xem ngay. Nếu muốn ngày tiếp theo mà chưa làm bài trước, giữ status cũ/mastery unknown; planner resume/review không là khóa. Chỉ ghi giao bài khi giao thật; một record cho session song ngữ. Không ghi completion, ôn có bằng chứng hay gỡ lỗi chỉ vì đã đọc nội dung/đáp án. Chỉ chấm evidence thật người học tự nguyện gửi.
+
+## Đọc bài công khai
+
+Khi có yêu cầu xuất bản, chỉ copy nội dung bài dùng chung vào `lessons/<lesson-id>/lesson.md` và bản Việt dưới `vi/lessons/`. Code dùng chung vào `labs/`; catalog `lessons/catalog.json` liệt kê file đã duyệt cho Pages. Sửa links/commands sang path công khai, không đưa profile/state/bài làm/assessment cá nhân vào. Xuất bản không chứng minh completion hay tạo assessment.

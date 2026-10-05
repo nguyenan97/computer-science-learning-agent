@@ -19,3 +19,6 @@
 - **IUH Curricula**
   - [Master's Curriculum](/curricula/iuh/master/curriculum)
   - [PhD Curriculum](/curricula/iuh/phd/curriculum)
+
+- **Daily Lessons**
+  - [Lesson 01: Big-O and Data Structures](/lessons/2026-10-05-cost-model/lesson)

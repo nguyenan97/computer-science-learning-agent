@@ -26,3 +26,5 @@ State mặc định workspace Git-ignore; có init/profile/migrate không ghi đ
 không force-add dữ liệu thật vào public repo. Host chịu trách nhiệm giữ file/backup,
 một writer. Walkthrough CLI 7 ngày synthetic kiểm state/scheduling, không chứng minh
 người học nhớ kiến thức. Hiệu quả thực tế/model eval/timing/token cần đo riêng.
+
+Cập nhật sở thích sau refactor: bài hằng ngày Việt/Anh đầy đủ, bài tập tùy chọn có lời giải xem ngay, mặc định 90 phút và nhánh sâu 180+ phút. Không khóa bài tiếp theo bằng submission. Chấm tiến độ vẫn cần evidence thật. Có bảy eval specification, chưa claim model benchmark.

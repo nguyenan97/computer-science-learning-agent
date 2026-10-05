@@ -46,7 +46,7 @@ To inspect synthetic scenarios without touching real progress:
 python scripts/learning_state.py --state tests/fixtures/low-result.json --allow-fixture plan --prerequisite ready
 ```
 
-Learner lab commands are in the sample; `starter.py` intentionally needs implementation. Full challenge solutions are separate mentor material, opened only after an attempt, explicit request or worked review. CI verifies the mentor implementation, not learner completion. Copy the starter into the private session workspace for actual work. Do not interpret checkpoint test counts as mastery scores.
+Learner lab commands are in the sample; `starter.py` intentionally needs implementation. All exercises are optional and include accessible worked solutions after the prompt. CI verifies the mentor implementation, not learner completion. Copy the starter into the private session workspace for actual work. Do not interpret checkpoint test counts as mastery scores.
 
 ## Curriculum and generated files
 
@@ -75,4 +75,14 @@ A project license still needs to be selected before encouraging external contrib
 
 ## Start a real session
 
-Keep the complete repository available; copying SKILL.md alone loses its references. Ask: “Use master-iuh-daily-learning. Read my private progress, ask for missing goals/time/tools, then give a short prerequisite task and wait for my answer.” The tutor pauses for actual work before assessment. Profile fields are set with `learning_state.py profile`; [workflow](references/learning-workflow.md) documents v1 migration, repair links and same-day retries. Six [skill evaluation cases](skills/master-iuh-daily-learning/evals/cases.json) define expected behavior; no model benchmark is claimed.
+Keep the complete repository available; copying SKILL.md alone loses its references. Ask: “Use master-iuh-daily-learning. Read my private progress, ask for missing goals/time/tools, then write a full bilingual lesson with optional prerequisite self-checks and worked answers.” Lesson delivery does not wait for submissions; assessment only uses voluntarily supplied actual work. Profile fields are set with `learning_state.py profile`; [workflow](references/learning-workflow.md) documents v1 migration, repair links and same-day retries. Seven [skill evaluation cases](skills/master-iuh-daily-learning/evals/cases.json) define expected behavior; no model benchmark is claimed.
+
+## One daily call
+
+Use $master-iuh-daily-learning to write today's lesson automatically: complete Vietnamese and English versions, 90-minute default and optional 180+ minute depth. Every exercise includes worked solutions; practice/submission is optional. A new lesson does not require submitting yesterday's work. Observed progress and mastery remain evidence-based.
+
+## Published lessons
+
+- [Lesson 01 — Big-O and data structures](lessons/2026-10-05-cost-model/lesson.md)
+
+Bilingual lesson content and shared labs can be committed/published on request. The public catalog lists exactly which lesson files deploy; learner state, submissions and assessments remain private.

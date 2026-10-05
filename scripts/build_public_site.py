@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Stage only public documentation and the fixed teaching example for Pages."""
 import argparse
+import json
 from pathlib import Path
 import shutil
 
@@ -14,9 +15,27 @@ PUBLIC_FILES = (
     'research/runtime-source-checks.json', 'skills/master-iuh-daily-learning/SKILL.md',
     'skills/master-iuh-daily-learning/evals/cases.json',
     'skills/master-iuh-daily-learning/agents/openai.yaml',
+    'lessons/catalog.json',
 )
 PUBLIC_DOC_DIRS = ('curricula', 'references', 'research', 'vi/curricula', 'vi/references', 'vi/research')
 PUBLIC_LAB_FILES = ('check.py','observe.py','starter.py','mentor/hints.md','mentor/solution.py')
+
+
+def catalog_files(source):
+    """Explicit publication list; private work is never discovered by a glob."""
+    entries=json.loads((source/'lessons/catalog.json').read_text())['lessons']
+    paths=[]
+    ids=set()
+    for entry in entries:
+        if entry['id'] in ids: raise ValueError('duplicate published lesson ID')
+        ids.add(entry['id'])
+        for name in entry['files']:
+            path=Path(name)
+            if (path.is_absolute() or '..' in path.parts
+                    or not (name.startswith('lessons/') or name.startswith('vi/lessons/') or name.startswith('labs/'))):
+                raise ValueError('catalog may publish only lesson and lab paths')
+            paths.append(source/path)
+    return paths
 
 
 def build(source, destination):
@@ -24,6 +43,7 @@ def build(source, destination):
     if destination.exists(): raise ValueError('output already exists; choose a fresh directory')
     if source.is_relative_to(destination): raise ValueError('output must not contain the source repository')
     paths=[source/p for p in PUBLIC_FILES]
+    paths += catalog_files(source)
     paths += [source/'labs/boundary-search'/p for p in PUBLIC_LAB_FILES]
     for directory in PUBLIC_DOC_DIRS:
         paths += list((source/directory).rglob('*.md'))

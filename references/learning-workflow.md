@@ -1,4 +1,4 @@
-<!-- contract-version: 2 -->
+<!-- contract-version: 3 -->
 # Daily workflow and private state
 
 This owns selection, lifecycle, evidence, review and persistence. [Pedagogy](pedagogy.md)
@@ -11,7 +11,7 @@ implements interaction gates. English owns policy; Vietnamese translates the sam
 1. Locate the learner's private workspace and validate its state. Inspect due reviews,
    unfinished assigned work, generated drafts and unresolved assessment IDs.
 2. Ask for unknown goal/time/background/tools/timezone. Empty history means unknown
-   skill. Ask 2–3 targeted prerequisite questions, wait and save the actual response.
+   skill. Include 2–3 optional prerequisite self-checks with answers and bridge branches; do not block daily lesson delivery. Save only actual voluntary responses.
    Diagnostic may be a remediation session linked to the intended topic; do not invent
    previous completion. If only a draft is requested, mark prerequisite fit conditional.
 3. Offer due retrieval within the time budget. Weak prerequisite → bridge/recheck;
@@ -24,7 +24,7 @@ implements interaction gates. English owns policy; Vietnamese translates the sam
    Review/remediation name related topics; deepening needs a changed objective.
 5. Research the smallest relevant source set and implementation slice. Use short
    (~25), standard (~55) or extended (~85 minute) budgets, trimmed to actual time.
-   Preserve an observable independent attempt and feedback; split setup/extra reading.
+   Offer optional independent attempts and feedback; split setup/extra reading.
 
 `plan` is advisory, not a curriculum selector or prerequisite certificate.
 `--prerequisite ready/weak` must reflect observed diagnostic evidence.
@@ -124,3 +124,11 @@ they never enter real progress. Sample artifacts remain public design examples.
 Inaccessible source → mark status/use verified stable material/defer. Unrun lab →
 paper trace or local equivalent with limits. Time exhausted → keep in_progress.
 Invalid state → preserve it and repair with evidence intact; never silently reset.
+
+## Optional self-study and continuity
+
+Default daily delivery is complete Vietnamese and English lessons, 90 minutes plus optional 180+ minute depth. Exercises and submissions are optional, with worked solutions accessible immediately. If the learner requests the next lesson without attempting the previous one, preserve its status and unknown mastery; do not treat planner resume/review advice as a lock. Record delivery only when actually delivered. Keep one record per bilingual session. Do not mark completion, schedule evidence-based review or resolve errors solely because content/answers were read. Record an assessment only for actual voluntarily supplied evidence.
+
+## Public lesson access
+
+When publication is requested, copy only generic lesson content to `lessons/<lesson-id>/lesson.md` and its Vietnamese mirror under `vi/lessons/`. Put shared runnable code in `labs/`; list approved files in `lessons/catalog.json` for Pages staging. Adjust links/commands to public paths and keep personal profile/state/submissions/assessments out. Publishing a lesson is not learner completion and creates no assessment.

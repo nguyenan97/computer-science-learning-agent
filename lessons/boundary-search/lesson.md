@@ -1,4 +1,4 @@
-# Lesson 02 — Boundary search: from sorted arrays to time-window queries
+# Lesson 02 - Boundary search: from sorted arrays to time-window queries
 
 **Study at your pace: trace → implement → test → transfer**
 
@@ -362,10 +362,10 @@ Three questions for deeper reading: Why do left and right boundaries differ on e
 <!-- LESSON_NAVIGATION_START -->
 ## Related reading
 
-- [Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#](../2026-10-05-cost-model/lesson.md) — Review how hidden work inside a loop determines its cost.
-- [Technical topic notes](../../references/topic-notes.md) — Explore ordered indexes, query processing and algorithm design.
+- [Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#](../2026-10-05-cost-model/lesson.md) - Review how hidden work inside a loop determines its cost.
+- [Technical topic notes](../../references/topic-notes.md) - Explore ordered indexes, query processing and algorithm design.
 
 ---
 
-[← Previous: Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#](../2026-10-05-cost-model/lesson.md) · [All lessons](../../README.md)
+[← Previous: Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#](../2026-10-05-cost-model/lesson.md) · [All lessons](../../README.md)
 <!-- LESSON_NAVIGATION_END -->

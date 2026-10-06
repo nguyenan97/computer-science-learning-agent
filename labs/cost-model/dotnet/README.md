@@ -1,4 +1,4 @@
-# Lesson 01 lab — C# / .NET
+# Lesson 01 lab - C# / .NET
 
 [Tiếng Việt](README.vi.md) · [English lesson](../../../lessons/2026-10-05-cost-model/lesson.md)
 

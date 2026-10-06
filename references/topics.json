@@ -26,7 +26,7 @@
       "id": "advanced-algorithms.cost-model-membership.l1",
       "title": {
         "en": "Stable deduplication and cost models",
-        "vi": "Khử trùng giữ thứ tự và mô hình chi phí"
+        "vi": "Dedupe giữ thứ tự và mô hình chi phí"
       },
       "prerequisites": [
         "foundations.program-reasoning"

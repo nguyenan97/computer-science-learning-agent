@@ -1,4 +1,4 @@
-# Bài 02 — Tìm biên: từ mảng có thứ tự đến truy vấn khoảng thời gian
+# Bài 02 - Tìm biên: từ mảng có thứ tự đến truy vấn khoảng thời gian
 
 **Học theo thời gian của bạn: trace → implement → test → transfer**
 
@@ -362,10 +362,10 @@ Ba câu để đọc sâu: Vì sao left/right boundary khác ở equality? Key f
 <!-- LESSON_NAVIGATION_START -->
 ## Nội dung liên quan
 
-- [Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#](../2026-10-05-cost-model/lesson.md) — Ôn cách công việc bên trong vòng lặp quyết định chi phí.
-- [Ghi chú theo chủ đề kỹ thuật](../../references/topic-notes.md) — Khám phá chỉ mục có thứ tự, xử lý truy vấn và thiết kế thuật toán.
+- [Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#](../2026-10-05-cost-model/lesson.md) - Ôn cách công việc bên trong vòng lặp quyết định chi phí.
+- [Ghi chú theo chủ đề kỹ thuật](../../references/topic-notes.md) - Khám phá chỉ mục có thứ tự, xử lý truy vấn và thiết kế thuật toán.
 
 ---
 
-[← Bài trước: Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#](../2026-10-05-cost-model/lesson.md) · [Danh sách bài học](../../README.md)
+[← Bài trước: Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#](../2026-10-05-cost-model/lesson.md) · [Danh sách bài học](../../README.md)
 <!-- LESSON_NAVIGATION_END -->

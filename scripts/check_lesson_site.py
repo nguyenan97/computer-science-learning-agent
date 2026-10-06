@@ -91,7 +91,7 @@ async def check(base, chromium, document_delay_ms=0, local_site=False):
             await page.wait_for_function('(route) => window.__docsifyRenderedRoute === route', arg=route)
         async def wait_for_lesson(index, lang):
             await wait_for_document(base+'#/'+page_path(LESSONS[index],lang).as_posix()[:-3])
-            prefix=LESSONS[index]['title'][lang].split(' — ',1)[0]
+            prefix=LESSONS[index]['title'][lang].split(' - ',1)[0]
             await page.wait_for_function('(text) => document.querySelector(".markdown-section h1")?.textContent.includes(text)', arg=prefix)
         for index, lang, route in ROUTES:
             await page.goto(base+'#/'+route,wait_until='networkidle')

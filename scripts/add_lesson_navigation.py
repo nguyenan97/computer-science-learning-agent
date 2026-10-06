@@ -70,7 +70,7 @@ def render(entries, index, lang):
     home_label = 'All lessons' if lang == 'en' else 'Danh sách bài học'
     lines = [START, f'## {heading}', '']
     for item in entry['related'][lang]:
-        lines.append(f'- [{item["title"]}]({relative_link(page, PurePosixPath(item["path"]))}) — {item["description"]}')
+        lines.append(f'- [{item["title"]}]({relative_link(page, PurePosixPath(item["path"]))}) - {item["description"]}')
     lines += ['', '---', '']
     links = []
     if index > 0:
@@ -116,7 +116,7 @@ def lesson_list(entries, lang):
         line = f'{number}. **[{entry["title"][lang]}]({relative_link(home, page_path(entry, lang))})**'
         summary = entry.get('summary', {}).get(lang)
         if summary:
-            line += f' — {summary}'
+            line += f' - {summary}'
         lines.append(line)
     return '\n'.join([*lines, LIST_END])
 

@@ -1,4 +1,4 @@
-# Lesson 01 — measured benchmark / Benchmark đã đo
+# Lesson 01 - measured benchmark / Benchmark đã đo
 
 Agent execution on 2026-10-05; not learner work or learning evidence.
 ShortRun: 12 cases, one launch, three warmup and three measurement iterations.

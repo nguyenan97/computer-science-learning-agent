@@ -7,8 +7,8 @@ Hiểu cách chương trình hoạt động, chọn thuật toán phù hợp và
 ## Bắt đầu học
 
 <!-- LESSON_LIST_START -->
-1. **[Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#](lessons/2026-10-05-cost-model/lesson.md)** — Suy ra chi phí quét và hashing, giữ thứ tự và quy tắc bằng nhau, rồi kiểm tra nhận định về hiệu năng.
-2. **[Bài 02 — Tìm biên và cửa sổ thời gian](lessons/boundary-search/lesson.md)** — Chứng minh bất biến phân hoạch và đếm cửa sổ thời gian nửa mở có biên trùng bằng Python, C# và T-SQL.
+1. **[Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#](lessons/2026-10-05-cost-model/lesson.md)** - Suy ra chi phí quét và hashing, giữ thứ tự và quy tắc bằng nhau, rồi kiểm tra nhận định về hiệu năng.
+2. **[Bài 02 - Tìm biên và cửa sổ thời gian](lessons/boundary-search/lesson.md)** - Chứng minh bất biến phân hoạch và đếm cửa sổ thời gian nửa mở có biên trùng bằng Python, C# và T-SQL.
 <!-- LESSON_LIST_END -->
 
 Bắt đầu với Bài 01 nếu bạn muốn xây nền tảng phân tích chi phí. Bạn cũng có thể mở chủ đề trả lời câu hỏi hiện tại. Cuối mỗi trang có nội dung liên quan và link tới bài trước hoặc bài sau đã có.

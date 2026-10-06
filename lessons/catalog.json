@@ -4,8 +4,8 @@
       "id": "2026-10-05-cost-model",
       "date": "2026-10-05",
       "title": {
-        "en": "Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#",
-        "vi": "Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#"
+        "en": "Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#",
+        "vi": "Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#"
       },
       "files": [
         "lessons/2026-10-05-cost-model/lesson.md",
@@ -109,7 +109,7 @@
           "id": "hash-limits",
           "question": {
             "en": "Which assumptions support expected linear deduplication, and why does a benchmark not prove service p99?",
-            "vi": "Giả định nào giúp khử trùng có thời gian tuyến tính kỳ vọng, và vì sao benchmark không chứng minh p99 của dịch vụ?"
+            "vi": "Giả định nào giúp dedupe có thời gian tuyến tính kỳ vọng, và vì sao benchmark không chứng minh p99 của dịch vụ?"
           },
           "answer": {
             "en": "Bounded key hash/equality cost, adequate hash distribution and amortized resizing support expected O(n); adversarial collisions can increase comparisons. A synthetic benchmark measures its chosen workload and environment, not production queues, key distributions, peak memory or request latency.",
@@ -127,13 +127,13 @@
       "id": "boundary-search",
       "date": "2026-10-06",
       "title": {
-        "en": "Lesson 02 — Boundary search and time windows",
-        "vi": "Bài 02 — Tìm biên và cửa sổ thời gian"
+        "en": "Lesson 02 - Boundary search and time windows",
+        "vi": "Bài 02 - Tìm biên và cửa sổ thời gian"
       },
       "related": {
         "en": [
           {
-            "title": "Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#",
+            "title": "Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#",
             "path": "lessons/2026-10-05-cost-model/lesson.md",
             "description": "Review how hidden work inside a loop determines its cost."
           },
@@ -145,7 +145,7 @@
         ],
         "vi": [
           {
-            "title": "Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#",
+            "title": "Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#",
             "path": "vi/lessons/2026-10-05-cost-model/lesson.md",
             "description": "Ôn cách công việc bên trong vòng lặp quyết định chi phí."
           },

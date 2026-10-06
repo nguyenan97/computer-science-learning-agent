@@ -1,4 +1,4 @@
-# Mentor hints — read whenever useful
+# Mentor hints - read whenever useful
 
 The full solution and these hints are always available. For an optional independent
 attempt, predict the partitions before checking the worked answer.

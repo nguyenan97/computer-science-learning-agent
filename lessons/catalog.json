@@ -170,6 +170,7 @@
         "labs/boundary-search/dotnet/LessonLab/LessonLab.csproj",
         "labs/boundary-search/dotnet/LessonLab/Program.cs",
         "labs/boundary-search/dotnet/LessonLab/BoundarySearch.cs",
+        "labs/boundary-search/dotnet/LessonLab/Extras.cs",
         "labs/boundary-search/dotnet/LessonLab/Checks.cs"
       ],
       "labs": [
@@ -202,8 +203,8 @@
         }
       ],
       "summary": {
-        "en": "Prove the partition invariant and count half-open time windows with duplicate endpoints in Python, C# and T-SQL.",
-        "vi": "Chứng minh bất biến phân hoạch và đếm cửa sổ thời gian nửa mở có biên trùng bằng Python, C# và T-SQL."
+        "en": "Prove the partition invariant and count half-open time windows with duplicate endpoints in C# and T-SQL.",
+        "vi": "Chứng minh bất biến phân hoạch và đếm cửa sổ thời gian nửa mở có biên trùng bằng C# và T-SQL."
       },
       "recall": [
         {

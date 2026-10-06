@@ -1,197 +1,122 @@
 # Bài 02 - Tìm biên: từ mảng có thứ tự đến truy vấn khoảng thời gian
 
-**Học theo thời gian của bạn: trace → implement → test → transfer**
-
 [English](../../../lessons/boundary-search/lesson.md) · [Tải lab C#](https://nguyenan97.github.io/computer-science-learning-agent/labs/boundary-search/dotnet-lab.zip)
 
-Bài trước hỏi một ID đã xuất hiện chưa. Bây giờ dữ liệu đã sorted, ta cần câu trả lời khác: **điều kiện bắt đầu đúng ở vị trí nào?** Biên đó giúp đếm event trong khoảng thời gian mà không quét mọi event cho mỗi query. Thuật toán đầy đủ, lập luận và bài tập có lời giải nằm trên trang; link standard library để đọc sâu.
+Bài 01 hỏi một ID đã xuất hiện chưa. Bây giờ dữ liệu đã sorted, và câu hỏi đổi khác: **điều kiện bắt đầu đúng ở vị trí nào?** Vị trí đó giúp đếm event trong một khoảng thời gian mà không phải quét mọi event cho mỗi query. Cùng ý tưởng này nằm trong time index của Apache Kafka, nhờ đó consumer có thể nói "đọc từ 10:30 trở đi". Thuật toán đầy đủ, lập luận và đáp án có lời giải đều nằm trên trang này; ZIP lab và link standard library chỉ là phần thêm.
 
-## Lý do chọn và outcome
+**Mục tiêu:** implement lower bound (biên dưới) đúng cho timestamp đã sorted, rồi dùng lại để đếm `start <= timestamp < end`, kể cả duplicate và endpoint không có trong dữ liệu. Giải thích vì sao một query chỉ tốn số phép so sánh logarithmic, vì sao insert vào List phẳng vẫn có thể tốn công tuyến tính, và hệ thống production (Kafka) điều chỉnh cùng phép tìm kiếm này cho storage của nó thế nào. Bạn cần indexed access, comparison và vòng lặp. Mỗi mục cho biết bạn làm gì và trong bao lâu; tổng số phút vừa đủ một ngày học.
 
-**Mục tiêu:** implement biên dưới đúng cho timestamp đã sorted, tái sử dụng để đếm `start <= timestamp < end`, kể cả duplicate và endpoint không có. Giải thích vì sao query logarithmic nhưng insert vào List phẳng vẫn có thể tuyến tính.
+## Khái niệm cần biết (giải thích ngắn)
 
-Cần indexed access, comparison và loop. Quy ước khoảng nửa mở được giải thích dưới đây. Nếu mới học binary search, bắt đầu bằng ví dụ có index thay vì học thuộc code.
+Đọc ý ngắn trước. Mục 3 mới đưa bản chính xác.
 
-| Block | Hoạt động | Output cụ thể |
-|---|---|---|
-| 1 | Nhớ cost model và khoảng nửa mở | Giải thích index được tính và chi phí insert đầu |
-| 2 | Suy ra partition, tự dựng trace | Ghi rõ hai vùng đã biết và từng update |
-| 3 | Dự đoán duplicate, empty và target thiếu | Biên kỳ vọng cho từng case trước khi chạy code |
-| 4 | Implement và debug lab C# | Biên dưới và window count đã đối chiếu với case biên |
-| 5 | So contract library và đếm element read | Giải thích equality search, insertion encoding và chi phí query/update |
-| 6 | Chuyển contract window sang event record và T-SQL | Query cùng ngữ nghĩa endpoint và giải thích index |
-| 7 | Explain-back, xem lại một lỗi | Nêu invariant, trả lời case duplicate mới không ghi chú |
+- **Sorted data.** Giá trị xếp theo thứ tự không giảm, như timestamp trong một log chỉ append. Chính thứ tự này cho phép bỏ qua những phần lớn của dữ liệu.
+- **Binary search.** Nhìn phần tử ở giữa. Vì dữ liệu đã sorted, một phép so sánh đó cho biết nửa nào không thể chứa đáp án. Bỏ nửa đó và lặp lại. Mỗi bước làm phần còn lại giảm một nửa.
+- **O(log n).** Chia đôi n phần tử cho đến còn 1 mất khoảng log₂(n) bước: 8 phần tử cần khoảng 3 lần đọc, 65.536 phần tử cần khoảng 16. Dữ liệu gấp đôi chỉ thêm một bước, không phải gấp đôi công việc.
+- **Lower bound.** Vị trí đầu tiên có giá trị lớn hơn hoặc bằng `x`. Mọi thứ trước nó nhỏ hơn `x`; từ nó trở đi đều ít nhất bằng `x`. Nếu mọi giá trị đều nhỏ hơn, đáp án là độ dài `n`, nghĩa là "một vị trí sau phần tử cuối".
+- **Khoảng nửa mở `[a, b)`.** Gồm `a`, không gồm `b`. `[1, 3)` là vị trí 1 và 2. Time window dùng cách này để hai window liền nhau `[10, 20)` và `[20, 30)` không đếm trùng hay sót một event.
+- **Window count.** Số event trong `[start, end)` bằng `lowerBound(end) - lowerBound(start)`. Hai lần tìm thay cho một lần quét.
+- **Insertion shift.** Với list dựa trên array, insert gần đầu làm mọi phần tử phía sau dịch một slot. Search nhanh; giữ dữ liệu luôn sorted khi ghi thì không miễn phí.
+- **Invariant.** Từ Bài 01: một câu luôn đúng sau mỗi bước và chứng minh code đúng.
 
-Nghỉ và mở rộng phần đọc nguồn theo thời gian research thực tế. Mỗi block có thể trace giấy; chạy lab tùy chọn. Giữ phần cốt lõi ở query đã sorted, rồi dùng phần database để hiểu cách chuyển lập luận, chưa xây database application hôm nay.
+## 1. Nhớ lại và kiểm tra kiến thức nền
 
-## Retrieval và prerequisite
+**Block recall · khoảng 20 phút · Việc cần làm:** trả lời theo trí nhớ, rồi mở từng đáp án. Câu đầu lấy từ Bài 01. **Dừng khi:** bạn biết mình muốn đọc lại câu nào trong ba câu.
 
-Suy nghĩ ba câu:
+1. Vì sao một vòng lặp gọi `List.Contains` vẫn có thể mất thời gian bậc hai?
 
-1. `[lo,hi)` chứa vị trí nào? **Đáp án:** gồm lo, không gồm hi; `[1,3)` chứa index 1 và 2.
-2. Insert đầu array-backed List thay đổi gì? **Đáp án:** phần tử cũ phải dịch một vị trí sang phải; tìm nhanh không bỏ được công việc đó.
-3. Vì sao một loop chưa chứng minh tuyến tính ở Bài 01? **Đáp án:** phải tính phần thân. Ở đây, access midpoint và so key cũng cần giả định rõ.
+<details>
+<summary>Đáp án</summary>
 
-Với `[2,4,4,9]`, giá trị nhỏ hơn 4 chỉ ở index 0. Index đầu có giá trị ít nhất 4 là **1**. Thử `[1,1,3]`, target 1: biên **0**. Nếu chưa rõ, vẽ value trên index, tách “nhỏ hơn target” và “ít nhất target” trước code.
+Khi mọi phần tử khác nhau, kết quả tăng từ 0 đến n-1 phần tử. Mỗi lần không tìm thấy phải quét toàn bộ kết quả hiện tại, nên tổng so sánh là `0+1+...+(n-1) = n(n-1)/2`. Chỉ đếm số vòng lặp sẽ bỏ sót công việc nằm trong `Contains`.
 
-## Vấn đề và dự đoán
+</details>
 
-Service lưu timestamp sorted:
+2. `[lo, hi)` chứa những vị trí nào?
+
+<details>
+<summary>Đáp án</summary>
+
+Gồm `lo`, không gồm `hi`. `[1, 3)` chứa vị trí 1 và 2.
+
+</details>
+
+3. Chuyện gì xảy ra khi insert một phần tử vào đầu list dựa trên array?
+
+<details>
+<summary>Đáp án</summary>
+
+Mọi phần tử đang có dịch sang phải một slot. Tìm kiếm nhanh không bỏ được công việc đó.
+
+</details>
+
+Khởi động: trong `[2, 4, 4, 9]`, vị trí đầu tiên có giá trị ít nhất 4 là đâu? Chỉ index 0 nhỏ hơn 4, nên vị trí đầu tiên ít nhất 4 là **1**. Với `[1, 1, 3]` và target 1, đáp án là **0**: không có gì nhỏ hơn. Nếu chưa rõ, ghi mỗi giá trị phía trên index của nó và kẻ một đường giữa "nhỏ hơn target" và "ít nhất target" trước khi đọc code.
+
+## 2. Bài toán và dự đoán
+
+**Block foundation · khoảng 50 phút cho mục 2 đến 4 · Việc cần làm:** dự đoán từng đáp án trước khi đọc, rồi tự dựng lại trace trên giấy. **Dừng khi:** bạn nói lại được invariant của mục 3 mà không nhìn.
+
+Một service lưu timestamp đã sorted:
 
 ```text
 timestamps = [10, 10, 20, 30, 30, 40]
 query       = [10, 30)
 ```
 
-Khoảng gồm hai event ở 10 và event ở 20, loại hai event ở 30: đáp án **3**. Scan đếm đúng với O(n) comparisons mỗi query. Với nhiều query trên cùng dữ liệu sorted, tìm hai biên:
+Window gồm hai event ở 10 và event ở 20, loại hai event ở 30. Đáp án là **3**. Scan đếm đúng nhưng tốn O(n) phép so sánh cho mỗi query. Với nhiều query trên cùng dữ liệu sorted, hãy tìm hai biên:
 
-- Index đầu tại hoặc sau start: 0.
-- Index đầu tại hoặc sau end: 3.
-- Count: `3−0=3`.
+- Vị trí đầu tại hoặc sau `start` (10): 0.
+- Vị trí đầu tại hoặc sau `end` (30): 3.
+- Count: `3 - 0 = 3`.
 
-Search trả một 30 bất kỳ có thể trả index 4, sai vì tính thêm một event tại endpoint bị loại. Cần partition boundary, không chỉ equality match. Endpoint thiếu cũng cần đáp án: `[11,39)` gồm 20,30,30 nên count 3 dù 11 và 39 không có trong mảng.
+Một phép tìm "tìm 30" thông thường có thể trả vị trí 4, tức là số 30 thứ hai, và đếm nhầm một event ở endpoint bị loại. Bạn cần một **partition boundary** (ranh giới chia phần), không chỉ một kết quả khớp equality. Endpoint không có trong dữ liệu cũng cần đáp án hợp lý: `[11, 39)` chứa 20, 30 và 30, nên count là 3 dù 11 và 39 không xuất hiện.
 
-## Nền tảng và cập nhật liên quan
+## 3. Lower bound và khoảng chưa biết
 
-Định nghĩa `lower_bound(values,x)` là index i đầu có `values[i] >= x`; không có thì trả n. Nó chia mảng sorted thành hai phần:
+Định nghĩa `lowerBound(values, x)` là index `i` đầu tiên có `values[i] >= x`, hoặc `n` nếu không có. Nó chia mảng sorted thành hai phần:
 
 ```text
 values[:i]   đều < x
 values[i:]   đều >= x
 ```
 
-Ký hiệu mô tả partition; implementation không tạo slice.
+Các biểu thức này chỉ mô tả hai phần; code không tạo slice.
 
-### Vì sao dùng đoạn chưa biết [lo,hi)?
+### Vì sao giữ khoảng chưa biết [lo, hi)?
 
-Giữ `0 <= lo <= hi <= n` và các sự thật:
+Giữ `0 <= lo <= hi <= n` cùng các điều đã biết:
 
-- Trước lo đã biết mọi giá trị < x.
-- Từ hi trở đi đã biết mọi giá trị >= x.
-- Chỉ `[lo,hi)` còn cần kiểm tra; biên có thể ở hi.
+- Mọi vị trí trước `lo` đã biết chứa giá trị `< x`.
+- Mọi vị trí từ `hi` trở đi đã biết chứa giá trị `>= x`.
+- Chỉ `[lo, hi)` còn chưa biết. Biên có thể nằm đúng tại `hi`.
 
-Ban đầu lo=0, hi=n: vùng đã biết rỗng, cả mảng chưa biết. Cuối cùng lo==hi: hai vùng biết gặp nhau, vị trí đó là đáp án. Trả n an toàn vì trả index, không đọc `values[n]`.
+Lúc đầu `lo = 0` và `hi = n`: chưa biết gì, cả mảng là chưa biết. Lúc cuối `lo == hi`: hai vùng đã biết gặp nhau, và vị trí đó là đáp án. Trả về `n` là an toàn vì bạn trả một index, không đọc `values[n]`.
 
-Tại midpoint mid:
+Tại điểm giữa `mid`:
 
-- Nếu `values[mid] < x`, sorted order chứng minh mọi vị trí trước cũng quá nhỏ. Đổi lo thành `mid+1`.
-- Ngược lại, mid và mọi vị trí sau ít nhất x. Đổi hi thành mid. Giữ mid làm biên tiềm năng; equality có thể có duplicate trước đó.
+- Nếu `values[mid] < x`, thứ tự sorted chứng minh mọi vị trí trước đó cũng quá nhỏ. Chuyển `lo` thành `mid + 1`.
+- Ngược lại `mid` và mọi vị trí sau nó đều ít nhất bằng `x`. Chuyển `hi` thành `mid`. Giữ `mid` như một đáp án khả dĩ: giá trị bằng nhau có thể còn duplicate ở phía trước.
 
-Cả hai nhánh loại mid khỏi vùng chưa biết, giảm hi−lo nghiêm ngặt: loop sẽ dừng. Chia gần nửa mỗi bước cho O(log n) comparisons khi n>=2; empty/singleton chỉ cần công việc hằng số. Giả định random-access array và comparison cost bị chặn. Linked list, key extraction đắt hay remote access đổi chi phí thật.
+Mỗi nhánh loại `mid` khỏi vùng chưa biết, nên `hi - lo` giảm thật sự. Điều đó chứng minh vòng lặp dừng. Giảm vùng khoảng một nửa mỗi lần cho O(log n) phép so sánh; input rỗng hoặc một phần tử chỉ tốn công hằng số. Storage truy cập ngẫu nhiên và chi phí so sánh hằng số là các giả định. Linked list, key extraction đắt hay lookup từ xa sẽ đổi chi phí thật.
 
-## Worked example nêu quyết định
+### Trace có lời kể
 
-Với `[1,3,3,8]`, x=3:
+Với `[1, 3, 3, 8]` và `x = 3`:
 
 | lo | hi | mid | value | Quyết định và lý do |
 |---|---|---|---|---|
-| 0 | 4 | 2 | 3 | hi=2: equality thuộc partition phải, có thể còn 3 trước |
-| 0 | 2 | 1 | 3 | hi=1: giữ candidate biên sớm hơn |
-| 0 | 1 | 0 | 1 | lo=1: index 0 quá nhỏ |
-| 1 | 1 | — | — | Trả 1; hai partition gặp nhau |
+| 0 | 4 | 2 | 3 | hi = 2: giá trị bằng nhau thuộc phần bên phải; có thể còn số 3 phía trước |
+| 0 | 2 | 1 | 3 | hi = 1: giữ ứng viên phía trước |
+| 0 | 1 | 0 | 1 | lo = 1: vị trí 0 quá nhỏ |
+| 1 | 1 | - | - | Trả 1; hai phần gặp nhau |
 
-Trả 2 ngay equality đầu tìm được match, chưa là match đầu. Định nghĩa biên quyết định nhánh equality.
+Trả 2 ngay ở giá trị bằng nhau đầu tiên sẽ tìm được một kết quả khớp nhưng không phải kết quả khớp đầu tiên. Nhánh equality là thứ biến phép tìm này thành tìm biên.
 
-Target dưới min, ví dụ 0, liên tục đẩy hi trái và trả 0. Target trên max, ví dụ 10, đẩy lo phải và trả 4. Input rỗng bắt đầu lo==hi==0, trả 0 mà không đọc phần tử.
+Target nhỏ hơn giá trị nhỏ nhất (ví dụ 0) cứ dịch `hi` sang trái và trả 0. Target lớn hơn giá trị lớn nhất (ví dụ 10) cứ dịch `lo` sang phải và trả 4. Input rỗng bắt đầu với `lo == hi == 0` và trả 0 mà không đọc phần tử nào.
 
-## Lab hướng dẫn từng bước
+## 4. Implement bằng C#
 
-Implementation Python đầy đủ chỉ dùng indexing/comparison:
-
-```python
-def lower_bound(values, target):
-    lo, hi = 0, len(values)
-    while lo < hi:
-        mid = (lo + hi) // 2
-        if values[mid] < target:
-            lo = mid + 1
-        else:
-            hi = mid
-    return lo
-```
-
-Midpoint luôn là phần tử hợp lệ khi lo<hi. Code không mutate, copy mảng con hay sort. Input phải sorted theo cùng ordering dùng để so sánh. Check sortedness ở mỗi query tự tốn O(n); thiết lập invariant khi tạo/cập nhật dữ liệu.
-
-### Dự đoán case trước khi chạy hoặc trace
-
-```python
-values = [2, 4, 4, 9]
-assert lower_bound(values, 4) == 1
-assert lower_bound(values, 5) == 3
-assert lower_bound(values, 0) == 0
-assert lower_bound(values, 10) == 4
-assert lower_bound([], 4) == 0
-assert values == [2, 4, 4, 9]
-```
-
-Giá trị thiếu có vị trí chèn: target 5 nằm giữa 4 cuối và 9. Vì vậy lower_bound vẫn hữu ích dù không có equality match.
-
-Tự dựng method, dự đoán case biên, trace/test, cố tình tạo/debug lỗi nhánh, rồi giải thích correction. Hai lỗi đáng thử:
-
-- `hi=mid-1`: với `[1,3]`, target 3, midpoint đầu là 1; hi=0 làm mất đáp án đúng 1. Invariant nửa mở cần hi=mid.
-- `lo=mid`: vùng chưa biết dài một, value quá nhỏ thì mid==lo, đoạn không co lại. Dùng lo=mid+1.
-
-Dấu hiệu khác: sai duplicate đầu → xem equality; empty error → chỉ đọc trong loop nonempty; fail target trên max → cho đáp án n.
-
-### Quan sát chi phí mà không nhầm với timing
-
-Sequence sau tính value khi indexed access và đếm lượt đọc, nên minh họa scaling mà không cấp array lớn:
-
-```python
-class Counted:
-    def __init__(self, n):
-        self.n = n
-        self.reads = 0
-
-    def __len__(self):
-        return self.n
-
-    def __getitem__(self, i):
-        if not 0 <= i < self.n:
-            raise IndexError(i)
-        self.reads += 1
-        return i * 2
-
-for n in (8, 1024, 65536):
-    values = Counted(n)
-    index = lower_bound(values, n)
-    print(n, index, values.reads)
-```
-
-Output có lời giải:
-
-```text
-8 4 3
-1024 512 10
-65536 32768 16
-```
-
-Target gần giữa sequence giả lập. n từ 1.024 lên 65.536 tăng 64 lần nhưng chỉ thêm sáu read. Target khác có thể có read count khác; tốc độ tăng worst-case vẫn logarithmic. Đây là element access, chưa phải CPU instruction, wall-clock hay database page read.
-
-## Chuyển sang C#: contract search và lab chạy được
-
-C# là ngôn ngữ implementation của lab chạy được trong bài này. Ví dụ Python được giữ vì CPython công khai implementation `bisect_left` ngắn, dễ đọc và test: so contract partition giữa các ngôn ngữ, không thêm dependency Python vào công việc .NET.
-
-### BinarySearch tìm match, không hứa trả duplicate đầu tiên
-
-Cả [`Array.BinarySearch`](https://learn.microsoft.com/en-us/dotnet/api/system.array.binarysearch?view=net-10.0) và [`List<T>.BinarySearch`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.binarysearch?view=net-10.0) yêu cầu dữ liệu sorted theo comparer dùng để search. Search thành công trả một index matching, nhưng contract **không** đảm bảo duplicate đầu hoặc cuối. Target thiếu trả bitwise complement của insertion position: giải mã kết quả **âm** bằng `~result`.
-
-```csharp
-long[] values = [10, 10, 20, 30, 30, 40];
-int match = Array.BinarySearch(values, 30L);
-Console.WriteLine(values[match]);
-
-List<long> list = [.. values];
-int result = list.BinarySearch(11L);
-int position = result >= 0 ? result : ~result;
-Console.WriteLine($"{result}, {position}");
-```
-
-Code in `30`, rồi `-3, 2`: 11 sẽ được chèn tại index 2. `-result` cho 3, là sai. Khi target trên max, insertion position là `Count`: biên hợp lệ nhưng không phải phần tử để đọc. Key không có thì không có duplicate cần phân biệt, nên vị trí giải mã này bằng lower boundary. Equality search thành công không hứa trả duplicate đầu. Không trừ hai kết quả `BinarySearch` thành công để đếm window có endpoint duplicate.
-
-### Implement partition bằng C#
-
-Đây là implementation đầy đủ trong [lab C#](../../../labs/boundary-search/dotnet/README.vi.md). Nó nhận array và `List<long>` qua indexed access của `IReadOnlyList<long>`:
+Đây là implementation đầy đủ trong [lab C#](../../../labs/boundary-search/dotnet/README.vi.md). Nó nhận array và `List<long>` qua indexed access `IReadOnlyList<long>`.
 
 ```csharp
 public static class BoundarySearch
@@ -221,76 +146,267 @@ public static class BoundarySearch
 }
 ```
 
-Nhánh equality giữ duplicate đầu làm candidate. `lo + (hi - lo) / 2` tránh cộng hai index `int` lớn; `(lo + hi) / 2` có thể overflow trong C#, còn integer Python không có giới hạn fixed-width đó. Method so key `long` mà không trừ chúng, nên timestamp cực trị không gây arithmetic overflow. Kết luận comparisons logarithmic vẫn giả định `Count`, indexing và comparison có chi phí hằng số; implementation `IReadOnlyList` bất kỳ không nhất thiết thỏa các giả định này.
+Vì sao viết như vậy:
 
-Từ `labs/boundary-search/dotnet`, với SDK 10.0.401:
+- Nhánh equality (`hi = mid`) giữ duplicate đầu tiên như một ứng viên.
+- `lo + (hi - lo) / 2` tránh cộng hai index lớn; `(lo + hi) / 2` có thể overflow trong C#.
+- Key được so sánh, không trừ nhau, nên timestamp `long` cực trị không gây overflow.
+- Method không đổi input, không copy slice, không sort. Kiểm tra sorted ở mỗi query tự nó đã tốn O(n), nên hãy đảm bảo thứ tự sorted khi tạo hoặc cập nhật dữ liệu.
+
+**Vì sao trừ hai biên thì ra count đúng.** `LowerBound(start)` là số giá trị nhỏ hơn hẳn `start`. `LowerBound(end)` là số giá trị nhỏ hơn hẳn `end`. Trừ số thứ nhất thì còn đúng những giá trị ít nhất `start` và nhỏ hơn `end`. Duplicate ở `start` được tính, duplicate ở `end` bị loại, endpoint bằng nhau cho hai biên giống nhau và count 0. Hai phép O(log n) vẫn là O(log n), với O(1) bộ nhớ phụ.
+
+**Nghỉ 10 phút.** Rời màn hình.
+
+## 5. Contract của library và các nguồn
+
+**Block sources · khoảng 45 phút · Việc cần làm:** đọc hai tài liệu dưới đây, chạy đoạn snippet và trả lời ba câu hỏi, mỗi câu gồm một nhận định và bằng chứng. **Dừng khi:** mỗi đáp án có nhận định, nguồn và giới hạn.
+
+Nguồn của block này:
+
+- [`Array.BinarySearch`](https://learn.microsoft.com/en-us/dotnet/api/system.array.binarysearch?view=net-10.0) và [`List<T>.BinarySearch`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.binarysearch?view=net-10.0): yêu cầu input sorted, hành vi với duplicate và kết quả dạng complement.
+- [SQL Server index design guide](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide?view=sql-server-ver17): range predicate, lựa chọn index và query plan (dùng ở mục 9).
+
+`BinarySearch` tìm **một** kết quả khớp, không nhất thiết là duplicate đầu tiên. Cả hai method đều yêu cầu dữ liệu sorted theo cùng comparer dùng để tìm. Tìm thấy thì trả một index khớp, nhưng contract **không** nói đó là cái nào trong nhiều giá trị bằng nhau. Target không có thì trả bitwise complement của vị trí insert, nên giải mã kết quả **âm** bằng `~result`.
+
+```csharp
+long[] values = [10, 10, 20, 30, 30, 40];
+int match = Array.BinarySearch(values, 30L);
+Console.WriteLine(values[match]);
+
+List<long> list = [.. values];
+int result = list.BinarySearch(11L);
+int position = result >= 0 ? result : ~result;
+Console.WriteLine($"{result}, {position}");
+```
+
+Đoạn này in `30`, rồi `-3, 2`: 11 sẽ được insert ở index 2. `-result` sẽ cho 3, sai. Target lớn hơn giá trị lớn nhất có vị trí insert là `Count`, một biên hợp lệ nhưng không phải phần tử đọc được. Với key không có, vị trí đã giải mã bằng lower bound. Với kết quả khớp thì không có lời hứa về duplicate đầu tiên, nên đừng trừ hai kết quả `BinarySearch` thành công để đếm window có duplicate ở endpoint.
+
+Ba câu hỏi:
+
+1. Vì sao tìm bằng equality thông thường không đủ để đếm window?
+
+<details>
+<summary>Đáp án</summary>
+
+Với duplicate, nó có thể trả bất kỳ vị trí khớp nào, nên trừ hai kết quả có thể tính thừa hoặc thiếu event ở endpoint. Bạn cần vị trí đầu tiên tại hoặc sau mỗi endpoint, tức là một partition boundary.
+
+</details>
+
+2. Làm sao biến kết quả của `List<T>.BinarySearch` thành lower bound khi key không có?
+
+<details>
+<summary>Đáp án</summary>
+
+Giải mã kết quả âm bằng `~result`. Đó là vị trí insert, và với key không có thì đúng là vị trí đầu tiên chứa giá trị lớn hơn.
+
+</details>
+
+3. Những giả định nào làm cho nhận định logarithmic đúng?
+
+<details>
+<summary>Đáp án</summary>
+
+Dữ liệu sorted theo cùng thứ tự dùng trong phép so sánh, indexed access có chi phí hằng số và so sánh có chi phí hằng số. Linked list, key function đắt hay lookup từ xa sẽ phá nhận định này.
+
+</details>
+
+## 6. Đọc code thật: time index của Kafka
+
+**Block implementation-reading · khoảng 45 phút · Việc cần làm:** đọc đoạn code Kafka, trace ví dụ nhỏ và ánh xạ vào bài học. **Dừng khi:** bạn giải thích được bằng lời của mình vì sao Kafka tìm trong index trước rồi mới scan một đoạn ngắn.
+
+Azure Event Hubs nhận Kafka client qua giao thức Kafka, nhưng docs của Microsoft nói nó không chạy code Kafka nào, nên đây là thiết kế của chính Kafka, không phải của Event Hubs. Bài toán thì quen thuộc với mọi event stream: consumer nói "cho tôi các message từ thời điểm này trở đi". Project là [apache/kafka](https://github.com/apache/kafka), đọc ở commit `8ed535f41c2a8a783e64a3b4ff9468ab682959b8`.
+
+**Bài toán của sản phẩm.** Một partition là một log append-only rất lớn, chia thành các segment file. Tìm trong log vài gigabyte từng record một thì quá chậm, còn giữ một index entry cho mỗi record thì index quá lớn. Kafka cần message đầu tiên có timestamp ít nhất bằng một thời điểm cho trước, tức là một lower bound trên timestamp của log.
+
+**Code làm gì** (đã xác minh trong source đã pin):
+
+1. **Sparse index.** Khi append, [`LogSegment`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/LogSegment.java#L270) chỉ thêm một index entry sau khi đã ghi hơn `indexIntervalBytes` byte kể từ entry trước. Index là một mẫu của log, không phải bản sao. Các entry trong time index được bảo đảm có timestamp tăng dần (xem comment của class [`TimeIndex`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/TimeIndex.java#L42)); đó là điều kiện sorted ở mục 3.
+2. **Binary search trong index.** [`TimeIndex.lookup`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/TimeIndex.java#L152) gọi `largestLowerBoundSlotFor`: entry có timestamp lớn nhất mà vẫn `<=` target. Đây là hình ảnh phản chiếu của lower bound của chúng ta.
+3. **Rồi scan một đoạn ngắn.** [`LogSegment.findOffsetByTimestamp`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/LogSegment.java#L752) đổi entry đó thành vị trí trong file và gọi [`FileRecords.searchForTimestamp`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/clients/src/main/java/org/apache/kafka/common/record/internal/FileRecords.java#L349), nó đi tiếp từ vị trí đó và trả record đầu tiên có `timestamp >= target`. Đoạn scan ngắn vì index entry nằm gần đáp án.
+
+Hãy trace một time index nhỏ với bốn entry đã lấy mẫu, dạng `timestamp -> offset`: `1000 -> 0`, `1500 -> 40`, `2100 -> 85`, `2600 -> 130`. Consumer hỏi timestamp 2000.
+
+<details>
+<summary>Đáp án</summary>
+
+Search của Kafka giữ một khoảng đóng `[lo, hi]` và chọn `mid = (lo + hi + 1) >>> 1`. Bắt đầu với `lo = 0, hi = 3`: mid = 2, entry 2100 lớn hơn 2000 nên `hi = 1`. Tiếp theo `lo = 0, hi = 1`: mid = 1, entry 1500 nhỏ hơn 2000 nên `lo = 1`. Giờ `lo == hi == 1`, kết quả là slot 1, entry `1500 -> 40`. Kafka sau đó tra vị trí file của offset 40 trong offset index (một lần tra sparse nữa), đọc log từ đó và trả record đầu tiên có timestamp ít nhất 2000. Nếu target nhỏ hơn entry đầu (500), search không trả slot nào và `TimeIndex.lookup` trả base offset của segment.
+
+</details>
+
+**Điểm khác với phép tìm của bài, và vì sao quan trọng.**
+
+| `LowerBound` của chúng ta | `indexSlotRangeFor` của Kafka |
+|---|---|
+| Vị trí đầu tiên `>= x` | Slot lớn nhất `<= x`, rồi một đoạn scan ngắn hoàn tất công việc |
+| Nửa mở `[lo, hi)`, `mid = lo + (hi - lo) / 2` | Đóng `[lo, hi]`, `mid = (lo + hi + 1) >>> 1`, có thể trả sớm khi khớp đúng |
+| Mọi phần tử đều nằm trong mảng | Chỉ một mẫu được index; phần còn lại tìm bằng scan |
+| Chi phí tính bằng số phép so sánh | Còn tính xem mỗi phép so sánh chạm vào memory page nào |
+
+Dòng cuối là bài học rút ra từ code. Một comment trong [`AbstractIndex.java`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L340) giải thích rằng binary search sách giáo khoa trên một file memory-mapped đang lớn dần sẽ chạm các page khác nhau khi file lớn lên, nên các page lâu không dùng có thể gây đọc đĩa ngay trên đường nóng. Tác giả báo cáo trong comment đó rằng điều này làm latency của produce nhảy từ vài millisecond lên khoảng một giây trong test của họ (đây là nhận định từ chính comment trong code; bài này không tái hiện lại). Cách sửa của họ, thấy trong [`indexSlotRangeFor`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L492), là kiểm tra trước xem target có nằm trong `warmEntries()` entry cuối (tương đương 8.192 byte) hay không, và nếu có thì chỉ tìm trong vùng "warm" nhỏ, luôn được dùng đó. Vẫn O(log n); khác ở cách dùng memory.
+
+**Suy luận của người dạy, chưa xác minh trong code.** Nếu bạn tự viết cho service của mình (ví dụ một bảng sắp theo thời gian được load vào memory), quyết định tương đương là: khi query chủ yếu hỏi về thời gian gần đây, phần dữ liệu mà chúng chạm tới quan trọng không kém số phép so sánh. Big-O cho biết nó scale thế nào; nó không cho biết bạn đọc những page hay cache line nào.
+
+**Áp dụng vào project của bạn.**
+
+1. Dữ liệu sorted mà bạn query theo khoảng thời gian hoặc ID: dùng lower bound (hoặc `BinarySearch` với giải mã `~result` cho key không có), đừng viết `Where(x => x >= start)` trong một vòng lặp.
+2. Dữ liệu rất lớn: index một mẫu, binary search trên mẫu, scan một đoạn nhỏ. Đây cùng kiểu đánh đổi với nonclustered index của SQL Server kèm key lookup.
+3. Window count: luôn dùng nửa mở `[start, end)` và phép trừ hai biên.
+4. Cập nhật: mảng chỉ giữ sorted nếu ghi theo thứ tự append (như log), nếu không bạn trả giá insertion shift.
+
+**Nghỉ 30 phút (ăn trưa).** Ăn và nghỉ.
+
+## 7. Thực hành C# có hướng dẫn
+
+**Block lab · khoảng 75 phút · Việc cần làm:** tự dựng lại `LowerBound` từ invariant, dự đoán edge case, chạy check, cố tình phá một nhánh rồi sửa. **Dừng khi:** các check pass và bạn giải thích được một bug đã tránh và một giả định code cần.
+
+Chạy từ `labs/boundary-search/dotnet` với SDK 10.0.401:
 
 ```bash
 dotnet run -c Release --project LessonLab
 dotnet run -c Release --project LessonLab -- --check
 ```
 
-Lệnh mặc định cho lower boundary 3 với 30, window count 3, 0 và 3 cho `[10,30)`, `[30,30)` và `[11,39)`. Check gồm duplicate đầu, target thiếu, window empty/equal/reversed, key âm/cực trị, giữ nguyên input và insertion encoding của .NET. Chúng còn search mảng ảo có `int.MaxValue` vị trí mà không cấp phát mảng, so case nhỏ với phép quét. Check fail thì exit khác 0. Tự implement trước khi đối chiếu nếu hữu ích; lời giải luôn xem được và hoàn thành lab tùy chọn.
+Lần chạy mặc định cho biên dưới của 30 là 3 và count của window `[10,30)`, `[30,30)`, `[11,39)` lần lượt là 3, 0 và 3. 17 check bao gồm duplicate đầu, target không có, window rỗng, bằng nhau và bị đảo, key âm và cực trị, giữ nguyên input, encoding insert của .NET, một mảng ảo có `int.MaxValue` vị trí, và các case nhỏ đối chiếu với phép scan. Check thất bại sẽ exit khác 0. Bạn cũng có thể học mà không chạy gì: mọi bước đều trace được trên giấy.
 
-## Đọc implementation standard library
+Các bước:
 
-Implementation `bisect` chính thức của Python dùng ý tưởng partition này. Source slice sau ghim để so implementation ổn định thay vì branch di chuyển:
+1. **Tự dựng lại (20 phút).** Đóng code, viết lại `LowerBound` và nói to invariant của mục 3. Nếu bí, xem mục 4.
+2. **Dự đoán edge case (15 phút).** Viết đáp án trước khi trace:
 
-- [Lib/bisect.py](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py): tìm bisect_left, so nhánh equality với bisect_right.
-- [Lib/test/test_bisect.py](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py): chọn một case duplicate và một case missing; dự đoán partition trước khi xem expected.
-- [Tài liệu bisect chính thức](https://docs.python.org/3/library/bisect.html): đọc định nghĩa partition, key semantics và Performance Notes.
+   | Mảng và lời gọi | Câu hỏi |
+   |---|---|
+   | `[2,4,4,9]`, target 4 | Vị trí đầu tiên? |
+   | `[2,4,4,9]`, target 5 | Vị trí insert? |
+   | `[2,4,4,9]`, target 0 và 10 | Hai đầu? |
+   | `[]`, target 4 | Có đọc phần tử nào không? |
+   | `[10,10,20,30,30,40]`, window `[20,40)` | Count? |
+   | cùng mảng, window `[41,50)` | Count? |
 
-**Đáp án đọc:** bisect_left trả biên trước các value bằng, bisect_right trả biên sau. Module Python có thể dùng implementation C nội bộ; interpreter đã cài không nhất thiết chạy body source Python từng dòng. Contract là điểm so sánh hữu ích.
+<details>
+<summary>Kết quả kỳ vọng</summary>
 
-Trong experiment chi phí, so read count khi target dưới, trong và trên sequence; dự đoán bound đổi ra sao khi n gấp đôi. Sau đó đếm entry phải dịch nếu insert gần đầu. Search O(log n), insert array-backed List O(n) vì phải dịch storage. Sort batch chưa có thứ tự một lần tốn O(n log n) theo mô hình so sánh thường dùng; preprocessing tách khỏi chi phí từng query sau đó.
+| Mảng và lời gọi | Kết quả |
+|---|---|
+| `[2,4,4,9]`, target 4 | 1 |
+| `[2,4,4,9]`, target 5 | 3 |
+| `[2,4,4,9]`, target 0 và 10 | 0 và 4 |
+| `[]`, target 4 | 0, không đọc phần tử nào |
+| `[10,10,20,30,30,40]`, window `[20,40)` | 3 (hai biên là 2 và 5) |
+| cùng mảng, window `[41,50)` | 0 (hai biên là 6 và 6) |
 
-## Challenge độc lập và biến thể transfer
+Window bị đảo như `[30,10)` phải bị từ chối trước khi trừ.
 
-Implement `count_window(timestamps,start,end)` cho timestamp integer sorted. Đếm start-inclusive/end-exclusive, không sửa input, chấp nhận empty data/endpoint bằng nhau, ValueError khi end<start. Không scan, copy slice hay sort mỗi query.
+</details>
 
-Lời giải đầy đủ trừ hai lower boundary:
+3. **Chạy và debug (20 phút).** Chạy các check. Khi một check lỗi, trace mảng nhỏ nhất gây lỗi thay vì viết lại cả method.
+4. **Cố tình phá một nhánh (15 phút).** Hai lỗi hay gặp:
+   - `hi = mid - 1`: với `[1, 3]`, target 3, midpoint đầu là 1; đặt `hi = 0` làm mất đáp án đúng là 1. Invariant nửa mở cần `hi = mid`.
+   - `lo = mid`: khi còn một phần tử và nó quá nhỏ, `mid == lo` và khoảng không bao giờ co lại. Dùng `lo = mid + 1`.
+5. **Kết thúc (5 phút).** Giải thích một bug đã tránh và một giả định code cần.
 
-```python
-def count_window(timestamps, start, end):
-    if end < start:
-        raise ValueError("end precedes start")
-    return lower_bound(timestamps, end) - lower_bound(timestamps, start)
+**Gợi ý debug:** sai duplicate đầu -> xem nhánh equality; lỗi với input rỗng -> chỉ đọc phần tử bên trong vòng lặp không rỗng; target lớn hơn max bị lỗi -> cho phép đáp án `n`.
 
-values = [10, 10, 20, 30, 30, 40]
-assert count_window(values, 10, 30) == 3
-assert count_window(values, 30, 30) == 0
-assert count_window(values, 11, 39) == 3
-assert count_window([], 10, 30) == 0
+**Nghỉ 10 phút.** Rời màn hình.
+
+## 8. Quan sát chi phí
+
+**Block experiment · khoảng 45 phút · Việc cần làm:** dự đoán số lần đọc phần tử, chạy quan sát, rồi so sánh. **Dừng khi:** bạn có một câu về cách số lần đọc tăng và một điều mà phép đếm này không cho biết.
+
+Dãy này tính giá trị tại mỗi lần indexed read và đếm số lần đọc, nên cho thấy cách chi phí scale mà không cần cấp phát một mảng lớn. Nó nằm trong lab ở `LessonLab/Extras.cs`:
+
+```csharp
+public sealed class CountedSequence(int n) : IReadOnlyList<long>
+{
+    public int Reads { get; private set; }
+    public int Count => n;
+
+    public long this[int index]
+    {
+        get
+        {
+            if ((uint)index >= (uint)n) throw new ArgumentOutOfRangeException(nameof(index));
+            Reads++;
+            return index * 2L;
+        }
+    }
+
+    public IEnumerator<long> GetEnumerator() => throw new NotSupportedException();
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+}
 ```
 
-**Vì sao trừ đúng:** lower_bound(start) là số value nhỏ hơn start; lower_bound(end) là số value nhỏ hơn end. Bỏ phần trước để còn đúng value ít nhất start, nhỏ hơn end. Duplicate ở start được tính, ở end bị loại. Endpoint bằng nhau tạo cùng biên, count zero. Hai search logarithmic vẫn O(log n), bộ nhớ phụ O(1).
+Dự đoán số lần đọc cho n = 8, 1.024 và 65.536 với `BoundarySearch.LowerBound(new CountedSequence(n), n)`, rồi chạy:
 
-### Đổi representation: event record và key
-
-Event thật có thêm thuộc tính. Key của bisect áp vào record trong array, **không áp vào search target**:
-
-```python
-from bisect import bisect_left
-
-events = [
-    {"timestamp": 10, "id": "A"},
-    {"timestamp": 20, "id": "B"},
-    {"timestamp": 20, "id": "C"},
-    {"timestamp": 30, "id": "D"},
-]
-key = lambda event: event["timestamp"]
-left = bisect_left(events, 20, key=key)
-right = bisect_left(events, 30, key=key)
-assert (left, right, right - left) == (1, 3, 2)
+```bash
+dotnet run -c Release --project LessonLab -- --observe
 ```
 
-Truyền 20, không truyền full record, làm target. List phải sorted theo timestamp. Dùng đơn vị và cách hiểu timezone nhất quán; trộn seconds/milliseconds hay representation không tương thích có thể làm query sai âm thầm. Key extraction chạy trên record được kiểm tra; key đắt có thể cần precomputed key, tốn storage và đồng bộ lúc update.
+Output quan sát được với .NET SDK 10.0.401 của lab (dạng mỗi dòng là `n index reads`):
 
-Nếu write thường xuyên, sorted List phẳng có thể không phù hợp. Ordered index/tree có chi phí query/update/storage riêng. Lập luận partition chuyển sang được, nhưng số so sánh in-memory chưa dự đoán database I/O, concurrency, collation hay query plan.
+```text
+8 4 3
+1024 512 10
+65536 32768 16
+records: 1 3 2
+```
 
-## Chuyển sang SQL Server: time window trên index
+Target nằm gần giữa các dãy tổng hợp này. Tăng n từ 1.024 lên 65.536 làm kích thước gấp 64 lần nhưng chỉ thêm sáu lần đọc. Các target khác đọc số lần tương tự. Check của lab cho phép tối đa `log₂(n) + 1` lần đọc (17 với n = 65.536); một lần chạy thử cùng code đọc 17 lần với target nhỏ hơn dãy và 16 lần với target nằm trong hoặc lớn hơn dãy, không bao giờ gần n. Đây là đếm số lần đọc phần tử, không phải lệnh CPU, thời gian thật hay số page database đọc; câu chuyện page cache của Kafka ở mục 6 đúng là loại chi phí mà phép đếm này không thấy.
 
-Cùng contract membership chuyển trực tiếp sang T-SQL: `ts >= @s AND ts < @e`. Trong database thử nghiệm, ví dụ này giữ timestamp duplicate thành các event riêng:
+Giờ đếm phía bên kia. Insert gần đầu một list dựa trên array có n phần tử dịch khoảng n phần tử, nên `List<long>` sorted nhận insert ngẫu nhiên tốn O(n) cho mỗi lần ghi dù mỗi lần tìm là O(log n). Sort một batch chưa sorted một lần tốn O(n log n) theo mô hình so sánh thông thường; bước chuẩn bị đó tách biệt với chi phí của từng query về sau.
+
+| Viết trước khi chạy | Viết sau khi chạy |
+|---|---|
+| Số lần đọc dự đoán cho từng n | Số lần đọc quan sát được |
+| Target nào cho nhiều lần đọc nhất? | Điều bạn thấy với target nhỏ hơn, nằm trong và lớn hơn dãy |
+| Phép đếm này không đo được gì | Một câu về giới hạn |
+
+**Nghỉ 10 phút.** Rời màn hình.
+
+## 9. Transfer: event record, rồi SQL Server
+
+**Block transfer · khoảng 35 phút · Việc cần làm:** đổi cách biểu diễn, dự đoán kết quả window, rồi đọc phần SQL. **Dừng khi:** bạn đã chạy đáp án của mình với hai check bên dưới.
+
+### Record có key là timestamp
+
+Event thật mang nhiều thứ hơn một timestamp. Key được áp dụng lên các record trong mảng, không phải lên target tìm kiếm:
+
+```csharp
+public sealed record Event(long Timestamp, string Id);
+
+public static class RecordSearch
+{
+    public static int LowerBound<T>(IReadOnlyList<T> items, long target, Func<T, long> key)
+    {
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(key);
+        int lo = 0, hi = items.Count;
+        while (lo < hi)
+        {
+            int mid = lo + (hi - lo) / 2;
+            if (key(items[mid]) < target)
+                lo = mid + 1;
+            else
+                hi = mid;
+        }
+        return lo;
+    }
+}
+```
+
+Thử với `[(10,A), (20,B), (20,C), (30,D)]`: có bao nhiêu event trong `[20, 30)`?
+
+<details>
+<summary>Đáp án</summary>
+
+`LowerBound(events, 20, e => e.Timestamp)` là 1 và `LowerBound(events, 30, e => e.Timestamp)` là 3, nên count là `3 - 1 = 2` (B và C). Target là một giá trị key (20), không phải cả event. List phải sorted theo đúng key đó. `--observe` của lab in `records: 1 3 2`.
+
+</details>
+
+Dùng một đơn vị và một cách hiểu timezone. Trộn giây và millisecond có thể làm hỏng query mà không báo lỗi. Key function chạy trên từng record được kiểm tra; key đắt có thể đáng để tính trước, đổi lại tốn storage và phải đồng bộ khi cập nhật. Với dữ liệu ghi thường xuyên, list sorted phẳng có thể không hợp; ordered index hoặc tree có chi phí query, cập nhật và storage riêng.
+
+### SQL Server: time window trên một index
+
+Cùng contract đó là `ts >= @s AND ts < @e` trong T-SQL. Trong một scratch database, ví dụ này giữ timestamp duplicate như các event riêng:
 
 ```sql
 CREATE TABLE dbo.Events
@@ -317,47 +433,58 @@ FROM dbo.Events
 WHERE ts >= @s AND ts < @e;
 ```
 
-Count kỳ vọng là **3**: tính hai row ở start và row 10:10; loại hai row ở end. Biên bằng nhau trả zero. `BETWEEN @s AND @e` sẽ tính end, đổi contract. Không dùng unique index trên `ts` trừ khi domain cấm event đồng thời; timestamp và định danh event trả lời hai câu hỏi khác nhau.
+Count kỳ vọng là **3**: hai row ở thời điểm đầu và row 10:10 được tính; hai row ở thời điểm cuối bị loại. Bounds bằng nhau trả 0. `BETWEEN @s AND @e` sẽ tính cả điểm cuối và đổi contract. Đừng đặt `ts` là unique trừ khi domain cấm event đồng thời: timestamp và identity của event trả lời hai câu hỏi khác nhau. SQL này chưa được chạy trong session này.
 
-Range predicate là **sargable**: so trực tiếp cột có index với parameter có kiểu tương thích, cho phép SQL Server dùng biên index seek. Function như `CAST(ts AS date)` bọc cột có thể cản range access trực tiếp này; tính query bound trước query. Sargability cho phép seek, không đảm bảo seek: selectivity, statistics, kích thước table và optimizer quyết định plan. Xem actual execution plan và `SET STATISTICS IO ON` khi chạy ví dụ SQL tùy chọn.
+Predicate này là **sargable**: cột có index được so sánh trực tiếp với parameter cùng kiểu tương thích, nên SQL Server có thể dùng index để seek tới khoảng đó. Một hàm như `CAST(ts AS date)` bọc quanh cột có thể chặn điều đó; hãy tính các bound ở phía parameter của query. Sargable cho phép seek nhưng không hứa sẽ seek: selectivity, statistics, kích thước bảng và optimizer quyết định plan, nên hãy xem actual execution plan và dùng `SET STATISTICS IO ON`.
 
-Hai lower boundary trên random-access array cho count bằng phép trừ index. Index SQL Server thông thường không biến `COUNT_BIG` thành phép O(log n) tương đương: execution vẫn có thể phải đọc mọi index entry thỏa điều kiện để aggregate count. Tìm range và đếm range có chi phí riêng. `datetime2` không lưu timezone; dùng quy ước UTC nhất quán hoặc representation đã normalize rõ cho cả value lưu và bound. Khớp unit và precision, không cộng “epsilon” tùy ý vào endpoint inclusive. Console lab check logic integer-window, không thực thi ví dụ SQL này.
+Hai lower bound trên một array cho count bằng cách trừ index. Một index SQL Server thông thường không biến `COUNT_BIG` thành thao tác O(log n): tìm khoảng thì rẻ, nhưng đếm vẫn có thể phải đi qua mọi index entry thỏa điều kiện. Định vị một khoảng và đếm khoảng đó có chi phí riêng. `datetime2` không có timezone, nên dùng một quy ước (ví dụ UTC) cho cả giá trị lưu và bound, và khớp độ chính xác thay vì cộng một "epsilon" vào endpoint bao gồm.
 
-## Rubric, feedback và exit
+## 10. Tổng hợp và xem lại
 
-Dùng các câu sau để review implementation:
+**Block synthesis · khoảng 45 phút · Việc cần làm:** giải thích phép tìm không cần ghi chú, tự kiểm tra theo bảng, rồi trả lời case mới. **Dừng khi:** bạn có một câu quyết định và một câu hỏi còn mở.
 
-| Tiêu chí | Giải thích tốt cần gì | Chưa rõ thì thử |
+Giải thích bằng lời của bạn vì sao equality làm `hi` dịch, vì sao trả `n` là hợp lệ, và vì sao một midpoint khớp bất kỳ là chưa đủ. Nếu một case lỗi, giữ ví dụ nhỏ nhất, sửa quy tắc và thử một ví dụ mới. Cách này hiệu quả hơn học thuộc hai dòng cập nhật.
+
+| Mục kiểm | Lời giải thích tốt gồm | Nếu chưa rõ, thử |
 |---|---|---|
-| Partition correctness | Hai inequality; empty, duplicate, missing, beyond-range | Vẽ value có index và hai partition |
-| Termination/cost | Mỗi nhánh giảm hi−lo; logarithmic với random access | Trace vùng chưa biết dài một |
-| Window behavior | Hai biên; gồm start, loại end | Duplicate cả hai endpoint |
-| Trade-off | Query nhanh chưa bỏ dịch insert hay key cost | Đếm move cho insert đầu |
+| Partition đúng | Cả hai bất đẳng thức; case rỗng, duplicate, thiếu và ngoài khoảng | Vẽ giá trị có đánh số và hai phần |
+| Dừng và chi phí | Mỗi nhánh làm `hi - lo` giảm; so sánh logarithmic khi truy cập ngẫu nhiên | Trace một khoảng chưa biết có một phần tử |
+| Hành vi window | Hai biên; bao gồm start, loại end | Duplicate ở cả hai endpoint |
+| Đánh đổi | Query nhanh không loại được insertion shift, chi phí key hay chi phí truy cập page | Đếm số lần dịch khi insert đầu |
 
-Giải thích bằng lời mình vì sao equality đổi hi, vì sao trả n hợp lệ, vì sao midpoint matching bất kỳ chưa đủ. Case fail → giữ ví dụ nhỏ nhất, sửa rule, thử ví dụ mới. Hữu ích hơn học thuộc hai câu update.
+Case mới để trả lời không ghi chú: `[5, 5, 5, 7, 9]`, window `[5, 9)`.
 
-## Câu hỏi mở và kế hoạch ôn lại
+<details>
+<summary>Đáp án</summary>
 
-Sau một khoảng, tự dựng partition và trace duplicate target mới không ghi chú. Sau đó đổi event representation hay endpoint, giải thích window result. Sai thì ôn sớm hơn; lập luận ổn thì tăng khoảng.
+`LowerBound(5) = 0` và `LowerBound(9) = 4`, nên count là 4: cả ba số 5 và số 7. Số 9 ở cuối bị loại. So với tìm equality thông thường cho 5, có thể trả vị trí 1 và làm phép trừ sai.
 
-Ba câu để đọc sâu: Vì sao left/right boundary khác ở equality? Key function thêm công việc gì? Vì sao insort vẫn tuyến tính dù binary search? Implementation và docs được link trả lời các câu này.
+</details>
 
-## Bài tập tùy chọn và lời giải
+Bài luyện tùy chọn có lời giải:
 
-- `[1,1,3]`, target 1: biên 0; partition nhỏ hơn không có phần tử.
-- `[2,4,4,9]`, target 5: biên 3; cả ba phần tử trước nhỏ hơn.
-- `[10,10,20,30,30,40]`, window `[20,40)`: count 3, từ biên 2 và 5.
-- Cùng mảng, window `[41,50)`: count 0, từ biên 6 và 6.
-- Endpoint đảo: từ chối query trước khi trừ biên.
-- Record search: target là giá trị key; giữ cùng ordering khi update List.
+<details>
+<summary>Đáp án cho danh sách luyện</summary>
+
+- `[1,1,3]`, target 1: biên 0; không phần tử nào thuộc phần nhỏ hơn.
+- `[2,4,4,9]`, target 5: biên 3; cả ba phần tử trước đó đều nhỏ hơn.
+- `[10,10,20,30,30,40]`, window `[20,40)`: count 3, từ hai biên 2 và 5.
+- Cùng mảng, window `[41,50)`: count 0, từ hai biên 6 và 6.
+- Endpoint bị đảo: từ chối query trước khi trừ hai biên.
+- Tìm theo record: target là một giá trị key; giữ cùng thứ tự khi cập nhật list.
+
+</details>
+
+Sau một khoảng thời gian, tự dựng lại phép tìm và trace một target duplicate mới mà không ghi chú; rồi đổi cách biểu diễn record hoặc endpoint và giải thích kết quả window. Sau một lỗi thì ôn sớm hơn, và giãn dài hơn khi lập luận đã chắc.
+
+Câu hỏi để mang theo: vì sao biên trái và biên phải khác nhau khi gặp equality? Key function thêm công việc gì? Vì sao insert vào list sorted vẫn tuyến tính dù có binary search? Ý tưởng "index một mẫu, scan khoảng trống" của Kafka đi được bao xa khi dữ liệu nằm trên đĩa thay vì trong memory?
 
 ## Đọc thêm
 
-- [Tài liệu Python bisect](https://docs.python.org/3/library/bisect.html): contract partition left/right chính xác, key behavior và insert cost.
-- [CPython bisect source](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py) và [tests](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py): so quyết định implementation với trace và test tự thiết kế.
-- [Python sorting how-to](https://docs.python.org/3/howto/sorting.html): chuẩn bị dữ liệu sorted, key function và stable ordering trước query.
-- [List<T>.BinarySearch](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.binarysearch?view=net-10.0) và [Array.BinarySearch](https://learn.microsoft.com/en-us/dotnet/api/system.array.binarysearch?view=net-10.0): contract duplicate match và insertion position được complement.
+- [Time index của Apache Kafka](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L340): comment về vùng warm và `indexSlotRangeFor`, đã pin theo commit đọc ở mục 6.
+- [List<T>.BinarySearch](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.binarysearch?view=net-10.0) và [Array.BinarySearch](https://learn.microsoft.com/en-us/dotnet/api/system.array.binarysearch?view=net-10.0): contract khi gặp duplicate và vị trí insert dạng complement.
 - [SQL Server index design guide](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide?view=sql-server-ver17): range predicate, lựa chọn index và query plan.
+- [Hướng dẫn lab C#](../../../labs/boundary-search/dotnet/README.vi.md): setup, lệnh chạy và các check.
 
 <!-- LESSON_NAVIGATION_START -->
 ## Nội dung liên quan

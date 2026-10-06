@@ -2,9 +2,11 @@ using BoundarySearchLab;
 
 if (args.Length == 1 && args[0] == "--check")
     return Checks.Run();
+if (args.Length == 1 && args[0] == "--observe")
+    return Observe.Run();
 if (args.Length != 0)
 {
-    Console.Error.WriteLine("Usage: LessonLab [--check]");
+    Console.Error.WriteLine("Usage: LessonLab [--check | --observe]");
     return 2;
 }
 

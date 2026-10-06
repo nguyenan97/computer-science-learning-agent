@@ -73,6 +73,22 @@ public static class Checks
                 Equal(int.MaxValue - 1, BoundarySearch.LowerBound(logical, 2L * (int.MaxValue - 1)));
                 if (logical.Reads > 31) throw new InvalidOperationException("Too many element reads");
             }),
+            ("element reads stay logarithmic", () =>
+            {
+                foreach (int n in new[] { 8, 1024, 65536 })
+                {
+                    var counted = new CountedSequence(n);
+                    Equal(n / 2, BoundarySearch.LowerBound(counted, n));
+                    if (counted.Reads > Math.Log2(n) + 1) throw new InvalidOperationException($"Too many reads for {n}");
+                }
+            }),
+            ("records searched by key", () =>
+            {
+                Event[] events = [new(10, "A"), new(20, "B"), new(20, "C"), new(30, "D")];
+                Equal(1, RecordSearch.LowerBound(events, 20, e => e.Timestamp));
+                Equal(3, RecordSearch.LowerBound(events, 30, e => e.Timestamp));
+                Equal(4, RecordSearch.LowerBound(events, 31, e => e.Timestamp));
+            }),
             ("exhaustive small arrays against scan oracle", CheckSmallArrays)
         ];
 

@@ -2,22 +2,27 @@
 
 [English](../../../lessons/boundary-search/lesson.md) · [Tải lab C#](https://nguyenan97.github.io/computer-science-learning-agent/labs/boundary-search/dotnet-lab.zip)
 
-Bài 01 hỏi một ID đã xuất hiện chưa. Bây giờ dữ liệu đã sorted, và câu hỏi đổi khác: **điều kiện bắt đầu đúng ở vị trí nào?** Vị trí đó giúp đếm event trong một khoảng thời gian mà không phải quét mọi event cho mỗi query. Cùng ý tưởng này nằm trong time index của Apache Kafka, nhờ đó consumer có thể nói "đọc từ 10:30 trở đi". Thuật toán đầy đủ, lập luận và đáp án có lời giải đều nằm trên trang này; ZIP lab và link standard library chỉ là phần thêm.
+Bài 01 hỏi một ID đã xuất hiện chưa. Bây giờ dữ liệu đã sorted (sắp xếp theo key), và câu hỏi đổi khác: **điều kiện bắt đầu đúng ở vị trí nào?** Vị trí đó giúp đếm event trong một khoảng thời gian mà không phải scan (kiểm tra lần lượt) mọi event cho mỗi query. Cùng ý tưởng này nằm trong time index của Apache Kafka, nhờ đó consumer có thể nói "đọc từ 10:30 trở đi". Thuật toán đầy đủ, lập luận và đáp án có lời giải đều nằm trên trang này; ZIP lab và link standard library chỉ là phần thêm.
 
-**Mục tiêu:** implement lower bound (biên dưới) đúng cho timestamp đã sorted, rồi dùng lại để đếm `start <= timestamp < end`, kể cả duplicate và endpoint không có trong dữ liệu. Giải thích vì sao một query chỉ tốn số phép so sánh logarithmic, vì sao insert vào List phẳng vẫn có thể tốn công tuyến tính, và hệ thống production (Kafka) điều chỉnh cùng phép tìm kiếm này cho storage của nó thế nào. Bạn cần indexed access, comparison và vòng lặp. Mỗi mục cho biết bạn làm gì và trong bao lâu; tổng số phút vừa đủ một ngày học.
+**Mục tiêu:** implement lower bound (vị trí đầu tiên có key ít nhất bằng target) đúng cho timestamp đã sorted, rồi dùng lại để đếm `start <= timestamp < end`, kể cả duplicate (giá trị trùng) và endpoint (điểm đầu hoặc cuối khoảng) không có trong dữ liệu. Giải thích vì sao số phép so sánh tăng theo log n, vì sao insert vào list dùng array vẫn có thể tốn công tuyến tính, và hệ thống production (Kafka) điều chỉnh boundary search cho storage của nó thế nào. Bạn cần đọc phần tử theo index, so sánh và vòng lặp. Mỗi mục cho biết bạn làm gì và trong bao lâu.
 
 ## Khái niệm cần biết (giải thích ngắn)
 
 Đọc ý ngắn trước. Mục 3 mới đưa bản chính xác.
 
-- **Sorted data.** Giá trị xếp theo thứ tự không giảm, như timestamp trong một log chỉ append. Chính thứ tự này cho phép bỏ qua những phần lớn của dữ liệu.
-- **Binary search.** Nhìn phần tử ở giữa. Vì dữ liệu đã sorted, một phép so sánh đó cho biết nửa nào không thể chứa đáp án. Bỏ nửa đó và lặp lại. Mỗi bước làm phần còn lại giảm một nửa.
-- **O(log n).** Chia đôi n phần tử cho đến còn 1 mất khoảng log₂(n) bước: 8 phần tử cần khoảng 3 lần đọc, 65.536 phần tử cần khoảng 16. Dữ liệu gấp đôi chỉ thêm một bước, không phải gấp đôi công việc.
+- **Record, key và duplicate.** Một event record (bản ghi sự kiện) có thể chứa timestamp 20 và ID B; timestamp là key dùng để tìm kiếm. Hai record có timestamp duplicate vẫn có thể là hai event khác nhau.
+- **Sorted data.** Giá trị xếp theo thứ tự không giảm, như `[10, 10, 20]`. Append-only chỉ nói dữ liệu mới được ghi vào cuối; không bảo đảm timestamp sorted. Binary search cần dữ liệu sorted theo đúng key.
+- **Indexed access (đọc theo vị trí).** Đọc một phần tử như `values[3]`. Array và `List<T>` hỗ trợ đọc với chi phí hằng số; riêng interface `IReadOnlyList<T>` không bảo đảm chi phí đó.
+- **Binary search (tìm kiếm nhị phân).** Nhìn phần tử ở giữa. Vì dữ liệu đã sorted, một phép so sánh đó cho biết nửa nào không thể chứa đáp án. Bỏ nửa đó và lặp lại. Mỗi bước làm phần còn lại giảm khoảng một nửa.
+- **Big-O và cost model (mô hình chi phí).** Big-O cho giới hạn mức tăng công việc khi input lớn lên, bỏ qua hệ số hằng. Ở đây ta đếm lần đọc phần tử và giả định mỗi lần đọc, so sánh có chi phí hằng số.
+- **O(log n).** Trong mô hình đó, công việc tăng nhiều nhất theo log n. Ví dụ `log₂(8) = 3` đếm số lần chia đôi `8 -> 4 -> 2 -> 1`; `floor` làm tròn xuống số nguyên. Implementation lower bound có thể còn đọc phần tử cuối đang xét, nên đọc tối đa `floor(log₂(n)) + 1` phần tử với `n >= 1`: tối đa 4 lần cho 8 phần tử và 17 lần cho 65.536 phần tử. Gấp đôi n thêm một vào giới hạn worst case (trường hợp tệ nhất); một query cụ thể có thể đọc ít hơn.
 - **Lower bound.** Vị trí đầu tiên có giá trị lớn hơn hoặc bằng `x`. Mọi thứ trước nó nhỏ hơn `x`; từ nó trở đi đều ít nhất bằng `x`. Nếu mọi giá trị đều nhỏ hơn, đáp án là độ dài `n`, nghĩa là "một vị trí sau phần tử cuối".
 - **Khoảng nửa mở `[a, b)`.** Gồm `a`, không gồm `b`. `[1, 3)` là vị trí 1 và 2. Time window dùng cách này để hai window liền nhau `[10, 20)` và `[20, 30)` không đếm trùng hay sót một event.
 - **Window count.** Số event trong `[start, end)` bằng `lowerBound(end) - lowerBound(start)`. Hai lần tìm thay cho một lần quét.
 - **Insertion shift.** Với list dựa trên array, insert gần đầu làm mọi phần tử phía sau dịch một slot. Search nhanh; giữ dữ liệu luôn sorted khi ghi thì không miễn phí.
-- **Invariant.** Từ Bài 01: một câu luôn đúng sau mỗi bước và chứng minh code đúng.
+- **Invariant (điều luôn đúng).** Từ Bài 01: một câu luôn đúng sau mỗi bước và giúp chứng minh code đúng. Với phép tìm này, mọi phần tử trước `lo` nhỏ hơn target.
+- **Index và scan.** Index lưu key kèm vị trí để query bỏ qua dữ liệu; scan kiểm tra dữ liệu theo thứ tự. Time index của Kafka là sparse index (index thưa): chỉ lưu một số entry tóm tắt, rồi scan kiểm tra record gốc.
+- **Memory page (trang nhớ).** Hệ điều hành chuyển dữ liệu file theo từng block gọi là page. Hai phép tìm có thể so sánh số lần tương tự nhưng phải chờ đọc số page từ đĩa khác nhau.
 
 ## 1. Nhớ lại và kiểm tra kiến thức nền
 
@@ -50,7 +55,14 @@ Mọi phần tử đang có dịch sang phải một slot. Tìm kiếm nhanh kh�
 
 </details>
 
-Khởi động: trong `[2, 4, 4, 9]`, vị trí đầu tiên có giá trị ít nhất 4 là đâu? Chỉ index 0 nhỏ hơn 4, nên vị trí đầu tiên ít nhất 4 là **1**. Với `[1, 1, 3]` và target 1, đáp án là **0**: không có gì nhỏ hơn. Nếu chưa rõ, ghi mỗi giá trị phía trên index của nó và kẻ một đường giữa "nhỏ hơn target" và "ít nhất target" trước khi đọc code.
+Khởi động: trong `[2, 4, 4, 9]`, vị trí đầu tiên có giá trị ít nhất 4 là đâu? Làm lại với `[1, 1, 3]` và target 1.
+
+<details>
+<summary>Đáp án</summary>
+
+Với mảng đầu, chỉ index 0 nhỏ hơn 4, nên biên là **1**. Với mảng sau, không có gì nhỏ hơn 1, nên biên là **0**. Nếu chưa rõ, ghi mỗi giá trị phía trên index của nó và kẻ một đường giữa "nhỏ hơn target" và "ít nhất target" trước khi đọc code.
+
+</details>
 
 ## 2. Bài toán và dự đoán
 
@@ -63,11 +75,20 @@ timestamps = [10, 10, 20, 30, 30, 40]
 query       = [10, 30)
 ```
 
-Window gồm hai event ở 10 và event ở 20, loại hai event ở 30. Đáp án là **3**. Scan đếm đúng nhưng tốn O(n) phép so sánh cho mỗi query. Với nhiều query trên cùng dữ liệu sorted, hãy tìm hai biên:
+Dự đoán window chứa bao nhiêu event và cần tìm hai biên nào.
+
+<details>
+<summary>Đáp án</summary>
+
+Window gồm hai event ở 10 và event ở 20, loại hai event ở 30. Đáp án là **3**. Hai biên là:
 
 - Vị trí đầu tại hoặc sau `start` (10): 0.
 - Vị trí đầu tại hoặc sau `end` (30): 3.
 - Count: `3 - 0 = 3`.
+
+</details>
+
+Scan đếm đúng nhưng tốn O(n) phép so sánh cho mỗi query. Với nhiều query trên cùng dữ liệu sorted, hai lần boundary search giúp tránh scan lặp lại.
 
 Một phép tìm "tìm 30" thông thường có thể trả vị trí 4, tức là số 30 thứ hai, và đếm nhầm một event ở endpoint bị loại. Bạn cần một **partition boundary** (ranh giới chia phần), không chỉ một kết quả khớp equality. Endpoint không có trong dữ liệu cũng cần đáp án hợp lý: `[11, 39)` chứa 20, 30 và 30, nên count là 3 dù 11 và 39 không xuất hiện.
 
@@ -97,7 +118,7 @@ Tại điểm giữa `mid`:
 - Nếu `values[mid] < x`, thứ tự sorted chứng minh mọi vị trí trước đó cũng quá nhỏ. Chuyển `lo` thành `mid + 1`.
 - Ngược lại `mid` và mọi vị trí sau nó đều ít nhất bằng `x`. Chuyển `hi` thành `mid`. Giữ `mid` như một đáp án khả dĩ: giá trị bằng nhau có thể còn duplicate ở phía trước.
 
-Mỗi nhánh loại `mid` khỏi vùng chưa biết, nên `hi - lo` giảm thật sự. Điều đó chứng minh vòng lặp dừng. Giảm vùng khoảng một nửa mỗi lần cho O(log n) phép so sánh; input rỗng hoặc một phần tử chỉ tốn công hằng số. Storage truy cập ngẫu nhiên và chi phí so sánh hằng số là các giả định. Linked list, key extraction đắt hay lookup từ xa sẽ đổi chi phí thật.
+Mỗi nhánh loại `mid` khỏi vùng chưa biết, nên `hi - lo` giảm thật sự. Điều đó chứng minh vòng lặp dừng. Với n phần tử chưa biết, sau một vòng lặp còn tối đa `floor(n / 2)` phần tử. Vì vậy số lần đọc lớn nhất với `n >= 1` là `floor(log₂(n)) + 1`, thuộc O(log n); input rỗng không đọc phần tử nào. Giả định là indexed access và so sánh có chi phí hằng số. Linked list, key extraction (lấy key từ record) đắt hay lookup (tìm theo key) từ xa sẽ đổi chi phí thật.
 
 ### Trace có lời kể
 
@@ -212,19 +233,19 @@ Dữ liệu sorted theo cùng thứ tự dùng trong phép so sánh, indexed acc
 
 ## 6. Đọc code thật: time index của Kafka
 
-**Block implementation-reading · khoảng 45 phút · Việc cần làm:** đọc đoạn code Kafka, trace ví dụ nhỏ và ánh xạ vào bài học. **Dừng khi:** bạn giải thích được bằng lời của mình vì sao Kafka tìm trong index trước rồi mới scan một đoạn ngắn.
+**Block implementation-reading · khoảng 45 phút · Việc cần làm:** đọc đoạn code Kafka, trace (chạy tay từng bước) ví dụ nhỏ và đối chiếu với bài học. **Dừng khi:** bạn giải thích được vì sao Kafka tìm trong phần tóm tắt sorted trước, rồi scan các record có timestamp không nhất thiết sorted.
 
-Azure Event Hubs nhận Kafka client qua giao thức Kafka, nhưng docs của Microsoft nói nó không chạy code Kafka nào, nên đây là thiết kế của chính Kafka, không phải của Event Hubs. Bài toán thì quen thuộc với mọi event stream: consumer nói "cho tôi các message từ thời điểm này trở đi". Project là [apache/kafka](https://github.com/apache/kafka), đọc ở commit `8ed535f41c2a8a783e64a3b4ff9468ab682959b8`.
+Bài toán quen thuộc với mọi event stream: consumer hỏi "với timestamp này, tôi có thể bắt đầu đọc từ offset nào?" Project là [apache/kafka](https://github.com/apache/kafka), đọc ở commit `8ed535f41c2a8a783e64a3b4ff9468ab682959b8`.
 
-**Bài toán của sản phẩm.** Một partition là một log append-only rất lớn, chia thành các segment file. Tìm trong log vài gigabyte từng record một thì quá chậm, còn giữ một index entry cho mỗi record thì index quá lớn. Kafka cần message đầu tiên có timestamp ít nhất bằng một thời điểm cho trước, tức là một lower bound trên timestamp của log.
+**Bài toán của sản phẩm.** Một partition là một dãy message chỉ append, chia thành các segment file; offset là vị trí của message trong dãy đó. Scan một segment lớn từ đầu cho mỗi query sẽ tốn công, còn index mọi record sẽ tốn thêm storage. Kafka tìm message đầu tiên có `timestamp >= target` và `offset >= startingOffset`. Timestamp của record có thể đi lùi, nên áp dụng binary search của bài trực tiếp lên log là sai. Kafka tạo một phần tóm tắt sorted để tìm kiếm.
 
 **Code làm gì** (đã xác minh trong source đã pin):
 
-1. **Sparse index.** Khi append, [`LogSegment`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/LogSegment.java#L270) chỉ thêm một index entry sau khi đã ghi hơn `indexIntervalBytes` byte kể từ entry trước. Index là một mẫu của log, không phải bản sao. Các entry trong time index được bảo đảm có timestamp tăng dần (xem comment của class [`TimeIndex`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/TimeIndex.java#L42)); đó là điều kiện sorted ở mục 3.
+1. **Phần tóm tắt sparse và sorted.** Khi append, [`LogSegment`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/LogSegment.java#L261) theo dõi `maxTimestampSoFar`, timestamp lớn nhất đã thấy, cùng offset cuối của batch (nhóm record) đó. Sau khi `bytesSinceLastIndexEntry > indexIntervalBytes`, nó thêm offset-index entry và gọi `timeIndex().maybeAppend` với giá trị lớn nhất này. [`TimeIndex.maybeAppend`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/TimeIndex.java#L180) chỉ ghi time entry nếu timestamp lớn hơn entry trước. Vì vậy time index sorted ngay cả khi timestamp của record gốc không sorted. Điều kiện sorted ở mục 3 được áp dụng lên phần tóm tắt, không phải log gốc.
 2. **Binary search trong index.** [`TimeIndex.lookup`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/TimeIndex.java#L152) gọi `largestLowerBoundSlotFor`: entry có timestamp lớn nhất mà vẫn `<=` target. Đây là hình ảnh phản chiếu của lower bound của chúng ta.
-3. **Rồi scan một đoạn ngắn.** [`LogSegment.findOffsetByTimestamp`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/LogSegment.java#L752) đổi entry đó thành vị trí trong file và gọi [`FileRecords.searchForTimestamp`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/clients/src/main/java/org/apache/kafka/common/record/internal/FileRecords.java#L349), nó đi tiếp từ vị trí đó và trả record đầu tiên có `timestamp >= target`. Đoạn scan ngắn vì index entry nằm gần đáp án.
+3. **Scan để hoàn tất query.** [`LogSegment.findOffsetByTimestamp`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/LogSegment.java#L752) dùng offset index đổi `max(indexedOffset, startingOffset)` thành vị trí file, rồi gọi [`FileRecords.searchForTimestamp`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/clients/src/main/java/org/apache/kafka/common/record/internal/FileRecords.java#L349). Method này đi qua các batch, bỏ qua batch có timestamp lớn nhất quá nhỏ, rồi kiểm tra record đến khi cả timestamp và offset thỏa query. Index giúp chọn điểm bắt đầu scan, nhưng `indexIntervalBytes` không giới hạn cứng độ dài đoạn scan: time entry có thể không tăng khi timestamp nằm dưới mức lớn nhất trước đó, và kích thước batch khác nhau. Query đầy đủ còn có bước scan này; chỉ lookup trong index có số phép so sánh logarithmic.
 
-Hãy trace một time index nhỏ với bốn entry đã lấy mẫu, dạng `timestamp -> offset`: `1000 -> 0`, `1500 -> 40`, `2100 -> 85`, `2600 -> 130`. Consumer hỏi timestamp 2000.
+Hãy trace một time index nhỏ với bốn entry tóm tắt, dạng `timestamp lớn nhất đã thấy -> offset`: `1000 -> 0`, `1500 -> 40`, `2100 -> 85`, `2600 -> 130`. Consumer hỏi timestamp 2000, với `startingOffset = 0`.
 
 <details>
 <summary>Đáp án</summary>
@@ -237,21 +258,23 @@ Search của Kafka giữ một khoảng đóng `[lo, hi]` và chọn `mid = (lo 
 
 | `LowerBound` của chúng ta | `indexSlotRangeFor` của Kafka |
 |---|---|
-| Vị trí đầu tiên `>= x` | Slot lớn nhất `<= x`, rồi một đoạn scan ngắn hoàn tất công việc |
+| Vị trí đầu tiên `>= x` | Slot lớn nhất `<= x`, rồi scan hoàn tất công việc |
 | Nửa mở `[lo, hi)`, `mid = lo + (hi - lo) / 2` | Đóng `[lo, hi]`, `mid = (lo + hi + 1) >>> 1`, có thể trả sớm khi khớp đúng |
-| Mọi phần tử đều nằm trong mảng | Chỉ một mẫu được index; phần còn lại tìm bằng scan |
+| Mọi timestamp sorted trong mảng | Timestamp lớn nhất đã thấy sorted trong index; timestamp của record không nhất thiết sorted |
 | Chi phí tính bằng số phép so sánh | Còn tính xem mỗi phép so sánh chạm vào memory page nào |
 
-Dòng cuối là bài học rút ra từ code. Một comment trong [`AbstractIndex.java`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L340) giải thích rằng binary search sách giáo khoa trên một file memory-mapped đang lớn dần sẽ chạm các page khác nhau khi file lớn lên, nên các page lâu không dùng có thể gây đọc đĩa ngay trên đường nóng. Tác giả báo cáo trong comment đó rằng điều này làm latency của produce nhảy từ vài millisecond lên khoảng một giây trong test của họ (đây là nhận định từ chính comment trong code; bài này không tái hiện lại). Cách sửa của họ, thấy trong [`indexSlotRangeFor`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L492), là kiểm tra trước xem target có nằm trong `warmEntries()` entry cuối (tương đương 8.192 byte) hay không, và nếu có thì chỉ tìm trong vùng "warm" nhỏ, luôn được dùng đó. Vẫn O(log n); khác ở cách dùng memory.
+Dòng cuối là bài học rút ra từ code. Một comment trong [`AbstractIndex.java`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L340) giải thích rằng binary search thông thường trên file memory-mapped (file được ánh xạ vào memory) chạm các page khác nhau khi file lớn lên. Page lâu không dùng có thể phải đọc lại từ đĩa ngay trên luồng xử lý thường xuyên. Tác giả báo cáo trong comment đó rằng điều này làm produce latency (thời gian hoàn thành request ghi) tăng từ vài millisecond lên khoảng một giây trong test của họ; bài này không tái hiện phép đo đó. Cách sửa trong [`indexSlotRangeFor`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L492) kiểm tra biên của vùng "warm" cuối index, với `warmEntries() = 8192 / entrySize()` (khoảng 8 KiB entry). Target lớn hơn biên đó được tìm trong vùng cuối; target khác được tìm trong vùng trước. Các page cuối được truy cập thường xuyên nên có khả năng còn trong memory cao hơn. Lookup trong index vẫn O(log n); cách truy cập page thay đổi.
+
+**Giới hạn của ví dụ so sánh.** Với timestamp của record là `[10, 30, 20]`, window `[20, 30)` chứa một event, nhưng hai phép tìm của bài cùng trả 1 và đếm sai thành 0. Input đã vi phạm điều kiện sorted. Seek của Kafka tìm một offset bắt đầu đọc; record phía sau vẫn có thể mang timestamp nhỏ hơn. Trừ hai offset Kafka không cho count của một time window. Khi cần count đó, dùng một view riêng sorted theo timestamp hoặc scan với điều kiện window.
 
 **Suy luận của người dạy, chưa xác minh trong code.** Nếu bạn tự viết cho service của mình (ví dụ một bảng sắp theo thời gian được load vào memory), quyết định tương đương là: khi query chủ yếu hỏi về thời gian gần đây, phần dữ liệu mà chúng chạm tới quan trọng không kém số phép so sánh. Big-O cho biết nó scale thế nào; nó không cho biết bạn đọc những page hay cache line nào.
 
 **Áp dụng vào project của bạn.**
 
-1. Dữ liệu sorted mà bạn query theo khoảng thời gian hoặc ID: dùng lower bound (hoặc `BinarySearch` với giải mã `~result` cho key không có), đừng viết `Where(x => x >= start)` trong một vòng lặp.
-2. Dữ liệu rất lớn: index một mẫu, binary search trên mẫu, scan một đoạn nhỏ. Đây cùng kiểu đánh đổi với nonclustered index của SQL Server kèm key lookup.
-3. Window count: luôn dùng nửa mở `[start, end)` và phép trừ hai biên.
-4. Cập nhật: mảng chỉ giữ sorted nếu ghi theo thứ tự append (như log), nếu không bạn trả giá insertion shift.
+1. Với nhiều range query trên dữ liệu sorted theo key tìm kiếm, dùng lower bound thay vì scan toàn list mỗi query. Chỉ giải mã `BinarySearch` bằng `~result` khi key không có.
+2. Với file lớn, sparse index sorted có thể giảm storage và chọn điểm bắt đầu scan. Đo cả lookup trong index và phần scan còn lại; mật độ index và thứ tự dữ liệu quyết định đánh đổi.
+3. Với window count trên array sorted theo timestamp, dùng nửa mở `[start, end)` và trừ hai biên. Log không sorted cần cách khác.
+4. Append chỉ giữ thứ tự sorted khi key mới ít nhất bằng key cuối. Nếu không, insert đúng vị trí và trả chi phí dịch phần tử, sort một batch, hoặc chọn ordered index phù hợp với cập nhật.
 
 **Nghỉ 30 phút (ăn trưa).** Ăn và nghỉ.
 
@@ -299,9 +322,16 @@ Window bị đảo như `[30,10)` phải bị từ chối trước khi trừ.
 </details>
 
 3. **Chạy và debug (20 phút).** Chạy các check. Khi một check lỗi, trace mảng nhỏ nhất gây lỗi thay vì viết lại cả method.
-4. **Cố tình phá một nhánh (15 phút).** Hai lỗi hay gặp:
-   - `hi = mid - 1`: với `[1, 3]`, target 3, midpoint đầu là 1; đặt `hi = 0` làm mất đáp án đúng là 1. Invariant nửa mở cần `hi = mid`.
-   - `lo = mid`: khi còn một phần tử và nó quá nhỏ, `mid == lo` và khoảng không bao giờ co lại. Dùng `lo = mid + 1`.
+4. **Cố tình phá một nhánh (15 phút).** Thử `hi = mid - 1` với `[1, 3]`, target 3, rồi thử `lo = mid` với `[1]`, target 2. Invariant hoặc lập luận về việc dừng sai ở đâu? Trace thay đổi thứ hai trên giấy để tránh chạy vòng lặp không dừng.
+
+<details>
+<summary>Đáp án</summary>
+
+- Với `hi = mid - 1`, midpoint đầu là 1; đặt `hi = 0` làm mất đáp án đúng là 1. Invariant nửa mở cần `hi = mid`: giá trị bằng target vẫn có thể là đáp án.
+- Với `lo = mid`, khi còn một phần tử và nó quá nhỏ, `mid == lo` và khoảng không co lại. Dùng `lo = mid + 1` để loại vị trí đó.
+
+</details>
+
 5. **Kết thúc (5 phút).** Giải thích một bug đã tránh và một giả định code cần.
 
 **Gợi ý debug:** sai duplicate đầu -> xem nhánh equality; lỗi với input rỗng -> chỉ đọc phần tử bên trong vòng lặp không rỗng; target lớn hơn max bị lỗi -> cho phép đáp án `n`.
@@ -341,6 +371,11 @@ Dự đoán số lần đọc cho n = 8, 1.024 và 65.536 với `BoundarySearch.
 dotnet run -c Release --project LessonLab -- --observe
 ```
 
+Làm lại với target nhỏ hơn mọi key và target lớn hơn mọi key. Số lần đọc thay đổi thế nào, và phép đếm này không đo được gì?
+
+<details>
+<summary>Đáp án và output quan sát được</summary>
+
 Output quan sát được với .NET SDK 10.0.401 của lab (dạng mỗi dòng là `n index reads`):
 
 ```text
@@ -350,7 +385,9 @@ Output quan sát được với .NET SDK 10.0.401 của lab (dạng mỗi dòng 
 records: 1 3 2
 ```
 
-Target nằm gần giữa các dãy tổng hợp này. Tăng n từ 1.024 lên 65.536 làm kích thước gấp 64 lần nhưng chỉ thêm sáu lần đọc. Các target khác đọc số lần tương tự. Check của lab cho phép tối đa `log₂(n) + 1` lần đọc (17 với n = 65.536); một lần chạy thử cùng code đọc 17 lần với target nhỏ hơn dãy và 16 lần với target nằm trong hoặc lớn hơn dãy, không bao giờ gần n. Đây là đếm số lần đọc phần tử, không phải lệnh CPU, thời gian thật hay số page database đọc; câu chuyện page cache của Kafka ở mục 6 đúng là loại chi phí mà phép đếm này không thấy.
+Target nằm gần giữa các dãy tổng hợp này. Tăng n từ 1.024 lên 65.536 làm kích thước gấp 64 lần nhưng chỉ thêm sáu lần đọc. Giới hạn worst case chính xác là `floor(log₂(n)) + 1`, tức 17 với n = 65.536. Với n đó, target -1 cần 17 lần đọc; target n và `2L * n` cần 16. Target khác có thể có số lần đọc khác nhưng vẫn nằm trong giới hạn. Check logarithmic của lab dùng target giữa dãy; nó không thử mọi input lớn. Đây là đếm số lần đọc phần tử, không phải lệnh CPU, thời gian thật hay số page database đọc; câu chuyện page cache của Kafka ở mục 6 đúng là loại chi phí mà phép đếm này không thấy.
+
+</details>
 
 Giờ đếm phía bên kia. Insert gần đầu một list dựa trên array có n phần tử dịch khoảng n phần tử, nên `List<long>` sorted nhận insert ngẫu nhiên tốn O(n) cho mỗi lần ghi dù mỗi lần tìm là O(log n). Sort một batch chưa sorted một lần tốn O(n log n) theo mô hình so sánh thông thường; bước chuẩn bị đó tách biệt với chi phí của từng query về sau.
 
@@ -368,11 +405,20 @@ Giờ đếm phía bên kia. Insert gần đầu một list dựa trên array c�
 
 ### Record có key là timestamp
 
-Event thật mang nhiều thứ hơn một timestamp. Key được áp dụng lên các record trong mảng, không phải lên target tìm kiếm:
+Event thật mang nhiều thứ hơn một timestamp:
 
 ```csharp
 public sealed record Event(long Timestamp, string Id);
+```
 
+Đổi `LowerBound` để nhận `IReadOnlyList<T> items`, `long target` và `Func<T, long> key`. List sorted theo key mà function trả về. Thử với `[(10,A), (20,B), (20,C), (30,D)]`: tìm hai biên của `[20, 30)` và count của window đó. Kiểm tra thêm target 31, lớn hơn key cuối.
+
+<details>
+<summary>Đáp án</summary>
+
+Key function chạy trên record trong mảng, không chạy trên target. Giữ invariant cũ, thay `items[mid]` bằng `key(items[mid])` trong phép so sánh:
+
+```csharp
 public static class RecordSearch
 {
     public static int LowerBound<T>(IReadOnlyList<T> items, long target, Func<T, long> key)
@@ -393,12 +439,7 @@ public static class RecordSearch
 }
 ```
 
-Thử với `[(10,A), (20,B), (20,C), (30,D)]`: có bao nhiêu event trong `[20, 30)`?
-
-<details>
-<summary>Đáp án</summary>
-
-`LowerBound(events, 20, e => e.Timestamp)` là 1 và `LowerBound(events, 30, e => e.Timestamp)` là 3, nên count là `3 - 1 = 2` (B và C). Target là một giá trị key (20), không phải cả event. List phải sorted theo đúng key đó. `--observe` của lab in `records: 1 3 2`.
+`LowerBound(events, 20, e => e.Timestamp)` là 1 và `LowerBound(events, 30, e => e.Timestamp)` là 3, nên count là `3 - 1 = 2` (B và C). Target 31 trả 4, một vị trí sau phần tử cuối. Target là một giá trị key (20), không phải cả event. List phải sorted theo đúng key đó. `--observe` của lab in `records: 1 3 2`, và `--check` kiểm tra các biên record này.
 
 </details>
 
@@ -433,9 +474,18 @@ FROM dbo.Events
 WHERE ts >= @s AND ts < @e;
 ```
 
-Count kỳ vọng là **3**: hai row ở thời điểm đầu và row 10:10 được tính; hai row ở thời điểm cuối bị loại. Bounds bằng nhau trả 0. `BETWEEN @s AND @e` sẽ tính cả điểm cuối và đổi contract. Đừng đặt `ts` là unique trừ khi domain cấm event đồng thời: timestamp và identity của event trả lời hai câu hỏi khác nhau. SQL này chưa được chạy trong session này.
+Dự đoán count, rồi thử bounds bằng nhau. Thay điều kiện bằng `BETWEEN @s AND @e` sẽ đổi kết quả thế nào?
 
-Predicate này là **sargable**: cột có index được so sánh trực tiếp với parameter cùng kiểu tương thích, nên SQL Server có thể dùng index để seek tới khoảng đó. Một hàm như `CAST(ts AS date)` bọc quanh cột có thể chặn điều đó; hãy tính các bound ở phía parameter của query. Sargable cho phép seek nhưng không hứa sẽ seek: selectivity, statistics, kích thước bảng và optimizer quyết định plan, nên hãy xem actual execution plan và dùng `SET STATISTICS IO ON`.
+<details>
+<summary>Đáp án</summary>
+
+Count kỳ vọng là **3**: hai row ở thời điểm đầu và row 10:10 được tính; hai row ở thời điểm cuối bị loại. Bounds bằng nhau trả 0. `BETWEEN @s AND @e` sẽ tính cả điểm cuối, cho count 5 và đổi contract. Đừng đặt `ts` là unique trừ khi domain cấm event đồng thời: timestamp và identity của event trả lời hai câu hỏi khác nhau.
+
+</details>
+
+Ví dụ SQL này cần SQL Server và không được chạy bởi lab C#; kết quả là dự đoán từ các row và điều kiện, không phải phép đo database.
+
+Predicate (điều kiện lọc) này là **sargable**: cột có index được so sánh trực tiếp với parameter cùng kiểu tương thích, nên SQL Server có thể dùng index để seek (định vị trong index) tới khoảng đó. Điều kiện như `DATEPART(year, ts) = @year` tính giá trị từ cột thay vì đưa một khoảng trực tiếp để seek; hãy dùng `ts >= @yearStart AND ts < @nextYearStart`. Sargable cho phép seek nhưng không hứa sẽ seek: selectivity (tỷ lệ row thỏa điều kiện), statistics (thống kê phân bố dữ liệu), kích thước bảng và optimizer quyết định plan, nên hãy xem actual execution plan và dùng `SET STATISTICS IO ON`.
 
 Hai lower bound trên một array cho count bằng cách trừ index. Một index SQL Server thông thường không biến `COUNT_BIG` thành thao tác O(log n): tìm khoảng thì rẻ, nhưng đếm vẫn có thể phải đi qua mọi index entry thỏa điều kiện. Định vị một khoảng và đếm khoảng đó có chi phí riêng. `datetime2` không có timezone, nên dùng một quy ước (ví dụ UTC) cho cả giá trị lưu và bound, và khớp độ chính xác thay vì cộng một "epsilon" vào endpoint bao gồm.
 
@@ -461,7 +511,7 @@ Case mới để trả lời không ghi chú: `[5, 5, 5, 7, 9]`, window `[5, 9)`
 
 </details>
 
-Bài luyện tùy chọn có lời giải:
+Bài luyện tùy chọn: tìm biên cho `[1,1,3]`, target 1, rồi `[2,4,4,9]`, target 5. Với `[10,10,20,30,30,40]`, đếm `[20,40)` và `[41,50)`. Giải thích cách xử lý endpoint đảo `[30,10)` và dữ liệu nào phải giữ sorted khi tìm record theo key.
 
 <details>
 <summary>Đáp án cho danh sách luyện</summary>
@@ -477,7 +527,14 @@ Bài luyện tùy chọn có lời giải:
 
 Sau một khoảng thời gian, tự dựng lại phép tìm và trace một target duplicate mới mà không ghi chú; rồi đổi cách biểu diễn record hoặc endpoint và giải thích kết quả window. Sau một lỗi thì ôn sớm hơn, và giãn dài hơn khi lập luận đã chắc.
 
-Câu hỏi để mang theo: vì sao biên trái và biên phải khác nhau khi gặp equality? Key function thêm công việc gì? Vì sao insert vào list sorted vẫn tuyến tính dù có binary search? Ý tưởng "index một mẫu, scan khoảng trống" của Kafka đi được bao xa khi dữ liệu nằm trên đĩa thay vì trong memory?
+Câu hỏi để mang theo: vì sao biên trái và biên phải khác nhau khi gặp equality? Key function thêm công việc gì? Vì sao insert vào list sorted vẫn tuyến tính dù có binary search? Sau lookup trong index của Kafka còn công việc gì?
+
+<details>
+<summary>Đáp án</summary>
+
+Biên trái giữ giá trị bằng target ở phần bên phải (`hi = mid`); biên phải đưa chúng vào phần bên trái (`lo = mid + 1` khi bằng nhau) để tìm giá trị đầu tiên lớn hơn target. Key function chạy trên mỗi record được kiểm tra, nên chi phí đó cộng vào mỗi lần so sánh. Tìm vị trí insert có số bước logarithmic nhưng dịch các phần tử phía sau vẫn tuyến tính. Kafka còn phải đổi offset thành vị trí file, scan batch và record, và có thể chờ đọc page từ đĩa. Chỉ đếm phép so sánh của sparse index không mô tả chi phí toàn query.
+
+</details>
 
 ## Đọc thêm
 

@@ -4,7 +4,7 @@
 
 A loop can look simple and still do billions of comparisons. This lesson shows where that hidden work comes from, how a different data structure removes it, what that costs in memory, and where the same decision shows up in real code (EF Core's change tracker, Azure Service Bus, SQL Server unique indexes). Everything you need to follow the algorithm, the full implementation and the worked answers is on this page. The lab ZIP and official sources are extras for running experiments and reading deeper.
 
-**Goal:** write a batch dedupe that keeps the first occurrence of each order ID, then explain when to use a plain scan and when to use hashing, using correctness, operation counts and CPU/allocation measurements. You only need basic C# loops and collections. Each section tells you what to do and for how long; the minutes add up to one study day.
+**Goal:** write a batch dedupe that keeps the first occurrence of each order ID, then explain when to use a plain scan and when to use hashing, using correctness, operation counts and CPU/allocation measurements. You only need basic C# loops and collections. Each section tells you what to do and for how long.
 
 ## Concepts in plain words
 
@@ -13,11 +13,15 @@ Read this first. Each idea is short on purpose. Section 4 gives the formal versi
 - **Duplicate and dedupe.** A duplicate is a value that appears more than once, like order ID `B2` in `B2, A1, B2`. Dedupe (deduplicate) means keeping one copy of each value.
 - **n and u.** `n` is how many items you read. `u` is how many *different* items there are. For `B2, A1, B2, C3, A1`: n = 5, u = 3.
 - **Cost model.** Before comparing two ideas you choose what to count. Here we count equality comparisons between two IDs. It lets you compare algorithms without a stopwatch. It is a simplification, not the CPU's real work.
-- **Big-O.** It describes how the amount of work *grows* when the input grows, ignoring constant factors. O(n): double the input, double the work. O(n²): double the input, about four times the work. It is a growth rate, not a number of seconds. Θ (theta) is the tight version: "about this much, not less".
-- **Worst case, expected case, amortized.** Worst case is the most unlucky input. Expected case is the average under a stated assumption (for hashing: keys spread out evenly). Amortized means the average over a whole sequence of operations, even if one operation (like a resize) is expensive.
+- **Big-O and Θ.** Big-O describes a limit on how fast work grows for large inputs, ignoring constant factors: O(n) grows no faster than linearly, while O(n²) allows quadratic growth. It does not promise an exact ratio or a number of seconds; for example, constant work is also O(n). For the concrete formula `T(n) = 3n`, doubling n doubles the work; for `T(n) = n²`, it quadruples it. Θ (theta) describes a tight growth rate: both limits have the same order.
+- **Worst case, expected case, amortized.** Worst case is the input that needs the most work among inputs of the same size. Expected case is an average under stated probability assumptions (for hashing: keys spread out well). Amortized means the average cost over a whole sequence of operations, even if one operation (like a resize) is expensive.
 - **Hash table, bucket, collision.** A hash function turns a key into a number, which picks a small group of slots called a bucket. You look inside that bucket instead of checking everything. A collision is when two different keys land in the same bucket. Results stay correct because equality is still checked.
 - **Invariant.** A sentence that is true after every loop step. If it is true at the start, stays true each step, and implies the requirement at the end, the code is correct.
-- **Allocation vs peak memory.** Allocation is how much new memory an operation requests. Peak memory is the most memory alive at one time. They are different numbers.
+- **Trace, prefix, edge case.** A trace follows the code step by step; a prefix is the part of the input read so far. After two steps through `B2, A1, B2`, the prefix is `B2, A1`. An edge case tests a boundary of the requirement, like empty input or a null ID.
+- **Load factor and resize.** Load factor is the number of stored entries divided by the number of buckets: 8 entries and 16 buckets gives 0.5. Resize creates larger storage so the table can hold more keys without growing the average bucket too much.
+- **Allocation, GC and peak memory.** Allocation is how much new memory an operation requests; GC (garbage collection) reclaims managed objects that are no longer reachable. Peak live memory is the most memory alive at one time; peak working set counts resident process memory. Allocating two arrays one after another does not mean both remain alive forever.
+- **Benchmark, latency and p99.** A benchmark measures a chosen workload; latency is how long one request takes. If p99 latency is 100 ms, about 99% of measured requests finish within 100 ms. Average batch time does not establish a service's p99.
+- **Identity, idempotency and transaction.** Identity says which keys mean the same thing: `a` and `A` differ under Ordinal equality. Idempotency means retrying the same event does not apply its business effect again. A database transaction commits its writes together or rolls them back together; storing an event marker and updating the order in one transaction prevents a retry from skipping an unfinished update.
 
 ## 1. Quick self-check
 
@@ -283,7 +287,7 @@ Pinned source to read: [List.cs](https://github.com/dotnet/runtime/blob/4271d88e
 
 ### Case study: EF Core uses a dictionary so loading rows does not scan
 
-You already use EF Core, so this is the best place to see the same decision in a product. The project is [dotnet/efcore](https://github.com/dotnet/efcore), read at commit `7adff35c6c583fa6f7aa3939389ab3314be330ab`.
+If your project uses EF Core, this is a familiar place to see the same decision in a product. The project is [dotnet/efcore](https://github.com/dotnet/efcore), read at commit `7adff35c6c583fa6f7aa3939389ab3314be330ab`.
 
 **The product problem.** A tracking query must return one object per database row key. If 100 posts point to the same blog, you must get one `Blog` instance, not 100 copies, or EF cannot know which copy to save. The EF docs call this identity resolution. Each time a row is turned into an entity, EF has to answer your question from section 2: "have I already seen this key?"
 
@@ -291,8 +295,9 @@ You already use EF Core, so this is the best place to see the same decision in a
 
 - In [`IdentityMap.cs` line 18](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L18) the tracker holds `Dictionary<TKey, InternalEntityEntry> _identityMap`. The key is the entity's key value; the value is the tracked entry.
 - In [line 36](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L36) the dictionary is created with the key's own equality comparer from the model. This is the same rule as your `StringComparer.Ordinal`: the equality used for "seen" must match the identity you want.
-- The lookup by key is a single dictionary read ([line 105](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L105)). When you add an entry, [line 267](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L267) checks the same dictionary first. A second different instance with the same key throws an identity conflict instead of silently keeping both.
-- Query results enter this path through [`QueryContext.StartTracking`](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/Query/QueryContext.cs#L148), which calls [`StateManager.StartTrackingFromQuery`](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/StateManager.cs#L324). That method returns an existing entry if there is one, otherwise it creates the entry and registers it in the identity map of each key ([line 347](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/StateManager.cs#L347)).
+- A tracking query looks up the key **before creating an entity**. [`ShapedQueryCompilingExpressionVisitor` lines 473-513](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/Query/ShapedQueryCompilingExpressionVisitor.cs#L473) generates a call to `QueryContext.TryGetEntry(key, keyValues, ...)`. That delegates to the state manager and identity map. On a hit the query reuses `entry.Entity`; only a miss creates a new entity. The identity map's key lookup is a dictionary read ([line 105](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L105)).
+- Registering the new query entity is a separate step: [`QueryContext.StartTracking`](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/Query/QueryContext.cs#L148) calls [`StateManager.StartTrackingFromQuery`](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/StateManager.cs#L324). Its initial `TryGetEntry(entity)` checks the object reference, not the row key; it then creates an entry and registers it through `AddOrUpdate` ([line 347](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/StateManager.cs#L347)).
+- Attaching a second distinct instance with an already tracked key is another path. `IdentityMap.Add` can throw an identity conflict ([lines 267-279](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L267)); the query's `AddOrUpdate` sets `updateDuplicate: true` and skips that branch. Do not confuse attachment conflicts with query identity resolution.
 
 **What the official docs add.** The EF docs on [efficient querying](https://learn.microsoft.com/ef/core/performance/efficient-querying#tracking,-no-tracking-and-identity-resolution) say EF keeps a dictionary of tracked instances and checks it by key when new data is loaded, and that this lookup and maintenance "take up some time". They also say a no-tracking query does not do identity resolution, so the same blog would be materialized 100 times. The [identity resolution page](https://learn.microsoft.com/ef/core/change-tracking/identity-resolution#identity-resolution-and-queries) gives the reason: identity resolution has to remember every instance it returned, which hurts streaming a large number of entities.
 
@@ -302,7 +307,7 @@ You already use EF Core, so this is the best place to see the same decision in a
 |---|---|
 | `seen` set | `_identityMap` dictionary, keyed by entity key |
 | Ordinal equality chosen on purpose | Key comparer taken from the model |
-| O(u) extra memory to avoid repeated scanning | One entry per distinct tracked entity, kept for the life of the `DbContext` |
+| O(u) extra memory to avoid repeated scanning | One entry per distinct entity while it remains tracked; detaching or clearing the tracker removes entries |
 | Skip the set to save memory | `AsNoTracking`: no dictionary, but duplicates |
 
 **Instructor inference, not verified in code.** If EF had searched a list of tracked entities for every row, loading n rows with u different entities would cost O(n·u) key comparisons, the same shape as `List.Contains`. EF's history is not claimed here; this is only the counterfactual that shows why a dictionary is the natural choice. No EF timing was measured in this lesson.
@@ -313,6 +318,109 @@ You already use EF Core, so this is the best place to see the same decision in a
 2. Read-only result where shared parents must be the same object: use `AsNoTrackingWithIdentityResolution()`. You pay for a temporary dictionary during the query.
 3. Your own code needs "seen this key?" across thousands of rows (merging API results, building a lookup for a join): use `HashSet` or `Dictionary` with an explicit comparer, as EF does. Do not call `list.Contains` or `Any` in a loop.
 4. If a `DbContext` lives long and loads a lot, its identity map grows with the number of distinct entities. Prefer one short-lived context per unit of work.
+
+### Optional check: see identity resolution in a running query
+
+Use 15 minutes of this implementation-reading block for this check instead of part of the source reading. It uses .NET SDK 10.0.401, EF Core SQLite 10.0.12 and an in-memory SQLite database, so no database server is needed.
+
+Two `Post` rows, IDs 1 and 2, both refer to `BlogId = 1`. For each query mode, predict whether `ReferenceEquals(posts[0].Blog, posts[1].Blog)` is true and how many entities remain in the context's change tracker. Why must each query use a fresh `DbContext`? Run the check or, if package restore is unavailable, trace the code and output in the answer.
+
+<details>
+<summary>Answer</summary>
+
+From the repository root, create a scratch project. The first package restore needs internet access:
+
+```bash
+mkdir -p work/ef-identity-demo
+cd work/ef-identity-demo
+dotnet new globaljson --sdk-version 10.0.401 --roll-forward latestPatch
+dotnet new console --framework net10.0
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version 10.0.12
+```
+
+Replace `Program.cs` with this complete program:
+
+```csharp
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+
+using var connection = new SqliteConnection("Data Source=:memory:");
+connection.Open();
+var options = new DbContextOptionsBuilder<BlogDb>()
+    .UseSqlite(connection).Options;
+using (var seed = new BlogDb(options))
+{
+    seed.Database.EnsureCreated();
+    var blog = new Blog { Id = 1 };
+    seed.Posts.AddRange(
+        new Post { Id = 1, Blog = blog },
+        new Post { Id = 2, Blog = blog });
+    seed.SaveChanges();
+}
+
+Check("Tracking", 0, expectedSame: true, expectedTracked: 3);
+Check("NoTracking", 1, expectedSame: false, expectedTracked: 0);
+Check("IdentityResolution", 2, expectedSame: true, expectedTracked: 0);
+Console.WriteLine("All checks passed.");
+
+void Check(string name, int mode, bool expectedSame, int expectedTracked)
+{
+    using var db = new BlogDb(options);
+    IQueryable<Post> query = db.Posts.Include(p => p.Blog).OrderBy(p => p.Id);
+    query = mode switch
+    {
+        1 => query.AsNoTracking(),
+        2 => query.AsNoTrackingWithIdentityResolution(),
+        _ => query
+    };
+    var posts = query.ToList();
+    if (posts.Count != 2 || posts.Any(p => p.Blog.Id != 1))
+        throw new InvalidOperationException("Expected two posts for Blog 1.");
+    bool same = ReferenceEquals(posts[0].Blog, posts[1].Blog);
+    int tracked = db.ChangeTracker.Entries().Count();
+    Console.WriteLine($"{name}: sameBlog={same}, tracked={tracked}");
+    if (same != expectedSame || tracked != expectedTracked)
+        throw new InvalidOperationException($"Unexpected result for {name}.");
+}
+
+sealed class BlogDb(DbContextOptions<BlogDb> options) : DbContext(options)
+{
+    public DbSet<Post> Posts => Set<Post>();
+}
+
+sealed class Blog
+{
+    public int Id { get; set; }
+}
+
+sealed class Post
+{
+    public int Id { get; set; }
+    public int BlogId { get; set; }
+    public Blog Blog { get; set; } = null!;
+}
+```
+
+Run it from the project directory:
+
+```bash
+dotnet run
+```
+
+Expected output:
+
+```text
+Tracking: sameBlog=True, tracked=3
+NoTracking: sameBlog=False, tracked=0
+IdentityResolution: sameBlog=True, tracked=0
+All checks passed.
+```
+
+The tracking query reuses one `Blog` object and leaves three entities in the context: two posts and one blog. `AsNoTracking()` creates two separate `Blog` objects with the same key and leaves the context empty. `AsNoTrackingWithIdentityResolution()` reuses one `Blog` within the query using a temporary tracker, then leaves the context empty too. `ReferenceEquals` compares object identity; matching key values alone do not make two objects the same instance.
+
+The seed context is disposed before querying, and each mode gets a new context. Otherwise already tracked objects could affect the result. The open SQLite connection keeps the in-memory database alive across these contexts. The assertions check correctness, not query speed; this is not a benchmark.
+
+</details>
 
 **Break · 30 minutes (lunch).** Eat and rest.
 
@@ -348,6 +456,15 @@ string[] input = ["B2", "A1", "B2", "C3", "A1"];
 var unique = StableUnique(input);
 Console.WriteLine(string.Join(", ", unique)); // B2, A1, C3
 ```
+
+To run the downloadable lab, install .NET SDK **10.0.401**, extract the ZIP and open a terminal in its `dotnet` directory, next to `global.json`. The main lab needs no database or third-party package:
+
+```bash
+dotnet run -c Release --project LessonLab
+dotnet run -c Release --project LessonLab -- --check
+```
+
+The sample run prints `Stable result: B2, A1, C3` and `Example scan comparisons: 6`; the check command reports eight passing checks. These commands run the provided implementation. After changing your local copy, run the checks again to catch changes in equality, order and null handling. If you cannot install the SDK, follow the same cases by hand.
 
 Steps:
 
@@ -396,6 +513,14 @@ The downloadable lab uses BenchmarkDotNet 0.15.8, N = 128, 512, 2048, nominal di
 
 Run in Release, without a debugger. Read Mean, Error and Allocated together. Here Error is half of the 99.9% confidence interval from BenchmarkDotNet, not a guaranteed bound. Allocated includes new output and table storage but not the prebuilt input; it does not measure peak working set, live heap or service p99.
 
+From the lab's `dotnet` directory, run:
+
+```bash
+dotnet run -c Release --project Benchmarks -- --filter '*DedupeBenchmarks*' --job short
+```
+
+This optional project needs a NuGet restore and runs 12 workload cases. Inspect the reports in `BenchmarkDotNet.Artifacts/results`; if setup exceeds your timebox, use the sample report below instead.
+
 Sample ShortRun from 5 October 2026, n = 512, all IDs distinct:
 
 | Approach | Mean | Error | Allocated per operation |
@@ -423,11 +548,23 @@ If you do not run the benchmark, use the sample report to practice interpretatio
 
 ## 10. Changed requirement: duplicate report
 
-**Block transfer · about 35 minutes · Do:** design first, then read the solution, then trace the table. **Stop when:** you have run your own solution against the four inputs.
+**Block transfer · about 35 minutes · Do:** design first, then read the solution, then trace the table. **Stop when:** you have traced or run the solution against the four inputs.
 
 Support needs a count instead of unique IDs. For `B2,A1,B2,C3,A1` return `[(B2,2),(A1,2)]` and drop IDs that appear once. Keep ordinal identity, first-occurrence order, unchanged input and the same null policy.
 
-Design before reading on. You need a count lookup and a separate list to keep order. Every occurrence increments a count; only the first occurrence adds the ID to the list.
+Design your method and predict the output for these inputs before opening the answer. Check empty input and null rejection too.
+
+| Input to test | What to check |
+|---|---|
+| `A,B,B,A,C` | Counts and first-occurrence order |
+| `a,A,a` | Ordinal equality |
+| `X,Y` | IDs that occur only once |
+| `A,A,A` | Every occurrence contributes to the count |
+
+<details>
+<summary>Answer</summary>
+
+Use a count lookup and a separate list to keep order. Every occurrence increments a count; only the first occurrence adds the ID to the list.
 
 ```csharp
 public sealed record OrderCount(string Id, int Count);
@@ -459,9 +596,6 @@ public static List<OrderCount> DuplicateSummary(IReadOnlyList<string> values)
 
 The invariant has two parts: `counts` equals the number of occurrences in the prefix read so far, and `order` holds each seen ID once in first-occurrence order. The final pass over `order` keeps counts above one. Expected O(n+u) = O(n), with O(u) extra storage under the same hashing and key assumptions. Do not rely on `Dictionary` enumeration order.
 
-<details>
-<summary>Worked answers for the table</summary>
-
 | Input | Result |
 |---|---|
 | `A,B,B,A,C` | `[(A,2),(B,2)]` |
@@ -475,18 +609,22 @@ Sorting by count would change the report order. Incrementing only new IDs would 
 
 ### Production: batch dedupe is not idempotency
 
-Two service instances can both receive B2, because each instance's set starts empty. A `HashSet` inside one batch does not enforce identity across the system. You need a key the storage enforces, for example tenant + event ID, with a unique index and conflict handling.
+Two service instances can both receive B2, because each instance's set starts empty. A `HashSet` inside one batch does not prevent another instance from applying the same event. Use a key the storage enforces, for example tenant + event ID, and **commit the event marker and the business update in the same database transaction**.
 
 ```sql
 -- Not run in this session; the key is the identity the business cares about.
 CREATE UNIQUE INDEX UX_OrderEvents_Tenant_Event
     ON dbo.OrderEvents (TenantId, EventId);
 
--- A second INSERT with the same (TenantId, EventId) fails with error 2601
--- (or 2627 for a unique constraint). Treat that error as "already processed".
+-- A duplicate (TenantId, EventId) fails with error 2601
+-- (or 2627 for a unique constraint). This only proves the key exists.
 ```
 
-A plain `SELECT` before `INSERT` still has a race. Storage equality must also match the identity you want: SQL Server collation can treat strings differently from C# Ordinal.
+A consumer starts a transaction, inserts the event marker into `OrderEvents`, updates the order, then commits. It acknowledges the message only after commit. If it fails before commit, both writes roll back and a retry can process the event. If it commits but fails before acknowledging, the retry finds the marker and does not apply the update twice.
+
+On a duplicate-key error, roll back the failed attempt and confirm the conflict is on **this event key**, rather than an unrelated unique index. Only when the marker and business update follow the atomic transaction rule does that marker mean "already processed". Other database errors still need handling or retry. A marker committed alone can survive a crash before the order update and make a later retry skip unfinished work; the [Idempotent Consumer pattern](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer) explains why these writes must be atomic.
+
+A plain `SELECT` before `INSERT` still has a race condition: two instances can both see "not found" before either inserts. Storage equality must also match the identity you want: SQL Server collation can treat strings differently from C# Ordinal.
 
 The same size trade-off shows up in Azure. [Service Bus duplicate detection](https://learn.microsoft.com/azure/service-bus-messaging/duplicate-detection) remembers `MessageId` values for a configurable time window and drops a repeated send. The docs say a bigger window affects throughput because every recorded ID must be matched, so keep the window as small as you can. That is your `seen` set again, with a time limit to bound memory. It protects against duplicate sends, but the [Idempotent Consumer pattern](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer#problems-and-considerations) warns it does not replace idempotent processing in the consumer. If a side effect lives outside your database transaction, a unique key alone does not make it exactly-once.
 

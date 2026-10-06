@@ -2,13 +2,13 @@
 
 [Tiếng Việt](README.vi.md) · [English lesson](../../../lessons/2026-10-05-cost-model/lesson.md)
 
-The full-day lesson uses this lab for guided C# implementation, debugging and a
+The lesson uses this lab for guided C# implementation, debugging and a
 CPU/allocation experiment. Complete worked code is in [Core/Deduplication.cs](Core/Deduplication.cs).
 Keep your attempts and experiment notes in a private copy; unchanged commands run
 reference code and do not demonstrate independent learner work. All practice and
 submission remain optional, and the next lesson is available without submitting.
-The lesson includes an inline Python comparison and narrated traces for reading
-offline; Python set internals are not interchangeable with this C# lab.
+The lesson includes the complete C# implementation, narrated traces and collapsible
+worked answers for reading offline.
 
 ## Run the small lab
 

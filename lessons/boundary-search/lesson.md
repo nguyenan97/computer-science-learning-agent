@@ -4,20 +4,25 @@
 
 Lesson 01 asked whether an ID had been seen before. Now the data is sorted, and the question changes: **where does a condition first become true?** That position lets you count events in a time window without scanning every event for every query. The same idea sits inside Apache Kafka's time index, which is how a consumer can ask "start reading from 10:30". The full algorithm, its reasoning and the worked answers are on this page; the lab ZIP and standard-library links are extras.
 
-**Goal:** implement a correct lower boundary for sorted timestamps and reuse it to count `start <= timestamp < end`, including duplicates and endpoints that are not in the data. Explain why a query costs a logarithmic number of comparisons, why inserting into a flat list can still cost linear work, and how a production system (Kafka) adapts the same search to its storage. You need indexed access, comparisons and loops. Each section tells you what to do and for how long; the minutes add up to one study day.
+**Goal:** implement a correct lower boundary for sorted timestamps and reuse it to count `start <= timestamp < end`, including duplicates and endpoints that are not in the data. Explain why a query costs a logarithmic number of comparisons, why inserting into an array-backed list can still cost linear work, and how a production system (Kafka) adapts boundary search to its storage. You need indexed access, comparisons and loops. Each section tells you what to do and for how long.
 
 ## Concepts in plain words
 
 Short ideas first. Section 3 gives the precise version.
 
-- **Sorted data.** Values are in non-decreasing order, like timestamps in an append-only log. Sorted order is what makes it possible to skip big parts of the data.
+- **Record, key and duplicate.** An event record might contain timestamp 20 and ID B; its timestamp is the key we search on. Two records can have a duplicate timestamp and still be different events.
+- **Sorted data.** Values are in non-decreasing order, like `[10, 10, 20]`. Append-only describes where writes go; it does not guarantee sorted timestamps. Binary search needs the key order to be sorted.
+- **Indexed access.** Read an element at a position, such as `values[3]`. Arrays and `List<T>` provide constant-time access; the `IReadOnlyList<T>` interface alone does not promise that cost.
 - **Binary search.** Look at the middle element. Because the data is sorted, that one comparison tells you which half cannot contain the answer. Throw that half away and repeat. Each step halves what is left.
-- **O(log n).** Halving n items down to 1 takes about log₂(n) steps: 8 items need about 3 reads, 65,536 items need about 16. Doubling the data adds one step, not double the work.
+- **Big-O and the cost model.** Big-O gives an upper bound on how work grows as the input gets larger, ignoring fixed factors. Here we count element reads and assume each read and comparison costs constant work.
+- **O(log n).** Work grows at most logarithmically under that model. For example, `log₂(8) = 3` counts the halvings `8 -> 4 -> 2 -> 1`; `floor` rounds down to an integer. Our lower-bound implementation may still read the last remaining element, so it reads at most `floor(log₂(n)) + 1` elements for `n >= 1`: at most 4 for 8 elements and 17 for 65,536. Doubling n adds one to this worst-case bound; an individual query can use fewer reads.
 - **Lower bound.** The first position whose value is greater than or equal to `x`. Everything before it is smaller than `x`; everything from it onward is at least `x`. If every value is smaller, the answer is the length `n`, which is "one past the end".
 - **Half-open interval `[a, b)`.** It includes `a` and excludes `b`. `[1, 3)` is positions 1 and 2. Time windows use it so that back-to-back windows `[10, 20)` and `[20, 30)` never count an event twice or miss one.
 - **Window count.** Events in `[start, end)` equal `lowerBound(end) - lowerBound(start)`. Two searches replace a scan.
 - **Insertion shift.** In an array-backed list, inserting near the front moves every later element one slot. Search is fast; keeping the data sorted while writing is not free.
-- **Invariant.** From Lesson 01: a sentence that stays true after every step and proves the code correct.
+- **Invariant.** From Lesson 01: a sentence that stays true after every step and helps prove the code correct. For this search, everything before `lo` is smaller than the target.
+- **Index and scan.** An index stores keys with positions so a query can skip data; a scan checks data in order. Kafka's time index is sparse: it stores selected summaries, then a scan checks the original records.
+- **Memory page.** The operating system moves file data in blocks called pages. Two searches can make similar numbers of comparisons yet wait for different numbers of pages to be read from disk.
 
 ## 1. Recall and prerequisite check
 
@@ -50,7 +55,14 @@ Every existing element moves one slot to the right. Fast search does not remove 
 
 </details>
 
-Warm-up: in `[2, 4, 4, 9]`, which position is the first value that is at least 4? Only index 0 is smaller than 4, so the first position that is at least 4 is **1**. For `[1, 1, 3]` and target 1 the answer is **0**: nothing is smaller. If this feels unclear, write each value above its index and draw a line between "smaller than target" and "at least target" before you read code.
+Warm-up: in `[2, 4, 4, 9]`, which position is the first value that is at least 4? Repeat for `[1, 1, 3]` and target 1.
+
+<details>
+<summary>Answer</summary>
+
+For the first array, only index 0 is smaller than 4, so the boundary is **1**. For the second, nothing is smaller than 1, so the boundary is **0**. If this feels unclear, write each value above its index and draw a line between "smaller than target" and "at least target" before reading code.
+
+</details>
 
 ## 2. Problem and prediction
 
@@ -63,11 +75,20 @@ timestamps = [10, 10, 20, 30, 30, 40]
 query       = [10, 30)
 ```
 
-The window includes both events at 10 and the event at 20, and excludes both events at 30. The answer is **3**. A scan counts correctly but costs O(n) comparisons per query. For many queries on the same sorted data, find two boundaries instead:
+Predict how many events the window includes and which two boundaries you need.
+
+<details>
+<summary>Answer</summary>
+
+The window includes both events at 10 and the event at 20, and excludes both events at 30. The answer is **3**. For the two boundaries:
 
 - First position at or after `start` (10): 0.
 - First position at or after `end` (30): 3.
 - Count: `3 - 0 = 3`.
+
+</details>
+
+A scan counts correctly but costs O(n) comparisons per query. For many queries on the same sorted data, two boundary searches avoid repeating the scan.
 
 A plain "find 30" search may return position 4, the second 30, and wrongly include an event at the excluded endpoint. You need a **partition boundary**, not just an equality match. Endpoints missing from the data need a useful answer too: `[11, 39)` contains 20, 30 and 30, so the count is 3 even though neither 11 nor 39 appears.
 
@@ -97,7 +118,7 @@ At the midpoint `mid`:
 - If `values[mid] < x`, sorted order proves every earlier position is also too small. Move `lo` to `mid + 1`.
 - Otherwise `mid` and everything after it is at least `x`. Move `hi` to `mid`. Keep `mid` as a possible answer: an equal value may have earlier duplicates.
 
-Each branch removes `mid` from the unknown region, so `hi - lo` strictly shrinks. That proves termination. Roughly halving the region gives O(log n) comparisons; empty and one-element inputs need constant work. Random-access storage and constant-time comparison are assumptions. A linked list, an expensive key extraction or a remote lookup changes the real cost.
+Each branch removes `mid` from the unknown region, so `hi - lo` strictly shrinks. That proves termination. With n unknown elements, at most `floor(n / 2)` remain after one iteration. The largest possible number of reads for `n >= 1` is therefore `floor(log₂(n)) + 1`, which is O(log n); empty input reads no elements. Constant-time indexed access and comparison are assumptions. A linked list, an expensive key extraction or a remote lookup changes the real cost.
 
 ### Narrated trace
 
@@ -212,19 +233,19 @@ Data sorted under the same ordering used by the comparison, constant-time indexe
 
 ## 6. Reading real code: Kafka's time index
 
-**Block implementation-reading · about 45 minutes · Do:** read the Kafka code slice, trace the small example, and map it to the lesson. **Stop when:** you can explain in your own words why Kafka searches an index first and then scans a little.
+**Block implementation-reading · about 45 minutes · Do:** read the Kafka code slice, trace the small example, and map it to the lesson. **Stop when:** you can explain why Kafka searches a sorted summary first, then scans records whose timestamps need not be sorted.
 
-Azure Event Hubs accepts Kafka clients through the Kafka protocol, but the Microsoft docs say it does not run any Kafka code, so this is Kafka's own design, not Event Hubs'. The problem is familiar from any event stream: a consumer says "give me messages from this time onward". The project is [apache/kafka](https://github.com/apache/kafka), read at commit `8ed535f41c2a8a783e64a3b4ff9468ab682959b8`.
+The problem is familiar from any event stream: a consumer asks "at which offset can I start reading for this timestamp?" The project is [apache/kafka](https://github.com/apache/kafka), read at commit `8ed535f41c2a8a783e64a3b4ff9468ab682959b8`.
 
-**The product problem.** A partition is a huge append-only log split into segment files. Searching a gigabyte log record by record would be far too slow, and keeping an index entry for every record would be huge. Kafka needs the first message whose timestamp is at least a given time, which is a lower bound over the log's timestamps.
+**The product problem.** A partition is an append-only sequence of messages split into segment files; a message's offset is its position in that sequence. Scanning a large segment from the beginning for every query would be expensive, while indexing every record uses more storage. Kafka searches for the first message with `timestamp >= target` and `offset >= startingOffset`. The records' timestamps can move backward, so applying our binary search directly to the log would be incorrect. Kafka builds a sorted summary instead.
 
 **What the code does** (verified in the pinned source):
 
-1. **Sparse index.** While appending, [`LogSegment`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/LogSegment.java#L270) adds an index entry only after more than `indexIntervalBytes` bytes have been written since the last one. The index is a sample of the log, not a copy. Entries in the time index are guaranteed to have increasing timestamps (see the class comment in [`TimeIndex`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/TimeIndex.java#L42)); that is the sorted precondition from section 3.
+1. **Sparse, sorted summary.** During append, [`LogSegment`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/LogSegment.java#L261) tracks `maxTimestampSoFar`, the largest timestamp seen so far, and its batch's last offset. After `bytesSinceLastIndexEntry > indexIntervalBytes`, it appends an offset-index entry and calls `timeIndex().maybeAppend` with that running maximum. [`TimeIndex.maybeAppend`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/TimeIndex.java#L180) writes a time entry only when the timestamp is greater than the previous entry's. The time index is therefore sorted even when the original record timestamps are not. This is the sorted precondition from section 3, applied to a summary rather than the raw log.
 2. **Binary search the index.** [`TimeIndex.lookup`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/TimeIndex.java#L152) calls `largestLowerBoundSlotFor`: the entry whose timestamp is the largest one that is `<=` the target. This is the mirror image of our lower bound.
-3. **Then scan a little.** [`LogSegment.findOffsetByTimestamp`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/LogSegment.java#L752) turns that entry into a file position and calls [`FileRecords.searchForTimestamp`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/clients/src/main/java/org/apache/kafka/common/record/internal/FileRecords.java#L349), which walks forward from that position and returns the first record with `timestamp >= target`. The scan is short because the index entry is close to the answer.
+3. **Scan to finish the query.** [`LogSegment.findOffsetByTimestamp`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/LogSegment.java#L752) uses the offset index to map `max(indexedOffset, startingOffset)` to a file position, then calls [`FileRecords.searchForTimestamp`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/clients/src/main/java/org/apache/kafka/common/record/internal/FileRecords.java#L349). That method walks batches, skips those whose maximum timestamp is too small, and inspects records until both timestamp and offset satisfy the query. The index reduces where scanning starts, but `indexIntervalBytes` is not a hard bound on the scan: time entries may stop growing while timestamps stay below a previous maximum, and batches vary in size. The whole query includes this scan; only the index lookup has logarithmic comparison cost.
 
-Trace a tiny time index with four sampled entries, `timestamp -> offset`: `1000 -> 0`, `1500 -> 40`, `2100 -> 85`, `2600 -> 130`. A consumer asks for timestamp 2000.
+Trace a tiny time index with four summary entries, `running-max timestamp -> offset`: `1000 -> 0`, `1500 -> 40`, `2100 -> 85`, `2600 -> 130`. A consumer asks for timestamp 2000, with `startingOffset = 0`.
 
 <details>
 <summary>Answer</summary>
@@ -237,21 +258,23 @@ Kafka's search keeps a closed range `[lo, hi]` and picks `mid = (lo + hi + 1) >>
 
 | Our `LowerBound` | Kafka's `indexSlotRangeFor` |
 |---|---|
-| First position `>= x` | Largest slot `<= x`, then a short scan finishes the job |
+| First position `>= x` | Largest slot `<= x`, then a scan finishes the job |
 | Half-open `[lo, hi)`, `mid = lo + (hi - lo) / 2` | Closed `[lo, hi]`, `mid = (lo + hi + 1) >>> 1`, may return early on an exact match |
-| Every element is in the array | Only a sample is indexed; the rest is found by scanning |
+| Every timestamp is sorted in the array | Running maxima are sorted in the index; record timestamps need not be sorted |
 | Cost counted in comparisons | Also counts which memory pages each comparison touches |
 
-The last row is the lesson from the code. A comment in [`AbstractIndex.java`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L340) explains that a textbook binary search over a growing memory-mapped file touches different pages as the file grows, so pages that were not recently used can cause disk reads on the hot path. The authors report in that comment that this made produce latency jump from a few milliseconds to about a second in their test (a claim from the code's own comment; this lesson did not reproduce it). Their fix, visible in [`indexSlotRangeFor`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L492), first checks whether the target lies in the last `warmEntries()` entries (8,192 bytes worth) and searches only that small, constantly used "warm" region when it does. Same O(log n); different memory behavior.
+The last row is the lesson from the code. A comment in [`AbstractIndex.java`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L340) explains that a textbook binary search over a growing memory-mapped file touches different pages as the file grows, so pages that were not recently used can cause disk reads on the hot path. The authors report in that comment that this made produce latency (time to complete a write request) jump from a few milliseconds to about a second in their test; this lesson did not reproduce that measurement. Their fix, visible in [`indexSlotRangeFor`](https://github.com/apache/kafka/blob/8ed535f41c2a8a783e64a3b4ff9468ab682959b8/storage/src/main/java/org/apache/kafka/storage/internals/log/AbstractIndex.java#L492), checks the boundary of a "warm" tail region, with `warmEntries() = 8192 / entrySize()` (about 8 KiB of entries). Targets beyond that boundary search the tail; other targets search the earlier region. Frequently accessed tail pages are more likely to remain in memory. The index lookup stays O(log n); its page access changes.
+
+**Limit of the analogy.** With record timestamps `[10, 30, 20]`, the window `[20, 30)` contains one event, but our two searches both return 1 and wrongly give count 0. The sorted-input contract was violated. Kafka's seek finds a starting offset; later records can still have earlier timestamps. Subtracting Kafka offsets does not count a timestamp window. Use a separate timestamp-ordered view or scan with the window predicate when you need that count.
 
 **Instructor inference, not verified in code.** If you wrote this for your own service (for example, a time-ordered table you load into memory), the equivalent decision is: when queries mostly ask about recent time, the part of the data they touch matters as much as the comparison count. Big-O tells you how it scales; it does not tell you which pages or cache lines you read.
 
 **How to apply it in your project.**
 
-1. Sorted data you query by time or ID range: use a lower bound (or `BinarySearch` with `~result` decoding for absent keys), never `Where(x => x >= start)` inside a loop.
-2. Very large data: index a sample, binary search the sample, scan a bounded gap. This is the same trade-off as an SQL Server nonclustered index plus a key lookup.
-3. Window counts: always use half-open `[start, end)` and the two-boundary subtraction.
-4. Updates: the sorted array stays sorted only if writes are appended in order (like a log) or you pay the insertion shift.
+1. For many range queries on data sorted by the query key, use a lower bound instead of scanning the whole list for each query. Decode `BinarySearch` with `~result` only when the key is absent.
+2. For a large file, a sparse sorted index can reduce storage and the scan's starting point. Measure both index lookup and the remaining scan; index density and the data's ordering determine the trade-off.
+3. For window counts on a timestamp-sorted array, use half-open `[start, end)` and subtract the two boundaries. An unsorted log needs a different strategy.
+4. Appending preserves sorted key order only when the new key is at least the last key. Otherwise insert at the proper position and pay the shift, sort a batch, or choose an ordered index suited to updates.
 
 **Break · 30 minutes (lunch).** Eat and rest.
 
@@ -299,9 +322,16 @@ A reversed window such as `[30,10)` must be rejected before subtracting.
 </details>
 
 3. **Run and debug (20 minutes).** Run the checks. When one fails, trace the smallest failing array instead of rewriting the method.
-4. **Break one branch on purpose (15 minutes).** Two useful mistakes:
-   - `hi = mid - 1`: on `[1, 3]`, target 3, the first midpoint is 1; setting `hi = 0` loses the right answer 1. The half-open invariant needs `hi = mid`.
-   - `lo = mid`: when one element remains and it is too small, `mid == lo` and the interval never shrinks. Use `lo = mid + 1`.
+4. **Break one branch on purpose (15 minutes).** Try `hi = mid - 1` on `[1, 3]`, target 3, then try `lo = mid` on `[1]`, target 2. Which invariant or termination argument fails? Trace the second change on paper so you can stop a non-terminating loop.
+
+<details>
+<summary>Answer</summary>
+
+- With `hi = mid - 1`, the first midpoint is 1; setting `hi = 0` loses the right answer 1. The half-open invariant needs `hi = mid`: an equal value may be the answer.
+- With `lo = mid`, when one element remains and it is too small, `mid == lo` and the interval never shrinks. Use `lo = mid + 1` to remove that position.
+
+</details>
+
 5. **Wrap up (5 minutes).** Explain one bug you avoided and one assumption the code needs.
 
 **Debug hints:** wrong first duplicate -> look at the equality branch; error on empty input -> read elements only inside the non-empty loop; target above the maximum fails -> allow the answer `n`.
@@ -341,6 +371,11 @@ Predict the number of reads for n = 8, 1,024 and 65,536 with `BoundarySearch.Low
 dotnet run -c Release --project LessonLab -- --observe
 ```
 
+Repeat with a target below all keys and one above all keys. What changes in the number of reads, and what does this count leave out?
+
+<details>
+<summary>Answer and observed output</summary>
+
 Observed output on the lab's .NET SDK 10.0.401 (the line format is `n index reads`):
 
 ```text
@@ -350,7 +385,9 @@ Observed output on the lab's .NET SDK 10.0.401 (the line format is `n index read
 records: 1 3 2
 ```
 
-The target is near the middle of these synthetic sequences. Growing n from 1,024 to 65,536 multiplies the size by 64 but adds only six reads. Other targets read a similar number. The lab check allows at most `log₂(n) + 1` reads (17 for n = 65,536); a scratch run of the same code read 17 times for a target below the sequence and 16 times for targets inside and above it, never anything near n. This counts element reads, not CPU instructions, wall-clock time or database page reads; Kafka's page-cache story in section 6 is exactly the kind of cost it cannot see.
+The target is near the middle of these synthetic sequences. Growing n from 1,024 to 65,536 multiplies the size by 64 but adds only six reads. The exact worst-case bound is `floor(log₂(n)) + 1`, or 17 for n = 65,536. For that n, target -1 takes 17 reads; targets n and `2L * n` take 16. Counts for other targets can vary while staying within the bound. The lab's logarithmic check uses the middle target; it does not exhaust every large input. This counts element reads, not CPU instructions, wall-clock time or database page reads; Kafka's page-cache story in section 6 is exactly the kind of cost it cannot see.
+
+</details>
 
 Now count the other side. Inserting near the front of an array-backed list of n elements moves about n elements, so a sorted `List<long>` that receives random inserts pays O(n) per write even though each search is O(log n). Sorting an unsorted batch once costs O(n log n) in the usual comparison model; that preparation is separate from the per-query cost.
 
@@ -368,11 +405,20 @@ Now count the other side. Inserting near the front of an array-backed list of n 
 
 ### Records with a timestamp key
 
-Real events carry more than a timestamp. The key is applied to the records in the array, not to the search target:
+Real events carry more than a timestamp:
 
 ```csharp
 public sealed record Event(long Timestamp, string Id);
+```
 
+Change `LowerBound` to accept `IReadOnlyList<T> items`, a `long target` and `Func<T, long> key`. The list is sorted by the returned key. Try it on `[(10,A), (20,B), (20,C), (30,D)]`: find the two boundaries for `[20, 30)` and its event count. Also check target 31, which is beyond the final key.
+
+<details>
+<summary>Answer</summary>
+
+The key is applied to the records in the array, not to the target. Keep the original invariant, replacing `items[mid]` with `key(items[mid])` in the comparison:
+
+```csharp
 public static class RecordSearch
 {
     public static int LowerBound<T>(IReadOnlyList<T> items, long target, Func<T, long> key)
@@ -393,12 +439,7 @@ public static class RecordSearch
 }
 ```
 
-Try it on `[(10,A), (20,B), (20,C), (30,D)]`: how many events are in `[20, 30)`?
-
-<details>
-<summary>Answer</summary>
-
-`LowerBound(events, 20, e => e.Timestamp)` is 1 and `LowerBound(events, 30, e => e.Timestamp)` is 3, so the count is `3 - 1 = 2` (B and C). The target is a key value (20), not a full event. The list must be sorted by that same key. The lab's `--observe` prints `records: 1 3 2`.
+`LowerBound(events, 20, e => e.Timestamp)` is 1 and `LowerBound(events, 30, e => e.Timestamp)` is 3, so the count is `3 - 1 = 2` (B and C). Target 31 returns 4, one past the end. The target is a key value (20), not a full event. The list must be sorted by that same key. The lab's `--observe` prints `records: 1 3 2`, and `--check` includes these record boundaries.
 
 </details>
 
@@ -433,9 +474,18 @@ FROM dbo.Events
 WHERE ts >= @s AND ts < @e;
 ```
 
-The expected count is **3**: both rows at the start and the 10:10 row are included; both rows at the end are excluded. Equal bounds return 0. `BETWEEN @s AND @e` would include the end and change the contract. Do not make `ts` unique unless the domain forbids simultaneous events: timestamps and event identity answer different questions. This SQL was not run in this session.
+Predict the count, then try equal bounds. How would replacing the predicate with `BETWEEN @s AND @e` change the result?
 
-The predicate is **sargable**: the indexed column is compared directly with a compatible parameter type, so SQL Server can use the index to seek to the range. A function such as `CAST(ts AS date)` around the column can block that; compute the bounds in the query parameters instead. Sargable permits a seek but does not promise one: selectivity, statistics, table size and the optimizer decide the plan, so check the actual execution plan and `SET STATISTICS IO ON`.
+<details>
+<summary>Answer</summary>
+
+The expected count is **3**: both rows at the start and the 10:10 row are included; both rows at the end are excluded. Equal bounds return 0. `BETWEEN @s AND @e` would include the end and count 5, changing the contract. Do not make `ts` unique unless the domain forbids simultaneous events: timestamps and event identity answer different questions.
+
+</details>
+
+This SQL example needs SQL Server and is not executed by the C# lab; its result is a prediction from the rows and predicate, not a database measurement.
+
+The predicate is **sargable**: the indexed column is compared directly with a compatible parameter type, so SQL Server can use the index to seek to the range. A predicate such as `DATEPART(year, ts) = @year` computes a value from the column instead of giving a direct range to seek; use `ts >= @yearStart AND ts < @nextYearStart` instead. Sargable permits a seek but does not promise one: selectivity, statistics, table size and the optimizer decide the plan, so check the actual execution plan and `SET STATISTICS IO ON`.
 
 Two lower bounds on an array give a count by subtracting indexes. A normal SQL Server index does not make `COUNT_BIG` an O(log n) operation: finding the range is cheap, but counting may still visit every qualifying index entry. Locating a range and counting it have separate costs. `datetime2` has no timezone, so use one convention (for example UTC) for stored values and bounds, and match precision rather than adding an "epsilon" to an inclusive endpoint.
 
@@ -461,7 +511,7 @@ Fresh case to answer without notes: `[5, 5, 5, 7, 9]`, window `[5, 9)`.
 
 </details>
 
-Optional practice with worked answers:
+Optional practice: find the boundary for `[1,1,3]`, target 1, then `[2,4,4,9]`, target 5. On `[10,10,20,30,30,40]`, count `[20,40)` and `[41,50)`. Explain how to handle reversed endpoints `[30,10)` and what must stay sorted when you search records by a key.
 
 <details>
 <summary>Answers to the practice list</summary>
@@ -477,7 +527,14 @@ Optional practice with worked answers:
 
 After a delay, rebuild the search and trace a new duplicate target without notes; then change the record representation or the endpoints and explain the window result. Revisit sooner after an error and wait longer once the reasoning is reliable.
 
-Questions to carry forward: why do left and right boundaries differ on equality? What work does a key function add? Why is inserting into a sorted list still linear despite binary search? How far can Kafka's "sample the index, scan the gap" idea go when data is stored on disk instead of memory?
+Questions to carry forward: why do left and right boundaries differ on equality? What work does a key function add? Why is inserting into a sorted list still linear despite binary search? What extra work remains after Kafka's index lookup?
+
+<details>
+<summary>Answer</summary>
+
+A left boundary keeps equal values in the right part (`hi = mid`); a right boundary puts them in the left part (`lo = mid + 1` on equality) to find the first strictly greater value. A key function runs on each inspected record, so its cost adds to each comparison. Finding an insertion position is logarithmic but moving the later list elements is linear. Kafka still maps an offset to a file position, scans batches and records, and may wait for disk pages. A sparse index's comparison count alone does not describe the whole query's cost.
+
+</details>
 
 ## Read further
 

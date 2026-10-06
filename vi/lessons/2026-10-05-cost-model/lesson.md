@@ -4,7 +4,7 @@
 
 Một vòng lặp trông đơn giản vẫn có thể làm hàng tỷ phép so sánh. Bài này chỉ ra công việc ẩn đó đến từ đâu, một cấu trúc dữ liệu khác loại bỏ nó thế nào, phải trả giá gì về memory, và quyết định này xuất hiện ở đâu trong code thật (change tracker của EF Core, Azure Service Bus, unique index của SQL Server). Mọi thứ cần để hiểu thuật toán, implementation đầy đủ và đáp án bài tập đều nằm trên trang này. ZIP lab và nguồn chính thức chỉ là phần thêm để chạy thí nghiệm và đọc sâu hơn.
 
-**Mục tiêu:** viết hàm dedupe một batch, giữ lần xuất hiện đầu tiên của mỗi order ID, rồi giải thích khi nào dùng scan và khi nào dùng hashing, dựa trên correctness, số phép đếm và số đo CPU/allocation. Bạn chỉ cần biết vòng lặp và collection cơ bản của C#. Mỗi mục cho biết bạn làm gì và trong bao lâu; tổng số phút vừa đủ một ngày học.
+**Mục tiêu:** viết hàm dedupe một batch, giữ lần xuất hiện đầu tiên của mỗi order ID, rồi giải thích khi nào dùng scan và khi nào dùng hashing, dựa trên correctness, số phép đếm và số đo CPU/allocation. Bạn chỉ cần biết vòng lặp và collection cơ bản của C#. Mỗi mục cho biết bạn làm gì và trong bao lâu.
 
 ## Khái niệm cần biết (giải thích ngắn)
 
@@ -13,11 +13,15 @@ Một vòng lặp trông đơn giản vẫn có thể làm hàng tỷ phép so s
 - **Duplicate và dedupe.** Duplicate (trùng lặp) là giá trị xuất hiện nhiều hơn một lần, ví dụ order ID `B2` trong `B2, A1, B2`. Dedupe (deduplicate, loại bỏ trùng lặp) là giữ lại đúng một bản cho mỗi giá trị.
 - **n và u.** `n` là số phần tử bạn đọc. `u` là số phần tử *khác nhau*. Với `B2, A1, B2, C3, A1`: n = 5, u = 3.
 - **Cost model (mô hình chi phí).** Trước khi so sánh hai cách làm, bạn chọn đếm cái gì. Ở đây ta đếm số lần so sánh bằng nhau giữa hai ID. Nhờ vậy so sánh được thuật toán mà không cần đồng hồ bấm giờ. Đây là bản đơn giản hóa, không phải công việc thật của CPU.
-- **Big-O.** Nó mô tả công việc *tăng nhanh cỡ nào* khi input lớn lên, bỏ qua hệ số hằng. O(n): input gấp đôi thì công việc gấp đôi. O(n²): input gấp đôi thì công việc gấp khoảng bốn. Đó là tốc độ tăng, không phải số giây. Θ (theta) là bản chặt: "xấp xỉ chừng này, không ít hơn".
-- **Worst case, expected case, amortized.** Worst case (trường hợp tệ nhất) là input xui nhất. Expected case (kỳ vọng) là trung bình dưới một giả định đã nêu (với hashing: key phân bố đều). Amortized là chi phí trung bình trên cả chuỗi thao tác, kể cả khi một thao tác (như resize) tốn kém.
+- **Big-O và Θ.** Big-O mô tả giới hạn mức tăng của công việc khi input đủ lớn, bỏ qua hệ số hằng: O(n) tăng không nhanh hơn tuyến tính, còn O(n²) cho phép tăng bậc hai. Nó không cam kết một tỷ lệ chính xác hay số giây; ví dụ công việc hằng số cũng là O(n). Với công thức cụ thể `T(n) = 3n`, n gấp đôi thì công việc gấp đôi; với `T(n) = n²`, công việc gấp bốn. Θ (theta) mô tả mức tăng chặt: cả hai giới hạn đều cùng bậc.
+- **Worst case, expected case, amortized.** Worst case (trường hợp tệ nhất) là input tốn nhiều công việc nhất trong các input cùng kích thước. Expected case (kỳ vọng) là trung bình dưới các giả định xác suất đã nêu (với hashing: key phân bố tốt). Amortized là chi phí trung bình trên cả chuỗi thao tác, kể cả khi một thao tác (như resize) tốn kém.
 - **Hash table, bucket, collision.** Hash function biến một key thành một số, số đó chọn một nhóm nhỏ các slot gọi là bucket. Bạn chỉ tìm trong bucket đó thay vì kiểm tra tất cả. Collision là khi hai key khác nhau rơi vào cùng bucket. Kết quả vẫn đúng vì equality vẫn được kiểm tra.
 - **Invariant.** Một câu luôn đúng sau mỗi bước của vòng lặp. Nếu nó đúng lúc đầu, giữ đúng sau mỗi bước, và đến cuối suy ra được yêu cầu bài toán, thì code đúng.
-- **Allocation và peak memory.** Allocation là lượng memory mới mà một thao tác xin cấp. Peak memory là lượng memory đang sống nhiều nhất tại một thời điểm. Hai con số này khác nhau.
+- **Trace, prefix, edge case.** Trace là lần lượt chạy tay từng bước; prefix là phần input đã đọc. Sau hai bước với `B2, A1, B2`, prefix là `B2, A1`. Edge case là trường hợp ở biên của yêu cầu, như input rỗng hoặc ID null.
+- **Load factor và resize.** Load factor là số entry đang lưu chia cho số bucket: 8 entry và 16 bucket cho ra 0,5. Resize tạo storage lớn hơn để chứa thêm key mà số entry trung bình trong mỗi bucket không tăng quá nhiều.
+- **Allocation, GC và peak memory.** Allocation là lượng memory mới mà một thao tác xin cấp; GC (garbage collection) thu hồi managed object không còn được tham chiếu tới. Peak live memory là lượng memory đang sống nhiều nhất cùng lúc; peak working set tính memory của process đang nằm trong RAM. Cấp hai array lần lượt không có nghĩa cả hai sẽ sống mãi.
+- **Benchmark, latency và p99.** Benchmark đo một workload đã chọn; latency là thời gian một request hoàn thành. Nếu p99 latency là 100 ms, khoảng 99% request đã đo hoàn thành trong 100 ms. Thời gian trung bình của một batch không chứng minh được p99 của service.
+- **Identity, idempotency và transaction.** Identity xác định key nào được coi là cùng một giá trị: `a` và `A` khác nhau với Ordinal equality. Idempotency nghĩa là xử lý lại cùng event không tạo thêm tác động nghiệp vụ. Transaction database commit các lần ghi cùng nhau hoặc rollback cùng nhau; ghi marker của event và cập nhật đơn hàng trong một transaction giúp retry không bỏ qua cập nhật chưa hoàn thành.
 
 ## 1. Self-check nhanh
 
@@ -139,7 +143,7 @@ Input gấp đôi thì công việc tăng gần gấp bốn. Chưa thể đổi 
 
 **Định nghĩa chính thức.** `T(n)` là `O(n²)` nếu tồn tại hằng số C và n₀ sao cho `T(n) ≤ C·n²` với mọi `n ≥ n₀`. Nghĩa là "tăng không nhanh hơn n²", không phải "chạy n² giây".
 
-Với các ID đều khác nhau, `n(n-1)/2` bị số hạng n² chi phối, nên mô hình scan là **Θ(n²)**: chặn trên và chặn dưới cùng bậc. Nói O(n²) vẫn đúng nhưng lỏng hơn. Một thuật toán O(n) cũng thỏa chặn O(n²), nên khi giải thích hãy dùng bậc chặt.
+Với các ID đều khác nhau, `n(n-1)/2` bị số hạng n² chi phối, nên mô hình scan là **Θ(n²)**: giới hạn trên và dưới cùng bậc. Nói O(n²) vẫn đúng nhưng ít chính xác hơn. Một thuật toán O(n) cũng thỏa O(n²), nên khi giải thích hãy dùng bậc chặt.
 
 **Nếu mọi ID đều là `A` thì sao?** Sau ID đầu, mỗi `Contains` thấy ngay: chỉ n-1 phép so sánh, tức Θ(n). Worst case không có nghĩa mọi input đều chậm.
 
@@ -283,7 +287,7 @@ Source cần đọc, đã pin vào một commit .NET 10: [List.cs](https://githu
 
 ### Case study: EF Core dùng dictionary để load row không phải scan
 
-Bạn đã dùng EF Core, nên đây là nơi tốt nhất để thấy cùng một quyết định trong một sản phẩm thật. Project là [dotnet/efcore](https://github.com/dotnet/efcore), đọc ở commit `7adff35c6c583fa6f7aa3939389ab3314be330ab`.
+Nếu project của bạn dùng EF Core, đây là nơi quen thuộc để thấy cùng một quyết định trong sản phẩm thật. Project là [dotnet/efcore](https://github.com/dotnet/efcore), đọc ở commit `7adff35c6c583fa6f7aa3939389ab3314be330ab`.
 
 **Bài toán của sản phẩm.** Một tracking query phải trả về đúng một object cho mỗi key của row trong database. Nếu 100 post cùng trỏ tới một blog, bạn phải nhận một instance `Blog`, không phải 100 bản sao, nếu không EF không biết bản nào cần lưu. Docs của EF gọi đây là identity resolution. Mỗi lần một row được chuyển thành entity, EF phải trả lời đúng câu hỏi ở mục 2: "key này đã thấy chưa?"
 
@@ -291,8 +295,9 @@ Bạn đã dùng EF Core, nên đây là nơi tốt nhất để thấy cùng m�
 
 - Ở [`IdentityMap.cs` dòng 18](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L18), tracker giữ `Dictionary<TKey, InternalEntityEntry> _identityMap`. Key là giá trị key của entity; value là entry đang được track.
 - Ở [dòng 36](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L36), dictionary được tạo với equality comparer của chính key lấy từ model. Đây là cùng quy tắc với `StringComparer.Ordinal` của bạn: equality dùng cho "đã thấy" phải khớp với identity bạn muốn.
-- Lookup theo key là một lần đọc dictionary ([dòng 105](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L105)). Khi thêm entry, [dòng 267](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L267) kiểm tra cùng dictionary đó trước. Một instance khác có cùng key sẽ ném identity conflict thay vì lặng lẽ giữ cả hai.
-- Kết quả query đi vào đường này qua [`QueryContext.StartTracking`](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/Query/QueryContext.cs#L148), gọi [`StateManager.StartTrackingFromQuery`](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/StateManager.cs#L324). Method này trả về entry có sẵn nếu có, nếu không thì tạo entry và đăng ký vào identity map của từng key ([dòng 347](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/StateManager.cs#L347)).
+- Tracking query lookup theo key **trước khi tạo entity**. [`ShapedQueryCompilingExpressionVisitor` dòng 473-513](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/Query/ShapedQueryCompilingExpressionVisitor.cs#L473) sinh lời gọi `QueryContext.TryGetEntry(key, keyValues, ...)`, rồi đi qua state manager tới identity map. Hit thì query dùng lại `entry.Entity`; chỉ miss mới tạo entity mới. Lookup theo key trong identity map là một lần đọc dictionary ([dòng 105](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L105)).
+- Đăng ký entity mới từ query là bước riêng: [`QueryContext.StartTracking`](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/Query/QueryContext.cs#L148) gọi [`StateManager.StartTrackingFromQuery`](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/StateManager.cs#L324). `TryGetEntry(entity)` đầu method kiểm tra object reference, không phải key của row; sau đó method tạo entry và đăng ký qua `AddOrUpdate` ([dòng 347](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/StateManager.cs#L347)).
+- Attach một instance khác có key đã được track lại là luồng khác. `IdentityMap.Add` có thể ném identity conflict ([dòng 267-279](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L267)); `AddOrUpdate` của query đặt `updateDuplicate: true` nên bỏ qua nhánh đó. Đừng nhầm conflict khi attach với identity resolution của query.
 
 **Docs chính thức bổ sung gì.** Docs EF về [efficient querying](https://learn.microsoft.com/ef/core/performance/efficient-querying#tracking,-no-tracking-and-identity-resolution) nói EF giữ một dictionary các instance đang track và kiểm tra nó theo key khi load dữ liệu mới, và việc lookup cùng duy trì dictionary này "take up some time". Docs cũng nói no-tracking query không làm identity resolution, nên cùng một blog sẽ bị tạo 100 lần. [Trang identity resolution](https://learn.microsoft.com/ef/core/change-tracking/identity-resolution#identity-resolution-and-queries) nêu lý do: identity resolution phải nhớ mọi instance đã trả về, và điều đó làm chậm việc stream số lượng lớn entity.
 
@@ -302,7 +307,7 @@ Bạn đã dùng EF Core, nên đây là nơi tốt nhất để thấy cùng m�
 |---|---|
 | Set `seen` | Dictionary `_identityMap`, key là key của entity |
 | Chủ động chọn Ordinal equality | Key comparer lấy từ model |
-| O(u) memory phụ để khỏi scan lặp lại | Một entry cho mỗi entity đang track, tồn tại suốt đời `DbContext` |
+| O(u) memory phụ để khỏi scan lặp lại | Một entry cho mỗi entity đang được track; detach hoặc clear tracker sẽ xóa entry |
 | Bỏ set để tiết kiệm memory | `AsNoTracking`: không có dictionary, nhưng có duplicate |
 
 **Suy luận của người dạy, chưa xác minh trong code.** Nếu EF tìm trong một list entity đang track cho mỗi row, thì load n row có u entity khác nhau sẽ tốn O(n·u) phép so sánh key, cùng dạng với `List.Contains`. Bài này không khẳng định lịch sử của EF; đây chỉ là tình huống giả định để cho thấy vì sao dictionary là lựa chọn tự nhiên. Bài này không đo thời gian của EF.
@@ -313,6 +318,109 @@ Bạn đã dùng EF Core, nên đây là nơi tốt nhất để thấy cùng m�
 2. Kết quả chỉ đọc nhưng parent dùng chung phải là cùng một object: dùng `AsNoTrackingWithIdentityResolution()`. Bạn trả giá bằng một dictionary tạm trong lúc chạy query.
 3. Code của bạn cần "key này đã thấy chưa?" trên hàng nghìn row (gộp kết quả API, dựng lookup cho một phép join): dùng `HashSet` hoặc `Dictionary` với comparer chỉ định rõ, như EF làm. Đừng gọi `list.Contains` hay `Any` trong vòng lặp.
 4. Nếu một `DbContext` sống lâu và load nhiều, identity map của nó lớn theo số entity khác nhau. Ưu tiên một context ngắn hạn cho mỗi unit of work.
+
+### Kiểm tra tùy chọn: quan sát identity resolution khi chạy query
+
+Dùng 15 phút trong block implementation-reading này cho phần kiểm tra, thay cho một phần đọc source. Ví dụ dùng .NET SDK 10.0.401, EF Core SQLite 10.0.12 và SQLite in-memory (database chỉ nằm trong RAM), nên không cần database server.
+
+Hai row `Post`, ID 1 và 2, cùng có `BlogId = 1`. Với mỗi query mode, hãy dự đoán `ReferenceEquals(posts[0].Blog, posts[1].Blog)` trả về true hay false và context còn track bao nhiêu entity. Vì sao mỗi query cần một `DbContext` mới? Chạy kiểm tra hoặc, nếu không restore được package, đọc code và trace kết quả trong đáp án.
+
+<details>
+<summary>Đáp án</summary>
+
+Từ thư mục gốc repo, tạo project tạm. Lần restore package đầu tiên cần internet:
+
+```bash
+mkdir -p work/ef-identity-demo
+cd work/ef-identity-demo
+dotnet new globaljson --sdk-version 10.0.401 --roll-forward latestPatch
+dotnet new console --framework net10.0
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version 10.0.12
+```
+
+Thay toàn bộ `Program.cs` bằng chương trình sau:
+
+```csharp
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+
+using var connection = new SqliteConnection("Data Source=:memory:");
+connection.Open();
+var options = new DbContextOptionsBuilder<BlogDb>()
+    .UseSqlite(connection).Options;
+using (var seed = new BlogDb(options))
+{
+    seed.Database.EnsureCreated();
+    var blog = new Blog { Id = 1 };
+    seed.Posts.AddRange(
+        new Post { Id = 1, Blog = blog },
+        new Post { Id = 2, Blog = blog });
+    seed.SaveChanges();
+}
+
+Check("Tracking", 0, expectedSame: true, expectedTracked: 3);
+Check("NoTracking", 1, expectedSame: false, expectedTracked: 0);
+Check("IdentityResolution", 2, expectedSame: true, expectedTracked: 0);
+Console.WriteLine("All checks passed.");
+
+void Check(string name, int mode, bool expectedSame, int expectedTracked)
+{
+    using var db = new BlogDb(options);
+    IQueryable<Post> query = db.Posts.Include(p => p.Blog).OrderBy(p => p.Id);
+    query = mode switch
+    {
+        1 => query.AsNoTracking(),
+        2 => query.AsNoTrackingWithIdentityResolution(),
+        _ => query
+    };
+    var posts = query.ToList();
+    if (posts.Count != 2 || posts.Any(p => p.Blog.Id != 1))
+        throw new InvalidOperationException("Expected two posts for Blog 1.");
+    bool same = ReferenceEquals(posts[0].Blog, posts[1].Blog);
+    int tracked = db.ChangeTracker.Entries().Count();
+    Console.WriteLine($"{name}: sameBlog={same}, tracked={tracked}");
+    if (same != expectedSame || tracked != expectedTracked)
+        throw new InvalidOperationException($"Unexpected result for {name}.");
+}
+
+sealed class BlogDb(DbContextOptions<BlogDb> options) : DbContext(options)
+{
+    public DbSet<Post> Posts => Set<Post>();
+}
+
+sealed class Blog
+{
+    public int Id { get; set; }
+}
+
+sealed class Post
+{
+    public int Id { get; set; }
+    public int BlogId { get; set; }
+    public Blog Blog { get; set; } = null!;
+}
+```
+
+Chạy trong thư mục project:
+
+```bash
+dotnet run
+```
+
+Kết quả dự kiến:
+
+```text
+Tracking: sameBlog=True, tracked=3
+NoTracking: sameBlog=False, tracked=0
+IdentityResolution: sameBlog=True, tracked=0
+All checks passed.
+```
+
+Tracking query dùng lại một object `Blog` và context giữ ba entity: hai post và một blog. `AsNoTracking()` tạo hai object `Blog` khác nhau có cùng key và context không giữ entity nào. `AsNoTrackingWithIdentityResolution()` dùng tracker tạm trong query để dùng lại một `Blog`, rồi cũng không giữ entity nào trong context. `ReferenceEquals` kiểm tra hai biến có trỏ tới cùng object hay không; cùng giá trị key chưa có nghĩa là cùng object.
+
+Context dùng để seed (tạo dữ liệu mẫu) được dispose trước khi query; mỗi mode dùng một context mới. Nếu dùng lại context cũ, các object đã được track có thể ảnh hưởng kết quả. Connection SQLite được giữ mở để database in-memory vẫn tồn tại giữa các context. Các assertion kiểm tra tính đúng của kết quả; đây không phải benchmark tốc độ query.
+
+</details>
 
 **Nghỉ 30 phút (ăn trưa).** Ăn và nghỉ.
 
@@ -348,6 +456,15 @@ string[] input = ["B2", "A1", "B2", "C3", "A1"];
 var unique = StableUnique(input);
 Console.WriteLine(string.Join(", ", unique)); // B2, A1, C3
 ```
+
+Để chạy lab tải về, cài .NET SDK **10.0.401**, giải nén ZIP rồi mở terminal trong thư mục `dotnet`, cạnh `global.json`. Lab chính không cần database hay package bên thứ ba:
+
+```bash
+dotnet run -c Release --project LessonLab
+dotnet run -c Release --project LessonLab -- --check
+```
+
+Lần chạy mẫu in `Stable result: B2, A1, C3` và `Example scan comparisons: 6`; lệnh check báo tám kiểm tra pass. Các lệnh này chạy implementation có sẵn. Sau khi sửa bản local của bạn, chạy lại check để phát hiện thay đổi về equality, thứ tự và null handling. Nếu chưa cài được SDK, hãy trace cùng các case bằng tay.
 
 Các bước:
 
@@ -396,6 +513,14 @@ Lab tải về dùng BenchmarkDotNet 0.15.8, N = 128, 512, 2048, tỷ lệ disti
 
 Chạy bản Release, không gắn debugger. Đọc Mean, Error và Allocated cùng nhau. Ở đây Error là nửa khoảng tin cậy 99,9% của BenchmarkDotNet, không phải một chặn sai số được bảo đảm. Allocated gồm storage output và table mới nhưng không gồm input tạo sẵn; nó không đo peak working set, heap đang sống hay p99 của service.
 
+Từ thư mục `dotnet` của lab, chạy:
+
+```bash
+dotnet run -c Release --project Benchmarks -- --filter '*DedupeBenchmarks*' --job short
+```
+
+Project tùy chọn này cần restore NuGet và chạy 12 case workload. Xem report trong `BenchmarkDotNet.Artifacts/results`; nếu setup vượt thời gian của block, dùng report mẫu bên dưới.
+
 ShortRun mẫu ngày 05/10/2026, n = 512 và mọi ID distinct:
 
 | Cách | Mean | Error | Allocated mỗi operation |
@@ -423,11 +548,23 @@ Nếu không chạy benchmark, dùng report mẫu để luyện cách diễn gi�
 
 ## 10. Đổi yêu cầu: báo cáo duplicate
 
-**Block transfer · khoảng 35 phút · Việc cần làm:** thiết kế trước, rồi đọc lời giải, rồi trace bảng. **Dừng khi:** bạn đã chạy lời giải của mình với bốn input.
+**Block transfer · khoảng 35 phút · Việc cần làm:** thiết kế trước, rồi đọc lời giải, rồi trace bảng. **Dừng khi:** bạn đã trace hoặc chạy lời giải với bốn input.
 
 Team support cần count thay cho danh sách ID unique. Với `B2,A1,B2,C3,A1` trả `[(B2,2),(A1,2)]` và bỏ các ID chỉ xuất hiện một lần. Giữ ordinal identity, thứ tự xuất hiện đầu, input không đổi và null policy như cũ.
 
-Hãy thiết kế trước khi đọc tiếp. Bạn cần một lookup cho count và một list riêng để giữ thứ tự. Mỗi lần xuất hiện thì tăng count; chỉ lần đầu mới thêm ID vào list.
+Hãy thiết kế method và dự đoán output cho các input sau trước khi mở đáp án. Kiểm tra thêm input rỗng và việc từ chối null.
+
+| Input để thử | Điều cần kiểm tra |
+|---|---|
+| `A,B,B,A,C` | Count và thứ tự xuất hiện đầu |
+| `a,A,a` | Ordinal equality |
+| `X,Y` | ID chỉ xuất hiện một lần |
+| `A,A,A` | Mỗi lần xuất hiện đều được tính |
+
+<details>
+<summary>Đáp án</summary>
+
+Bạn cần một lookup cho count và một list riêng để giữ thứ tự. Mỗi lần xuất hiện thì tăng count; chỉ lần đầu mới thêm ID vào list.
 
 ```csharp
 public sealed record OrderCount(string Id, int Count);
@@ -459,9 +596,6 @@ public static List<OrderCount> DuplicateSummary(IReadOnlyList<string> values)
 
 Invariant gồm hai phần: `counts` bằng số lần xuất hiện trong prefix đã đọc, và `order` chứa mỗi ID đã gặp một lần theo thứ tự xuất hiện đầu. Lượt duyệt `order` cuối cùng giữ các count lớn hơn một. Expected O(n+u) = O(n), thêm O(u) storage, dưới cùng các giả định về hashing và key. Đừng dựa vào thứ tự enumerate của `Dictionary`.
 
-<details>
-<summary>Lời giải cho bảng</summary>
-
 | Input | Kết quả |
 |---|---|
 | `A,B,B,A,C` | `[(A,2),(B,2)]` |
@@ -475,18 +609,22 @@ Sort theo count sẽ đổi thứ tự báo cáo. Chỉ tăng count cho ID mới
 
 ### Production: dedupe một batch không phải là idempotency
 
-Hai service instance đều có thể nhận B2, vì set của mỗi instance bắt đầu rỗng. Một `HashSet` trong một batch không bảo đảm identity cho cả hệ thống. Bạn cần một key mà storage thực thi, ví dụ tenant + event ID, với unique index và cách xử lý conflict.
+Hai service instance đều có thể nhận B2, vì set của mỗi instance bắt đầu rỗng. Một `HashSet` trong một batch không ngăn instance khác xử lý lại cùng event. Dùng key mà storage thực thi, ví dụ tenant + event ID, và **commit marker của event cùng cập nhật nghiệp vụ trong một transaction database**.
 
 ```sql
 -- Chưa chạy trong session này; key là identity mà nghiệp vụ quan tâm.
 CREATE UNIQUE INDEX UX_OrderEvents_Tenant_Event
     ON dbo.OrderEvents (TenantId, EventId);
 
--- INSERT lần thứ hai với cùng (TenantId, EventId) sẽ lỗi 2601
--- (hoặc 2627 với unique constraint). Coi lỗi đó là "đã xử lý rồi".
+-- Duplicate (TenantId, EventId) sẽ lỗi 2601
+-- (hoặc 2627 với unique constraint). Lỗi chỉ chứng minh key đã tồn tại.
 ```
 
-`SELECT` rồi mới `INSERT` vẫn có race. Equality của storage cũng phải khớp identity bạn muốn: collation của SQL Server có thể coi string khác với Ordinal của C#.
+Consumer bắt đầu transaction, insert marker vào `OrderEvents`, cập nhật đơn hàng rồi commit. Chỉ acknowledge message sau commit. Nếu lỗi trước commit, cả hai lần ghi rollback và retry có thể xử lý lại. Nếu đã commit nhưng lỗi trước acknowledge, retry thấy marker và không cập nhật nghiệp vụ lần nữa.
+
+Khi gặp duplicate-key error, rollback lần thử bị lỗi và xác nhận conflict nằm trên **đúng key của event này**, không phải unique index khác. Chỉ khi marker và cập nhật nghiệp vụ tuân theo transaction nguyên tử thì marker mới mang nghĩa "đã xử lý rồi". Các lỗi database khác vẫn cần xử lý hoặc retry. Nếu commit marker riêng rồi crash trước khi cập nhật đơn hàng, retry sẽ bỏ qua công việc chưa xong; [pattern Idempotent Consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer) giải thích vì sao phải ghi cả hai cùng nhau.
+
+`SELECT` rồi mới `INSERT` vẫn có race condition: hai instance có thể cùng thấy "chưa có" trước khi bên nào insert. Equality của storage cũng phải khớp identity bạn muốn: collation của SQL Server có thể coi string khác với Ordinal của C#.
 
 Cùng kiểu đánh đổi này xuất hiện trên Azure. [Duplicate detection của Service Bus](https://learn.microsoft.com/azure/service-bus-messaging/duplicate-detection) nhớ các `MessageId` trong một time window cấu hình được và bỏ message gửi lặp. Docs nói window lớn hơn ảnh hưởng throughput vì mọi ID đã ghi đều phải được so khớp, nên hãy giữ window nhỏ nhất có thể. Đó lại là set `seen` của bạn, thêm giới hạn thời gian để chặn memory. Nó chống gửi trùng, nhưng [pattern Idempotent Consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer#problems-and-considerations) cảnh báo nó không thay thế việc xử lý idempotent ở consumer. Nếu side effect nằm ngoài transaction database, một unique key riêng không đủ để bảo đảm exactly-once.
 

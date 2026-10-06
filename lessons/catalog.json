@@ -159,11 +159,6 @@
       "files": [
         "lessons/boundary-search/lesson.md",
         "vi/lessons/boundary-search/lesson.md",
-        "labs/boundary-search/starter.py",
-        "labs/boundary-search/check.py",
-        "labs/boundary-search/observe.py",
-        "labs/boundary-search/mentor/solution.py",
-        "labs/boundary-search/mentor/hints.md",
         "labs/boundary-search/dotnet/global.json",
         "labs/boundary-search/dotnet/README.md",
         "labs/boundary-search/dotnet/README.vi.md",
@@ -174,18 +169,6 @@
         "labs/boundary-search/dotnet/LessonLab/Checks.cs"
       ],
       "labs": [
-        {
-          "language": "python",
-          "directory": "labs/boundary-search",
-          "check": [
-            "python",
-            "check.py",
-            "--module",
-            "mentor/solution.py",
-            "--stage",
-            "all"
-          ]
-        },
         {
           "language": "csharp",
           "directory": "labs/boundary-search/dotnet",

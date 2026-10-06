@@ -1,7 +1,6 @@
 {
   "id": "sample-boundary-search",
   "topic_id": "advanced-algorithms.boundary-search.l1",
-  "course_code": "6001127",
   "title": "Boundary search and half-open time windows",
   "objective": "Implement and justify lower_bound; transfer partition reasoning to time-window counting",
   "concepts": [

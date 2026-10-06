@@ -1,133 +1,276 @@
 <!-- contract-version: 1 -->
-# Tìm biên: từ mảng có thứ tự đến truy vấn khoảng thời gian
+# Bài 02 — Tìm biên: từ mảng có thứ tự đến truy vấn khoảng thời gian
 
-**Session:** sample-boundary-search · **Topic:** `advanced-algorithms.boundary-search.l1` · **Môn:** Advanced Algorithms `6001127` · **Loại/status:** core/generated · **Kiểm tra:** 2026-10-05. Đây là bài mẫu để review, chưa giao/hoàn thành. [Record chung](../../../lessons/boundary-search/record.json) nằm ngoài tiến độ thật; [bản Anh đầy đủ](../../../lessons/boundary-search/lesson.md).
+**Một ngày đầy đủ: 420 phút · 360 phút học + 60 phút nghỉ**
+
+[English](../../../lessons/boundary-search/lesson.md)
+
+Bài trước hỏi một ID đã xuất hiện chưa. Bây giờ dữ liệu đã sorted, ta cần câu trả lời khác: **điều kiện bắt đầu đúng ở vị trí nào?** Biên đó giúp đếm event trong khoảng thời gian mà không quét mọi event cho mỗi query. Thuật toán đầy đủ, lập luận và bài tập có lời giải nằm trên trang; link standard library để đọc sâu.
 
 ## Lý do chọn và outcome
 
-[Curriculum](../../curricula/iuh/master/curriculum.md) yêu cầu phân tích độ phức tạp, đánh giá performance và chọn thuật toán. Boundary search là nền do người hướng dẫn chọn, không phải bài/prerequisite được IUH quy định rõ. Chuẩn bị cho ordered indexing nhưng không đánh đồng mảng với B-tree database.
+**Mục tiêu:** implement biên dưới đúng cho timestamp đã sorted, tái sử dụng để đếm `start <= timestamp < end`, kể cả duplicate và endpoint không có. Giải thích vì sao query logarithmic nhưng insert vào List phẳng vẫn có thể tuyến tính.
 
-State thật trống: chưa có bài ôn/prior knowledge/core trùng. Trong phiên thật, chạy planner, hỏi goal/time/tools và thu diagnostic trước; mẫu này chỉ phù hợp khi đáp ứng prerequisite.
+Cần indexed access, comparison và loop. Quy ước khoảng nửa mở được giải thích dưới đây. Nếu mới học binary search, bắt đầu bằng ví dụ có index thay vì học thuộc code.
 
-Người học cần tự: (1) nêu/giữ partition invariant cả duplicates/empty/missing; (2) implement không slice/mutate và chứng minh access logarithmic; (3) transfer sang count event trong `[start,end)`, giải thích endpoints/update cost.
+| Phút tính từ đầu | Hoạt động | Phút thực hành chủ động |
+|---|---|---:|
+| 0–20 | Nhớ cost model bài trước; kiểm tra index/ký hiệu khoảng | 10 |
+| 20–70 | Hiểu partition, tự dựng worked trace | 20 |
+| 70–80 | Nghỉ | 0 |
+| 80–125 | Đọc nguồn standard library chọn lọc, trả lời câu hỏi | 10 |
+| 125–170 | Đọc implementation; trace target bằng, thiếu, ngoài khoảng | 40 |
+| 170–200 | Ăn trưa, nghỉ | 0 |
+| 200–275 | Implement lower_bound, dự đoán case và debug | 70 |
+| 275–285 | Nghỉ | 0 |
+| 285–330 | Đếm access, so chi phí query/update | 40 |
+| 330–340 | Nghỉ | 0 |
+| 340–375 | Implement count_window và biến thể record/key | 35 |
+| 375–420 | Giải thích invariant, xem lại lỗi, chọn câu ôn | 10 |
 
-Mode heuristic: ngắn 25 phút = 3 diagnostic + 6 model/example + 10 lab + 4 independent + 2 exit, dời đọc repo sâu; chuẩn 55 = 5 + 10 + 20 lab + 10 challenge + 5 repo + 5 feedback/exit; mở rộng 85 thêm 15 record/key và 15 research/experiment. Hết thời gian giữ in_progress.
+Lộ trình dành 235/360 phút học cho thực hành. Điều chỉnh block đọc/code theo kinh nghiệm; trace giấy phù hợp khi chưa chạy được Python. Giữ mục tiêu ở query in-memory đã sorted, chưa xây database hôm nay.
 
 ## Retrieval và prerequisite
 
-Không ghi chú: `[lo,hi)` chứa vị trí nào? Insert đầu mảng đổi index ra sao? Trace loop chia đôi số nguyên dương. Có history thì thay một câu bằng prompt ôn đến hạn và lưu response thật.
+Suy nghĩ ba câu:
 
-Diagnostic `[2,4,4,9]`: index nào có value < 4; biên trước số 4 đầu tiên? Trace lo=0,hi=4,mid=2; hi=mid có giữ answer hợp lệ không? Vì sao phải sorted?
+1. `[lo,hi)` chứa vị trí nào? **Đáp án:** gồm lo, không gồm hi; `[1,3)` chứa index 1 và 2.
+2. Insert đầu array-backed List thay đổi gì? **Đáp án:** phần tử cũ phải dịch một vị trí sang phải; tìm nhanh không bỏ được công việc đó.
+3. Vì sao một loop chưa chứng minh tuyến tính ở Bài 01? **Đáp án:** phải tính phần thân. Ở đây, access midpoint và so key cũng cần giả định rõ.
 
-Yếu → vẽ index, partition mảng ba phần tử, thêm duplicate và retrace. Recheck `[1,1,3]` trước code; vẫn yếu thì chỉ prerequisite hôm nay. Không tự chấm điểm/đoán mastery, ghi câu trả lời và hint.
+Với `[2,4,4,9]`, giá trị nhỏ hơn 4 chỉ ở index 0. Index đầu có giá trị ít nhất 4 là **1**. Thử `[1,1,3]`, target 1: biên **0**. Nếu chưa rõ, vẽ value trên index, tách “nhỏ hơn target” và “ít nhất target” trước code.
 
 ## Vấn đề và dự đoán
 
-Service lưu timestamps sorted, integer có duplicates; hỏi nhiều lần số event từ start inclusive đến end exclusive. Scan chạm mọi event. Binary search tìm “một giá trị bằng” có đủ khi endpoint lặp không? Thử rule vài phút rồi debrief với ví dụ; novice có thể xem ví dụ ngay.
+Service lưu timestamp sorted:
+
+```text
+timestamps = [10, 10, 20, 30, 30, 40]
+query       = [10, 30)
+```
+
+Khoảng gồm hai event ở 10 và event ở 20, loại hai event ở 30: đáp án **3**. Scan đếm đúng với O(n) comparisons mỗi query. Với nhiều query trên cùng dữ liệu sorted, tìm hai biên:
+
+- Index đầu tại hoặc sau start: 0.
+- Index đầu tại hoặc sau end: 3.
+- Count: `3−0=3`.
+
+Search trả một 30 bất kỳ có thể trả index 4, sai vì tính thêm một event tại endpoint bị loại. Cần partition boundary, không chỉ equality match. Endpoint thiếu cũng cần đáp án: `[11,39)` gồm 20,30,30 nên count 3 dù 11 và 39 không có trong mảng.
 
 ## Nền tảng và cập nhật liên quan
 
-**Theory:** `0<=lo<=hi<=n`; trước lo đều < x, từ hi trở đi đều >= x; đoạn chưa biết `[lo,hi)`. lo==hi xác định biên, kể cả n. Ở mid: value < x thì bỏ đến mid; ngược lại giữ mid là biên tiềm năng. Mỗi bước giảm xấp xỉ nửa; random-access array cần O(log n) comparisons/access, O(1) space. Insert list vẫn O(n) do dịch phần tử. Sorted/order consistent là assumption; key/access đắt hay input unsorted làm đổi cost/semantics.
+Định nghĩa `lower_bound(values,x)` là index i đầu có `values[i] >= x`; không có thì trả n. Nó chia mảng sorted thành hai phần:
 
-**Official implementation, baseline đã ghim:** `bisect_left` tìm partition, không tìm equality; key áp vào record trong mảng nhưng không áp vào x tìm kiếm. `insort` có search logarithmic nhưng insert linear. Đã đọc source/doc theo SHA; release lịch sử không phải khuyến nghị support/security mới nhất, cần check lúc học thật.
+```text
+values[:i]   đều < x
+values[i:]   đều >= x
+```
 
-**Instructor synthesis:** reasoning biên sang range query được; array complexity không dự đoán disk I/O, plan, collation hay write amplification database.
+Ký hiệu mô tả partition; implementation không tạo slice.
+
+### Vì sao dùng đoạn chưa biết [lo,hi)?
+
+Giữ `0 <= lo <= hi <= n` và các sự thật:
+
+- Trước lo đã biết mọi giá trị < x.
+- Từ hi trở đi đã biết mọi giá trị >= x.
+- Chỉ `[lo,hi)` còn cần kiểm tra; biên có thể ở hi.
+
+Ban đầu lo=0, hi=n: vùng đã biết rỗng, cả mảng chưa biết. Cuối cùng lo==hi: hai vùng biết gặp nhau, vị trí đó là đáp án. Trả n an toàn vì trả index, không đọc `values[n]`.
+
+Tại midpoint mid:
+
+- Nếu `values[mid] < x`, sorted order chứng minh mọi vị trí trước cũng quá nhỏ. Đổi lo thành `mid+1`.
+- Ngược lại, mid và mọi vị trí sau ít nhất x. Đổi hi thành mid. Giữ mid làm biên tiềm năng; equality có thể có duplicate trước đó.
+
+Cả hai nhánh loại mid khỏi vùng chưa biết, giảm hi−lo nghiêm ngặt: loop sẽ dừng. Chia gần nửa mỗi bước cho O(log n) comparisons khi n>=2; empty/singleton chỉ cần công việc hằng số. Giả định random-access array và comparison cost bị chặn. Linked list, key extraction đắt hay remote access đổi chi phí thật.
 
 ## Worked example nêu quyết định
 
-`[1,3,3,8]`, x=3: (lo,hi,mid)=(0,4,2), value 3 → hi=2 vì equality thuộc partition phải và có thể có 3 trước; (0,2,1), value 3 → hi=1; (0,1,0), value 1 → lo=1 vì index 0 nhỏ hơn; (1,1) → return 1. Vì sao return ngay mid khi equality chỉ cho một matching index mà không phải boundary? Giải thích trước code; lời giải window truy cập ngay ở phần dưới.
+Với `[1,3,3,8]`, x=3:
+
+| lo | hi | mid | value | Quyết định và lý do |
+|---|---|---|---|---|
+| 0 | 4 | 2 | 3 | hi=2: equality thuộc partition phải, có thể còn 3 trước |
+| 0 | 2 | 1 | 3 | hi=1: giữ candidate biên sớm hơn |
+| 0 | 1 | 0 | 1 | lo=1: index 0 quá nhỏ |
+| 1 | 1 | — | — | Trả 1; hai partition gặp nhau |
+
+Trả 2 ngay equality đầu tìm được match, chưa là match đầu. Định nghĩa biên quyết định nhánh equality.
+
+Target dưới min, ví dụ 0, liên tục đẩy hi trái và trả 0. Target trên max, ví dụ 10, đẩy lo phải và trả 4. Input rỗng bắt đầu lo==hi==0, trả 0 mà không đọc phần tử.
 
 ## Lab hướng dẫn từng bước
 
-Goal: implement và giải thích invariant. Python 3.12.x, standard library, không network/package/data ngoài; Linux/macOS/Windows với shell tương đương. Đã chạy Python 3.12.14. Test sinh integer deterministic. Python giảm setup cho mục tiêu partition; .NET/SQL dùng khi hợp bài sau.
+Implementation Python đầy đủ chỉ dùng indexing/comparison:
 
-Từ repo root:
-
-```bash
-cd labs/boundary-search
-python --version
-python observe.py
+```python
+def lower_bound(values, target):
+    lo, hi = 0, len(values)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if values[mid] < target:
+            lo = mid + 1
+        else:
+            hi = mid
+    return lo
 ```
 
-Không có Python phù hợp → runtime compatible ghi version hoặc trace giấy, không coi chưa chạy/trace giấy là code execution. Không cần build CPython.
+Midpoint luôn là phần tử hợp lệ khi lo<hi. Code không mutate, copy mảng con hay sort. Input phải sorted theo cùng ordering dùng để so sánh. Check sortedness ở mỗi query tự tốn O(n); thiết lập invariant khi tạo/cập nhật dữ liệu.
 
-1. **Specification:** predict `bisect_left([2,4,4,9],4)` và x=5 trước observer; kiểm tra inequalities. Checkpoint: 1 và 3. Giải thích missing value vẫn có insertion boundary.
-2. **Cost:** predict access khi n=8/1024/65536. Chạy observer; checkpoint index=4/512/32768, reads=3/10/16 trong runtime đã verify. Đây không là wall-clock benchmark; giải thích key/insert cost khác.
-3. **Trace trước code:** x=0/x=10 và empty; mỗi iteration giảm hi-lo, biên 0/4. Vì sao hi=mid-1 có thể phá half-open invariant?
-4. **Faded example:** chỉ điền `lower_bound` trong starter.py: init unknown interval, loop nonempty, midpoint, chọn update từ partition, return boundary. Không mutate/slice/built-in search. Predict duplicate/all-smaller trước check.
-5. **Checkpoint/debug:** chạy guided check, oracle standard library cho sorted multisets dài 0–6, partition/input preservation và access budget dữ liệu lớn. Đúng → 2 tests pass; starter chưa điền cố ý NotImplementedError. Trace case nhỏ nhất in ra, không paste oracle.
+### Dự đoán case trước khi chạy hoặc trace
 
-```bash
-python check.py --stage guided
+```python
+values = [2, 4, 4, 9]
+assert lower_bound(values, 4) == 1
+assert lower_bound(values, 5) == 3
+assert lower_bound(values, 0) == 0
+assert lower_bound(values, 10) == 4
+assert lower_bound([], 4) == 0
+assert values == [2, 4, 4, 9]
 ```
 
-Explain-after: nhánh nào giữ từng phần invariant, test access đo gì/không đo gì? Lưu revision, trace và output thật. Infinite loop → interval shrink; duplicate sai → equality; empty IndexError → condition; x>max → cho return n; import/path → dùng lab directory; tool fail → lưu version/error và trace offline trong khi sửa setup.
+Giá trị thiếu có vị trí chèn: target 5 nằm giữa 4 cuối và 9. Vì vậy lower_bound vẫn hữu ích dù không có equality match.
 
-## Research GitHub và hoạt động đọc
+Dùng block 75 phút để tự dựng method (20), dự đoán case biên (15), trace/test (20), cố tình tạo/debug lỗi nhánh (15), giải thích correction (5). Hai lỗi đáng thử:
 
-Chọn official [python/cpython](https://github.com/python/cpython): **77.489 stars**, archived=false, check 2026-10-05 từ embedded HTML. Commit branch mới quan sát `5fecd448bb120378978a37dde65dfce233d88c0d` lúc 2026-10-05 01:49:56 UTC. API không truy cập; [metadata/hashes](../../../lessons/boundary-search/repository-evidence.json). Pin v3.12.7 → **0b05ead877f909b7efe712db758012d9dbece7ce**, baseline tái lập, không claim latest.
+- `hi=mid-1`: với `[1,3]`, target 3, midpoint đầu là 1; hi=0 làm mất đáp án đúng 1. Invariant nửa mở cần hi=mid.
+- `lo=mid`: vùng chưa biết dài một, value quá nhỏ thì mid==lo, đoạn không co lại. Dùng lo=mid+1.
 
-Authority chính thức Python, practical relevance trực tiếp; chưa khảo sát định lượng downstream adoption. Code nhỏ, docs nêu assumption/performance; tests có duplicate/random/bounds/key. Đã đọc PSF license, không vendor upstream code, không chạy full build/benchmark. CPython toàn repo phức tạp nên chỉ đọc slice. Alternative official dotnet/runtime có **18.311 stars**, không archived, metadata check cùng ngày; không chọn vì setup/build vượt nhu cầu partition và local Python chạy được, không kết luận chất lượng kém hơn.
+Dấu hiệu khác: sai duplicate đầu → xem equality; empty error → chỉ đọc trong loop nonempty; fail target trên max → cho đáp án n.
 
-Ở pin trên, đọc các target cụ thể:
+### Quan sát chi phí mà không nhầm với timing
 
-- [Lib/test/test_bisect.py](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py): `TestBisect.precomputed`, `test_precomputed`, `test_random`, `test_lookups_with_key_function`; suy left/right và giải thích một case duplicate trước đọc implementation.
-- [Lib/bisect.py](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py): trace `bisect_left`, so `bisect_right`; giải thích `_bisect` có thể thay function lúc import. Observer dùng interpreter đã cài, không chạy historical Python source này.
-- [Doc/library/bisect.rst](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Doc/library/bisect.rst): partition/key/performance notes; predict search record khi x là key và nối cost.
-- [LICENSE](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/LICENSE): xem quyền trước reuse.
+Sequence sau tính value khi indexed access và đếm lượt đọc, nên minh họa scaling mà không cấp array lớn:
 
-Network lỗi → local lab, ghi không đọc được upstream, không bịa. Mode ngắn dời đọc sâu, không biến bài thành danh sách link.
+```python
+class Counted:
+    def __init__(self, n):
+        self.n = n
+        self.reads = 0
+
+    def __len__(self):
+        return self.n
+
+    def __getitem__(self, i):
+        if not 0 <= i < self.n:
+            raise IndexError(i)
+        self.reads += 1
+        return i * 2
+
+for n in (8, 1024, 65536):
+    values = Counted(n)
+    index = lower_bound(values, n)
+    print(n, index, values.reads)
+```
+
+Output có lời giải:
+
+```text
+8 4 3
+1024 512 10
+65536 32768 16
+```
+
+Target gần giữa sequence giả lập. n từ 1.024 lên 65.536 tăng 64 lần nhưng chỉ thêm sáu read. Target khác có thể có read count khác; tốc độ tăng worst-case vẫn logarithmic. Đây là element access, chưa phải CPU instruction, wall-clock hay database page read.
+
+## Đọc implementation standard library
+
+Implementation `bisect` chính thức của Python dùng ý tưởng partition này. Source slice sau ghim để so implementation ổn định thay vì branch di chuyển:
+
+- [Lib/bisect.py](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py): tìm bisect_left, so nhánh equality với bisect_right.
+- [Lib/test/test_bisect.py](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py): chọn một case duplicate và một case missing; dự đoán partition trước khi xem expected.
+- [Tài liệu bisect chính thức](https://docs.python.org/3/library/bisect.html): đọc định nghĩa partition, key semantics và Performance Notes.
+
+**Đáp án đọc:** bisect_left trả biên trước các value bằng, bisect_right trả biên sau. Module Python có thể dùng implementation C nội bộ; interpreter đã cài không nhất thiết chạy body source Python từng dòng. Contract là điểm so sánh hữu ích.
+
+Trong block experiment 45 phút, so read count khi target dưới, trong và trên sequence; dự đoán bound đổi ra sao khi n gấp đôi. Sau đó đếm entry phải dịch nếu insert gần đầu. Search O(log n), insert array-backed List O(n) vì phải dịch storage. Sort batch chưa có thứ tự một lần tốn O(n log n) theo mô hình so sánh thường dùng; preprocessing tách khỏi chi phí từng query sau đó.
 
 ## Challenge độc lập và biến thể transfer
 
-Tùy chọn thử trước khi xem đáp án: implement `count_window` trong starter.py: sorted integer timestamps, đếm start<=t<end; input không đổi; endpoints bằng nhau/empty hợp lệ; end<start raise ValueError. Không scan/slice/sort mỗi query. Tự thiết kế ít nhất ba test duplicate endpoint/empty window/missing endpoint và predict trước chạy.
+Implement `count_window(timestamps,start,end)` cho timestamp integer sorted. Đếm start-inclusive/end-exclusive, không sửa input, chấp nhận empty data/endpoint bằng nhau, ValueError khi end<start. Không scan, copy slice hay sort mỗi query.
 
-```bash
-python check.py --stage all
+Lời giải đầy đủ trừ hai lower boundary:
+
+```python
+def count_window(timestamps, start, end):
+    if end < start:
+        raise ValueError("end precedes start")
+    return lower_bound(timestamps, end) - lower_bound(timestamps, start)
+
+values = [10, 10, 20, 30, 30, 40]
+assert count_window(values, 10, 30) == 3
+assert count_window(values, 30, 30) == 0
+assert count_window(values, 11, 39) == 3
+assert count_window([], 10, 30) == 0
 ```
 
-Đúng → 4 tests pass. Đây là transfer sang context mới gần, không chứng minh mọi database. Mở rộng: event record dùng timestamp key, phân biệt x key với full record; assumption sorted/timezone; workload nhiều insert khiến flat list kém phù hợp, so ordered index với cost model riêng.
+**Vì sao trừ đúng:** lower_bound(start) là số value nhỏ hơn start; lower_bound(end) là số value nhỏ hơn end. Bỏ phần trước để còn đúng value ít nhất start, nhỏ hơn end. Duplicate ở start được tính, ở end bị loại. Endpoint bằng nhau tạo cùng biên, count zero. Hai search logarithmic vẫn O(log n), bộ nhớ phụ O(1).
 
-Hint/solution truy cập ngay, không cần attempt hay nộp bài. Có thể chọn hint conceptual → structural → implementation. Ghi hint thật, assisted không independent.
+### Đổi representation: event record và key
+
+Event thật có thêm thuộc tính. Key của bisect áp vào record trong array, **không áp vào search target**:
+
+```python
+from bisect import bisect_left
+
+events = [
+    {"timestamp": 10, "id": "A"},
+    {"timestamp": 20, "id": "B"},
+    {"timestamp": 20, "id": "C"},
+    {"timestamp": 30, "id": "D"},
+]
+key = lambda event: event["timestamp"]
+left = bisect_left(events, 20, key=key)
+right = bisect_left(events, 30, key=key)
+assert (left, right, right - left) == (1, 3, 2)
+```
+
+Truyền 20, không truyền full record, làm target. List phải sorted theo timestamp. Dùng đơn vị và cách hiểu timezone nhất quán; trộn seconds/milliseconds hay representation không tương thích có thể làm query sai âm thầm. Key extraction chạy trên record được kiểm tra; key đắt có thể cần precomputed key, tốn storage và đồng bộ lúc update.
+
+Nếu write thường xuyên, sorted List phẳng có thể không phù hợp. Ordered index/tree có chi phí query/update/storage riêng. Lập luận partition chuyển sang được, nhưng số so sánh in-memory chưa dự đoán database I/O, concurrency, collation hay query plan.
 
 ## Rubric, feedback và exit
 
-| Outcome | Bằng chứng đạt | Feedback / recheck |
+Dùng các câu sau để review implementation:
+
+| Tiêu chí | Giải thích tốt cần gì | Chưa rõ thì thử |
 |---|---|---|
-| Partition | edge cases/inequalities/input nguyên | Counterexample nhỏ, sửa nhánh và trace mới |
-| Reasoning/cost | invariant/termination/access bound; insert cost riêng | Nếu nghĩ insert log n, dự đoán số phần tử dịch |
-| Independence/transfer | window/tests mới không hint, endpoint/validation | Lưu hint/error, đổi data/context trước chấm lại |
-| Explain | mechanism/assumption/counterexample/trade-off | Vì sao equality match chưa đủ; so record/scalar |
+| Partition correctness | Hai inequality; empty, duplicate, missing, beyond-range | Vẽ value có index và hai partition |
+| Termination/cost | Mỗi nhánh giảm hi−lo; logarithmic với random access | Trace vùng chưa biết dài một |
+| Window behavior | Hai biên; gồm start, loại end | Duplicate cả hai endpoint |
+| Trade-off | Query nhanh chưa bỏ dịch insert hay key cost | Đếm move cho insert đầu |
 
-Outcome qualitative needs_support/developing/independent/unassessed, không gate điểm cố định. Suite pass là artifact, không mastery. Lưu lỗi gốc, feedback/hint, giải thích sửa và lần thử mới.
+Giải thích bằng lời mình vì sao equality đổi hi, vì sao trả n hợp lệ, vì sao midpoint matching bất kỳ chưa đủ. Case fail → giữ ví dụ nhỏ nhất, sửa rule, thử ví dụ mới. Hữu ích hơn học thuộc hai câu update.
 
-Explain-back: invariant bằng lời mình; equality branch; data structure cho nhiều đọc/nhiều insert. Exit không ghi chú: tái dựng partition x absent; predict window endpoint lặp; vì sao database index không phải Python list và cần cost model gì?
+## Câu hỏi mở và kế hoạch ôn lại
 
-## Nguồn nghiên cứu và review hooks
+Sau một khoảng, tự dựng partition và trace duplicate target mới không ghi chú. Sau đó đổi event representation hay endpoint, giải thích window result. Sai thì ôn sớm hơn; lập luận ổn thì tăng khoảng.
 
-Curriculum outcome `6001127` đã đọc 2026-10-05, không quy định sequence cụ thể. CPython source/test/docs chính thức ở pin đã đọc cùng ngày cho contract/key/insert cost, không claim support latest. [Deans for Impact 2015](https://github.com/carpentries/instructor-training/blob/50745001271700a108de0622d80341965e249e5b/episodes/files/papers/science-of-learning-2015.pdf), câu 1–4 đã đọc cùng ngày, hỗ trợ scaffolding/retrieval/spacing/transfer cấu trúc; giới hạn primary access trong [report](../../research/learning-science-review.md). Diagnostic, trace, time và rubric là instructor design cần đo, không tối ưu đã chứng minh.
-
-Sau completion thật, chọn due với người học theo performance/retention goal. Prompt A tái dựng invariant và duplicate boundary mới không hint; prompt B sau đó window đổi context và update-heavy trade-off. Sai/hint → correction và retry sớm hơn; independent giải thích tốt → cân nhắc gap dài hơn. Giữ ngày hẹn/ngày quan sát/reason đổi. Chưa ghi review hay mastery cho bài mẫu chưa giao.
-
-Khi giao thật, tạo session riêng và copy starter vào workspace đó. Record mẫu công khai không vào progress thật; không import sample ID.
+Ba câu để đọc sâu: Vì sao left/right boundary khác ở equality? Key function thêm công việc gì? Vì sao insort vẫn tuyến tính dù binary search? Implementation và docs được link trả lời các câu này.
 
 ## Bài tập tùy chọn và lời giải
 
-Đọc-only hợp lệ; không cần làm/nộp task để đọc bài ngày sau. Có thể thử trước hoặc
-xem lời giải ngay; làm theo đáp án không là bằng chứng independent.
+- `[1,1,3]`, target 1: biên 0; partition nhỏ hơn không có phần tử.
+- `[2,4,4,9]`, target 5: biên 3; cả ba phần tử trước nhỏ hơn.
+- `[10,10,20,30,30,40]`, window `[20,40)`: count 3, từ biên 2 và 5.
+- Cùng mảng, window `[41,50)`: count 0, từ biên 6 và 6.
+- Endpoint đảo: từ chối query trước khi trừ biên.
+- Record search: target là giá trị key; giữ cùng ordering khi update List.
 
-- Warm-up: `[lo,hi)` gồm lo, không gồm hi; chèn đầu mảng tăng index cũ một đơn vị.
-  Chia đôi số nguyên liên tục có số bước logarithmic.
-- Diagnostic `[2,4,4,9]`: chỉ index 0 có giá trị <4; boundary là 1. mid=2 equality
-  → hi=2 vẫn giữ boundary trước đó; boundary có thể bằng hi. Sorted order bảo đảm
-  inequality của các partition đã loại. Bridge `[1,1,3]`, target 1 → boundary 0.
-- Trace target 0 → 0, target 10 → 4, empty → 0. Mỗi update giảm hi-lo.
-  `hi=mid-1` có thể bỏ biên đúng: `[1,3]`, target 3, mid=1 khiến trả sai 0.
-- [Code lời giải đầy đủ](../../../labs/boundary-search/mentor/solution.py): lo=0, hi=n;
-  equality → hi=mid, nhỏ hơn → lo=mid+1. Window = lower_bound(end)-lower_bound(start);
-  end<start → ValueError. Hai lần search O(log n) access, O(1) extra space.
-- `[10,10,20,30,30,40]`: [10,30) có 3; [30,30) có 0; [11,39) có 3. Empty có 0;
-  reversed endpoints lỗi ValueError.
-- Exit: partition trước lo <x, từ hi trở đi >=x; return midpoint equal không bảo đảm
-  duplicate đầu. Record/key search nhận x là key. Chèn flat list O(n); database index
-  còn phụ thuộc page I/O, concurrency và cost model update/query.
+## Đọc thêm
+
+- [Tài liệu Python bisect](https://docs.python.org/3/library/bisect.html): contract partition left/right chính xác, key behavior và insert cost.
+- [CPython bisect source](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py) và [tests](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py): so quyết định implementation với trace và test tự thiết kế.
+- [Python sorting how-to](https://docs.python.org/3/howto/sorting.html): chuẩn bị dữ liệu sorted, key function và stable ordering trước query.
+
+<!-- LESSON_NAVIGATION_START -->
+## Nội dung liên quan
+
+- [Bài 01 — Mô hình chi phí và khử trùng giữ thứ tự](../2026-10-05-cost-model/lesson.md) — Ôn cách công việc bên trong vòng lặp quyết định chi phí.
+- [Ghi chú theo chủ đề kỹ thuật](../../references/topic-notes.md) — Khám phá chỉ mục có thứ tự, xử lý truy vấn và thiết kế thuật toán.
+
+---
+
+[← Bài trước: Bài 01 — Big-O và khử trùng bằng C#](../2026-10-05-cost-model/lesson.md) · [Danh sách bài học](../../README.md)
+<!-- LESSON_NAVIGATION_END -->

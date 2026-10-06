@@ -1,160 +1,276 @@
 <!-- contract-version: 1 -->
-# Boundary search: from sorted arrays to time-window queries
+# Lesson 02 — Boundary search: from sorted arrays to time-window queries
 
-**Session:** sample-boundary-search · **Topic:** `advanced-algorithms.boundary-search.l1` · **Course:** Advanced Algorithms `6001127` · **Type/status:** core / generated · **Checked:** 2026-10-05. This is a reviewable example, not an assigned or completed learner lesson. [Record](record.json) stays outside real progress.
+**One full day: 420 minutes · 360 minutes of study + 60 minutes of breaks**
+
+[Tiếng Việt](../../vi/lessons/boundary-search/lesson.md)
+
+The previous lesson asked whether an ID had appeared before. Now the data is sorted, and we need a different answer: **where does a condition first become true?** That boundary lets us count events in a time window without scanning every event for every query. The complete algorithm, its reasoning and worked exercises are on this page; the standard-library links are further reading.
 
 ## Selection and measurable outcomes
 
-The [curriculum](../../curricula/iuh/master/curriculum.md#advanced-algorithms--6001127) asks learners to analyze complexity, evaluate practical performance and select algorithms. Binary boundary search is an **instructor-selected foundation** for those outcomes; the curriculum does not explicitly prescribe this lesson or its prerequisites. It prepares later ordered indexing/query lessons without equating an array with a database B-tree.
+**Goal:** implement a correct lower boundary for sorted timestamps and reuse it to count `start <= timestamp < end`, including duplicates and missing endpoints. Explain why queries use logarithmic comparisons while inserting into a flat list can still take linear work.
 
-The real state is empty, so no previous knowledge or due reviews are assumed. No core records exist to duplicate. In a live session, first run the planner and check the learner's goals, time/tools and diagnostic below; this generated sample is conditional on those answers. Prefer a prerequisite bridge if needed rather than labeling a new learner an expert.
+You need indexed access, comparisons and loops. The half-open interval convention is explained below. If binary search is new, start with the numbered example rather than memorizing code.
 
-By the end, independently:
+| Elapsed minutes | Activity | Hands-on minutes |
+|---|---|---:|
+| 0–20 | Recall the previous cost model; check indices and interval notation | 10 |
+| 20–70 | Understand the partition and reconstruct the worked trace | 20 |
+| 70–80 | Break | 0 |
+| 80–125 | Read the selected standard-library sources and answer the questions | 10 |
+| 125–170 | Inspect the implementation; trace equal, missing and beyond-range targets | 40 |
+| 170–200 | Lunch and rest | 0 |
+| 200–275 | Implement lower_bound, predict cases and debug | 70 |
+| 275–285 | Break | 0 |
+| 285–330 | Count element accesses and compare query/update costs | 40 |
+| 330–340 | Break | 0 |
+| 340–375 | Implement count_window and the record/key variation | 35 |
+| 375–420 | Explain the invariant, revisit errors and choose a review question | 10 |
 
-1. State and preserve the partition invariant for `lower_bound`, including duplicates, empty input and missing targets.
-2. Implement it without slicing/mutation and justify a logarithmic comparison/access bound.
-3. Transfer the invariant to count events in a half-open time interval, explaining duplicate endpoint behavior and update-cost limitations.
-
-**Short ~25 min:** 3 diagnostic, 6 model/example, 10 guided checkpoints, 4 independent window attempt, 2 exit; defer repo deep reading. **Standard ~55 min:** 5 diagnostic, 10 model/example, 20 lab, 10 challenge, 5 repo, 5 feedback/exit. **Extended ~85 min:** standard plus 15 record/key variant and 15 source/experiment. These budgets are planning heuristics, not scientific ratios. Record in_progress if the agreed work needs another day.
+This route reserves 235 of 360 study minutes for active practice. Adjust the reading and coding blocks to your experience; paper traces work when you cannot run Python. Keep the main task bounded to sorted in-memory queries rather than building a database today.
 
 ## Retrieval warm-up and prerequisite check
 
-Without notes: what does a half-open interval `[lo, hi)` include? What happens to array indices after inserting at the start? Trace a loop that repeatedly halves a positive integer. With history, replace one prompt with a due-review question and save its observed response; do not clear a review just by reading it.
+Think through three questions:
 
-Diagnostic: for `[2,4,4,9]` list the indices satisfying value < 4, then give the insertion boundary before the first 4. Trace `lo=0,hi=4,mid=2`; can `hi=mid` still contain a valid answer? Explain why sorted order is essential.
+1. Which positions belong to `[lo,hi)`? **Answer:** lo is included, hi is excluded; `[1,3)` contains indices 1 and 2.
+2. What changes when an element is inserted at the start of an array-backed list? **Answer:** existing elements must move one position to the right; fast search does not remove that work.
+3. Why did one loop not prove linear time in Lesson 01? **Answer:** the work hidden inside the body matters. Here, accessing the midpoint and comparing keys also need explicit assumptions.
 
-If indexing/loop/sorted-order reasoning is weak, draw the list with numbered positions, partition a three-element list by hand and retrace with one duplicate. Recheck on `[1,1,3]` before coding. If still weak, make today a prerequisite-only session. Do not infer a score; store actual answers and hints.
+For `[2,4,4,9]`, the values smaller than 4 occupy only index 0. The first index whose value is at least 4 is therefore **1**. Try `[1,1,3]`, target 1: the boundary is **0**. If this is unclear, draw each value above its index and separate “smaller than target” from “at least target” before coding.
 
 ## Problem and prediction
 
-A service stores sorted event timestamps (integers, with duplicates). You need many queries “how many events occurred from start inclusive to end exclusive?” Scanning works but touches every event per query. Predict whether a binary search for “an equal timestamp” is enough when an endpoint repeats. Spend at most a couple of minutes trying a rule, then contrast it with the example. Novices may start with the example immediately.
+A service stores sorted timestamps:
+
+```text
+timestamps = [10, 10, 20, 30, 30, 40]
+query       = [10, 30)
+```
+
+The interval includes both events at 10 and the event at 20, but excludes both events at 30: the answer is **3**. A scan can count them correctly in O(n) comparisons per query. For many queries on the same sorted data, find two boundaries instead:
+
+- First index at or after start: 0.
+- First index at or after end: 3.
+- Count: `3−0=3`.
+
+A search that returns any matching 30 could return index 4, incorrectly including one event at the excluded endpoint. We need a partition boundary, not merely an equality match. Missing endpoints also need a useful answer: `[11,39)` contains 20,30,30, so its count is 3 even though neither 11 nor 39 appears.
 
 ## Foundation and mental model
 
-**Foundational theory:** Maintain `0 <= lo <= hi <= n`; all indices before `lo` have value < x; all indices at/after `hi` have value >= x. The unknown partition is `[lo,hi)`. At `lo==hi` the partition boundary is known, including n when all values are smaller. Sorted input and a consistent ordering are required.
+Define `lower_bound(values,x)` as the first index i with `values[i] >= x`. If no such index exists, return n. It splits the sorted array into two parts:
 
-At midpoint m: if value < x, discard through m; otherwise retain m as a possible boundary and discard from m onwards from the unknown interval. Each step reduces its size roughly by half. Random-access arrays therefore need O(log n) element comparisons/accesses, O(1) auxiliary space. This does not make insertions O(log n): shifting list elements can cost O(n). Unsorted data, expensive access/key functions or special ordering values can change the assumptions.
+```text
+values[:i]   are all < x
+values[i:]   are all >= x
+```
 
-**Current implementation connection, verified pinned baseline:** CPython `bisect_left` finds an insertion partition rather than testing equality. Its `key` parameter applies to array records but **not** the search x; `insort` search remains logarithmic while insertion is linear. These facts were read in the official code/docs at the pinned release, not inferred from generated code. This historical pin is not a current support/security recommendation; recheck the runtime appropriate to a live lesson.
+Those expressions describe the partitions; the implementation does not create slices.
 
-**Instructor synthesis:** boundary reasoning transfers to range queries; array complexity alone cannot predict a database query plan, write amplification, collation or disk I/O.
+### Why use an unknown interval [lo,hi)?
+
+Maintain `0 <= lo <= hi <= n` and these facts:
+
+- Every index before lo is already known to hold a value < x.
+- Every index at or after hi is already known to hold a value >= x.
+- Only `[lo,hi)` remains to inspect; the boundary may be at hi.
+
+At the start, lo=0 and hi=n, so the known regions are empty and the entire array is unknown. At the end, lo==hi: the two known regions meet, and that position is the answer. Returning n is safe; we return an index, not `values[n]`.
+
+At midpoint mid:
+
+- If `values[mid] < x`, sorted order proves all earlier positions are also too small. Move lo to `mid+1`.
+- Otherwise, mid and all later positions are at least x. Move hi to mid. Keep mid as a possible boundary; an equal value may have earlier duplicates.
+
+Each branch removes mid from the unknown region and strictly reduces hi−lo. This proves termination. Roughly halving the remaining region gives O(log n) comparisons for n>=2; empty/singleton inputs need only constant work. A random-access array and bounded comparison cost are assumptions. A linked list, costly key extraction or remote access changes the actual cost.
 
 ## Worked example: narrating decisions
 
-For a different example `[1,3,3,8]`, x=3:
+For `[1,3,3,8]`, x=3:
 
-| lo | hi | mid | value | Decision and justification |
+| lo | hi | mid | value | Decision and reason |
 |---|---|---|---|---|
-| 0 | 4 | 2 | 3 | hi=2: equality belongs to the right partition; an earlier 3 may exist |
-| 0 | 2 | 1 | 3 | hi=1: keep searching the earlier boundary |
-| 0 | 1 | 0 | 1 | lo=1: index 0 is strictly smaller and cannot be the boundary |
-| 1 | 1 | — | — | Return 1; both partitions satisfy the contract |
+| 0 | 4 | 2 | 3 | hi=2: equal belongs to the right partition; an earlier 3 may exist |
+| 0 | 2 | 1 | 3 | hi=1: keep the earlier boundary candidate |
+| 0 | 1 | 0 | 1 | lo=1: index 0 is too small |
+| 1 | 1 | — | — | Return 1; the partitions now meet |
 
-Why not immediately return mid on equality? That gives an arbitrary matching index, not necessarily the boundary. Explain this difference before moving to code. This example teaches the guided function; the optional window solution is available below.
+Returning 2 at the first equality would find a match but not the first match. The boundary definition determines the equality branch.
+
+A target below the minimum, such as 0, repeatedly moves hi left and returns 0. A target above the maximum, such as 10, moves lo right and returns 4. Empty input starts with lo==hi==0 and returns 0 without reading any element.
 
 ## Guided lab: implement and observe the invariant
 
-**Goal:** implement boundary search and justify its behavior. **Environment:** Python 3.12.x, standard library only, Linux/macOS/Windows shell equivalents; no database, network, packages or datasets needed. Locally verified on Python 3.12.14. Data is deterministic integer sequences generated by the checkpoint script. Python serves the partition objective with less setup here than SQL Server/.NET; the repo's default engineering stack remains available for later lessons.
+The complete Python implementation uses only indexing and comparison:
 
-From repo root:
-
-```bash
-cd labs/boundary-search
-python --version
-python observe.py
+```python
+def lower_bound(values, target):
+    lo, hi = 0, len(values)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if values[mid] < target:
+            lo = mid + 1
+        else:
+            hi = mid
+    return lo
 ```
 
-If Python 3.12 is unavailable, use an installed compatible runtime and record its version, or do paper traces; neither an unrun command nor paper trace counts as a code execution. The upstream CPython build is not required.
+The midpoint is always a valid element while lo<hi. The code does not mutate values, copy subarrays or sort. You must supply data already sorted under the same ordering used for comparison. Checking sortedness on every query would itself cost O(n); establish the invariant when creating or updating the data instead.
 
-1. **Establish the specification.** Predict `bisect_left([2,4,4,9],4)` and with x=5 before running `observe.py`. Check observed positions against the left/right inequalities. Explain why a missing value still has a valid boundary. Checkpoint: duplicate boundary is 1; missing target 5 has boundary 3.
-2. **Separate asymptotics from timing.** Predict how element reads change from n=8 to 1024 to 65536. Run the observer and record index/read counts. Checkpoint: indices 4/512/32768 and reads 3/10/16 on the verified runtime. These are deterministic element accesses, not universal runtime speedups. Explain why list insertion and expensive keys are different costs.
-3. **Trace before implementing.** On paper, trace x=0 and x=10 for `[2,4,4,9]`; include empty input. Checkpoint: each iteration decreases `hi-lo`; terminating boundaries are 0 and 4. Explain why `hi=mid-1` can lose the half-open invariant.
-4. **Fill the faded example.** Edit only `lower_bound` in `starter.py`: initialize the unknown interval; loop while it is nonempty; compute midpoint; choose the update from the partition condition; return the shared boundary. Keep the input unchanged and do not use slicing or built-in search. Predict duplicate and all-smaller cases before running checks.
-5. **Self-check and debug.** Run the guided checks below. They compare with the standard-library oracle across sorted multisets of lengths 0–6, verify the partition/input preservation and reject linear-access/slicing solutions on larger data. Expected after a correct implementation: 2 tests pass. The unedited starter intentionally raises NotImplementedError. For a failure, use the smallest printed counterexample and trace lo/hi/mid; do not paste the oracle into the implementation.
+### Predict cases before running or tracing
 
-```bash
-python check.py --stage guided
+```python
+values = [2, 4, 4, 9]
+assert lower_bound(values, 4) == 1
+assert lower_bound(values, 5) == 3
+assert lower_bound(values, 0) == 0
+assert lower_bound(values, 10) == 4
+assert lower_bound([], 4) == 0
+assert values == [2, 4, 4, 9]
 ```
 
-After running, explain which branch preserves each part of the invariant, what the access-budget test measures and what it cannot establish (wall-clock speed, arbitrary comparator semantics). Save your implementation revision, a trace and the actual output for assessment.
+A missing value has an insertion position: target 5 belongs between the last 4 and 9. This is why lower_bound remains useful without an equality match.
 
-Common debug paths: infinite loop → check strict interval shrinkage; wrong duplicate index → equality branch; empty-list IndexError → loop condition; target > max fails → allow returning n; source import/path error → run from the stated lab directory; tool failure → record version/message and use the paper trace while repairing the environment.
+Use the 75-minute block to reconstruct the method (20), predict edge cases (15), trace and test (20), deliberately introduce/debug a branch error (15), then explain the correction (5). Two especially useful mistakes:
 
-## GitHub repository activity and evaluation
+- `hi=mid-1`: on `[1,3]`, target 3, the first midpoint is 1; setting hi=0 loses the correct answer 1. The half-open invariant needs hi=mid.
+- `lo=mid`: when the region has length one and the value is too small, mid==lo, so the interval never shrinks. Use lo=mid+1.
 
-**Chosen:** [python/cpython](https://github.com/python/cpython), official Python implementation, **77,489 stars**, `isArchived:false`, checked 2026-10-05 from GitHub HTML. Latest observed default-branch commit: [5fecd448…](https://github.com/python/cpython/commit/5fecd448bb120378978a37dde65dfce233d88c0d), 2026-10-05 01:49:56 UTC. GitHub API unavailable; exact embedded fields/targets/hashes are in [repository evidence](repository-evidence.json). Pinned teaching release **v3.12.7 → 0b05ead877f909b7efe712db758012d9dbece7ce**. This release is a reproducibility baseline, not a latest-release claim.
+Other clues: wrong first duplicate → inspect equality; empty-input error → read elements only inside the nonempty loop; target above maximum fails → allow the answer n.
 
-Maintainer authority is official Python; project identity establishes practical implementation relevance, while a quantified downstream usage survey was not done. Read docs expose preconditions/performance notes, implementation is small, tests include duplicates, random cases, slicing bounds and key semantics; no upstream benchmark or full build was run. PSF license text was read; no upstream code is vendored here. Entire CPython is complex to build, so restrict reading to four files.
+### Observe the cost without confusing it with timing
 
-Default-stack alternative `dotnet/runtime` is official and highly starred; its dated metadata and rejection rationale are in the evidence JSON. It is a valid future C# activity, but build/test setup adds cost without improving this small partition objective. Popularity did not determine the selection.
+This sequence computes a value on indexed access and counts reads, so it can demonstrate scaling without allocating a large array:
 
-Use these precise pinned targets (defer deeper reading in short mode):
+```python
+class Counted:
+    def __init__(self, n):
+        self.n = n
+        self.reads = 0
 
-- [Lib/test/test_bisect.py](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py): read `TestBisect.precomputed` cases and `test_precomputed`, `test_random`, `test_lookups_with_key_function`. Infer the difference between left/right boundaries **before** looking at implementation. Pick one duplicate case and explain the inequalities.
-- [Lib/bisect.py](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py): trace `bisect_left` and compare `bisect_right`. Explain why Python functions may be replaced by `_bisect` at import; the observer uses the installed interpreter implementation, not this historical Python file.
-- [Doc/library/bisect.rst](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Doc/library/bisect.rst): read `bisect_left`, key semantics and Performance Notes. Predict a key-record search where x is already a key; connect comparator cost and insertion cost to the model.
-- [LICENSE](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/LICENSE): check license before any reuse. Source reading is enough for this lab; you need not clone/build CPython.
+    def __len__(self):
+        return self.n
 
-Network fallback: use the local lab and state that upstream targets were not available to you. Do not pretend to read tests you could not open.
+    def __getitem__(self, i):
+        if not 0 <= i < self.n:
+            raise IndexError(i)
+        self.reads += 1
+        return i * 2
+
+for n in (8, 1024, 65536):
+    values = Counted(n)
+    index = lower_bound(values, n)
+    print(n, index, values.reads)
+```
+
+Worked output:
+
+```text
+8 4 3
+1024 512 10
+65536 32768 16
+```
+
+The target is near the middle of these synthetic sequences. Increasing n from 1,024 to 65,536 multiplies size by 64 but adds only six reads. Other targets can use a different number of reads; the worst-case growth remains logarithmic. This counts element accesses, not CPU instructions, wall-clock time or database page reads.
+
+## Read the standard-library implementation
+
+Python's official `bisect` implementation uses this partition idea. The following source slice is pinned so you can compare a stable implementation rather than a moving branch:
+
+- [Lib/bisect.py](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py): find bisect_left; compare its equality branch with bisect_right.
+- [Lib/test/test_bisect.py](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py): select one duplicate and one missing-value case; predict the partition before reading the expected result.
+- [Official bisect documentation](https://docs.python.org/3/library/bisect.html): read the partition definition, key semantics and Performance Notes.
+
+**Reading answers:** bisect_left returns the boundary before equal values; bisect_right returns the boundary after equal values. The Python module can use a C implementation internally, so the installed interpreter need not execute the Python source body line by line. The contract remains the useful comparison.
+
+For the 45-minute experiment block, compare element reads for targets below, inside and above the sequence; predict how doubling n changes the bound. Then count how many entries must move when inserting near the front. Search is O(log n), but an array-backed list insertion is O(n) because storage must shift. Sorting an unsorted batch once costs O(n log n) in the usual comparison model; that preparation is separate from the cost of each later query.
 
 ## Independent challenge: time windows
 
-Optionally try without hints: implement `count_window` in `starter.py` for sorted integer timestamps. Contract: count `start <= t < end`, retain input, accept equal endpoints/empty data and raise ValueError when end < start. Avoid a scan, copying a slice or sorting per query; reuse partition reasoning. First design at least three tests covering duplicate endpoints, an empty window and missing endpoints. Predict each result before running.
+Implement `count_window(timestamps,start,end)` for sorted integer timestamps. Count start-inclusive/end-exclusive events, keep input unchanged, accept empty data and equal endpoints, and raise ValueError for end<start. Avoid scanning, copying a slice or sorting per query.
 
-```bash
-python check.py --stage all
+The full solution subtracts two lower boundaries:
+
+```python
+def count_window(timestamps, start, end):
+    if end < start:
+        raise ValueError("end precedes start")
+    return lower_bound(timestamps, end) - lower_bound(timestamps, start)
+
+values = [10, 10, 20, 30, 30, 40]
+assert count_window(values, 10, 30) == 3
+assert count_window(values, 30, 30) == 0
+assert count_window(values, 11, 39) == 3
+assert count_window([], 10, 30) == 0
 ```
 
-Expected after your attempt is correct: 4 tests pass. This is a near-to-changed-context transfer task, not proof of transfer to all database systems. **Extended variant:** design event records with a timestamp key, distinguish a timestamp x from a full record argument, and explain what breaks with unsorted inputs or timezone-inconsistent timestamps. Propose an update-heavy workload where a sorted flat list is a poor choice; compare with an index without claiming identical complexity constants.
+**Why subtraction works:** lower_bound(start) is the number of values strictly below start; lower_bound(end) is the number strictly below end. Removing the former leaves exactly the values at least start and below end. Duplicates at start are included; duplicates at end are excluded. Equal endpoints produce identical boundaries and count zero. Two logarithmic searches are still O(log n), with O(1) auxiliary space.
 
-Hints and the full worked solution are accessible below; attempting or submitting work is optional. Record actual hint use; assisted success is not independent evidence.
+### Change the representation: event records and keys
+
+Real events carry more than a timestamp. Python's bisect key is applied to records in the array, **not to the search target**:
+
+```python
+from bisect import bisect_left
+
+events = [
+    {"timestamp": 10, "id": "A"},
+    {"timestamp": 20, "id": "B"},
+    {"timestamp": 20, "id": "C"},
+    {"timestamp": 30, "id": "D"},
+]
+key = lambda event: event["timestamp"]
+left = bisect_left(events, 20, key=key)
+right = bisect_left(events, 30, key=key)
+assert (left, right, right - left) == (1, 3, 2)
+```
+
+Pass 20, not a full event record, as the target. The list must be sorted by timestamp. Use a consistent unit and timezone interpretation; mixing seconds/milliseconds or incompatible timestamp representations can silently invalidate the query. Key extraction happens on examined records; expensive keys may justify precomputed keys, with extra storage and synchronization on updates.
+
+For frequent writes, a flat sorted list may be a poor fit. Ordered indexes or trees have their own query/update and storage costs. The partition reasoning transfers, but an in-memory comparison count alone does not predict database I/O, concurrency, collation or query plans.
 
 ## Rubric, feedback and explain-back
 
-| Outcome | Evidence / success criteria | Feedback and next check |
+Use these checks to review your implementation:
+
+| Check | What a good explanation contains | If unclear, try |
 |---|---|---|
-| Partition correctness | Empty, duplicate, missing and beyond-range cases; both inequalities; no mutation | Smallest counterexample; correct branch and retrace a new case |
-| Reasoning and complexity | Explain invariant preservation/termination; logarithmic access test; distinguish insertion cost | If “binary search makes inserts logarithmic”, predict an insertion shift count |
-| Independence and transfer | New window function/tests without hints; duplicate endpoints and validation | Log hints/errors; change endpoint/data context before reassessment |
-| Explanation | Mechanism, assumptions, counterexample and relevant trade-off | Ask why returning any equality match is insufficient; compare records versus scalar keys |
+| Partition correctness | Both inequalities; empty, duplicate, missing and beyond-range cases | Draw numbered values and the two partitions |
+| Termination/cost | Each branch shrinks hi−lo; logarithmic comparisons under random access | Trace a one-element unknown interval |
+| Window behavior | Two boundaries; start included, end excluded | Duplicate both endpoints |
+| Trade-off | Fast queries do not remove insertion shifts or expensive key work | Count moves for a front insertion |
 
-Use qualitative outcomes (needs_support/developing/independent/unassessed). No fixed score threshold. A passing suite is one artifact, not a score or mastery claim. For each error record the original response, hint/feedback, revised explanation and a fresh attempt.
+Explain in your own words why equality moves hi, why returning n is valid and why an arbitrary matching midpoint is insufficient. If a case fails, preserve the smallest example, correct the rule and test a new example. This is more useful than memorizing the two update statements.
 
-Explain-back: state the invariant in your own words; explain why the equality branch matters; defend your data structure for many reads versus many inserts. Exit ticket without notes: (1) reconstruct the partition for x absent; (2) predict a window with duplicated endpoints; (3) explain why a database ordered index is not a Python list and what additional cost model you would need.
+## Further questions and review plan
 
-## Research sources and review hooks
+After a delay, reconstruct the partition and trace a new duplicate target without notes. Then change the event representation or endpoint values and explain the window result. Revisit sooner after an error and increase the gap when the reasoning is reliable.
 
-- **Curriculum source:** Advanced Algorithms `6001127`, local canonical outcome section; read 2026-10-05. Defines complexity/selection outcomes, not the exact chosen sequence.
-- **Foundational/official implementation:** pinned CPython source/tests/docs above; directly read 2026-10-05. Establishes partition contract, comparator/key semantics and insertion trade-off; no latest-support assertion.
-- **Learning research synthesis:** [Deans for Impact 2015 PDF](https://github.com/carpentries/instructor-training/blob/50745001271700a108de0622d80341965e249e5b/episodes/files/papers/science-of-learning-2015.pdf), questions 1–4, directly read 2026-10-05; supports scaffolding, retrieval, spacing and structural transfer. Primary paper access limits are in the [research report](../../research/learning-science-review.md).
-- **Instructor synthesis:** diagnostic branch, this trace/lab, time budgets and rubric are designs to evaluate, not proven optimal methods.
-
-After observed completion, choose a next due date with the learner based on performance and retention goal. Prompt A: reconstruct invariant and predict a different duplicate boundary unaided. Prompt B later: implement/justify a changed-context window query and compare an update-heavy design. If wrong/hinted, correct the misconception and retry sooner; if independent with explanation, consider a longer interval. Keep actual scheduled date, observation date and next-date reason. No scheduled review or mastery has been written for this unassigned sample.
-
-For an actual assignment, create a new private session and copy the starter to its workspace. The public sample record remains outside real state; do not import its sample ID.
+Three questions for deeper reading: Why do left and right boundaries differ on equality? What work does a key function add? Why is insort still linear despite binary search? The linked standard-library implementation and docs answer these questions.
 
 ## Optional practice and worked answers
 
-Reading only is valid; no task or submission is required to request another lesson.
-Try the questions first if useful, or read the answers immediately. Solution-assisted
-work does not establish independence.
+- `[1,1,3]`, target 1: boundary 0; no element belongs to the smaller partition.
+- `[2,4,4,9]`, target 5: boundary 3; all three earlier elements are smaller.
+- `[10,10,20,30,30,40]`, window `[20,40)`: count 3, from boundaries 2 and 5.
+- The same array, window `[41,50)`: count 0, from boundaries 6 and 6.
+- Reversed endpoints: reject the query before subtracting boundaries.
+- Record search: the target is a key value; maintain the same ordering when updating the list.
 
-- Warm-up: `[lo,hi)` includes lo and excludes hi; insertion at the front shifts old
-  indices by one. Repeated integer halving takes logarithmically many iterations.
-- Diagnostic: `[2,4,4,9]` has values <4 only at index 0; the boundary is 1. For
-  mid=2 with equality, hi=2 retains the earlier boundary; the boundary itself may
-  equal hi. Sorted order ensures discarded partitions satisfy their inequalities.
-  Bridge recheck `[1,1,3]`, target 1 gives boundary 0.
-- Missing/beyond-range traces: target 0 returns 0, target 10 returns 4; empty input
-  returns 0. Each update shrinks hi-lo. `hi=mid-1` can skip a valid boundary: `[1,3]`,
-  target 3 would incorrectly terminate at 0 after mid=1.
-- Full guided and window implementation: [worked code](../../labs/boundary-search/mentor/solution.py).
-  Initialize lo=0, hi=n; equality moves hi to mid, values < target move lo to mid+1.
-  For a window subtract `lower_bound(end)-lower_bound(start)`; reject end<start.
-  Two searches use O(log n) accesses and O(1) extra space.
-- Window tests on `[10,10,20,30,30,40]`: [10,30) counts 3; [30,30) counts 0;
-  [11,39) counts 3. Empty input counts 0; reversed endpoints raise ValueError.
-- Exit answers: invariant partitions are <x before lo and >=x at/after hi. Returning
-  an arbitrary equal midpoint loses the first duplicate. With records and a key,
-  search x is already the key. Flat-list insertion is O(n); a database index also
-  depends on page I/O, concurrency and its update/query cost model.
+## Read further
+
+- [Python bisect documentation](https://docs.python.org/3/library/bisect.html): precise left/right partition contracts, key behavior and insertion costs.
+- [CPython bisect source](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py) and [tests](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py): compare implementation choices with your trace and test design.
+- [Python sorting how-to](https://docs.python.org/3/howto/sorting.html): establish sorted data, key functions and stable ordering before querying.
+
+<!-- LESSON_NAVIGATION_START -->
+## Related reading
+
+- [Lesson 01 — Cost models and stable deduplication](../2026-10-05-cost-model/lesson.md) — Review how hidden work inside a loop determines its cost.
+- [Technical topic notes](../../references/topic-notes.md) — Explore ordered indexes, query processing and algorithm design.
+
+---
+
+[← Previous: Lesson 01 — Big-O and stable deduplication in C#](../2026-10-05-cost-model/lesson.md) · [All lessons](../../README.md)
+<!-- LESSON_NAVIGATION_END -->

@@ -19,14 +19,19 @@ TEMPLATE = ROOT / 'state/learning-state.example.json'
 DEFAULT_STATE = ROOT / '.learning-private/learning-state.json'
 
 
-def migrate_v1(state):
-    """Preserve evidence; never infer that old errors have been repaired."""
+def migrate_legacy(state):
+    """Convert v1/v2 fields; the caller must preserve the unmodified source."""
     new = copy.deepcopy(state)
-    if new.get('schema_version') != 1:
-        raise ValueError('migration requires schema version 1')
-    new['schema_version'] = 2
-    for assessment in new['assessments']:
-        assessment['resolves_assessment_ids'] = []
+    version = new.get('schema_version')
+    if version not in (1, 2):
+        raise ValueError('migration requires schema version 1 or 2')
+    new['schema_version'] = 3
+    for lesson in new['lessons']:
+        # Legacy course metadata remains in the original source, not active state.
+        lesson.pop('course_code', None)
+    if version == 1:
+        for assessment in new['assessments']:
+            assessment.setdefault('resolves_assessment_ids', [])
     return new
 
 
@@ -66,8 +71,15 @@ def validate(state, *, allow_fixture=False):
             if aid not in assessments or assessments[aid]['lesson_id'] != lesson['id']:
                 raise ValueError('dangling assessment link')
         completion_kinds = ('practice', 'retrieval', 'transfer', 'prerequisite')
-        if status == 'completed' and not any(assessments[a]['kind'] in completion_kinds and assessments[a]['observed_on'] <= lesson['completed_on'] for a in lesson['assessment_ids']):
-            raise ValueError('completion requires an observed task attempt before completion; low performance is allowed')
+        if status == 'completed' and not any(
+                assessments[a]['kind'] in completion_kinds
+                and assessments[a]['topic_id'] == lesson['topic_id']
+                and assessments[a]['observed_on'] <= lesson['completed_on']
+                for a in lesson['assessment_ids']):
+            raise ValueError(f'{lesson["id"]}: completion requires an observed task attempt '
+                             'for the same lesson topic before completion; low performance '
+                             'is allowed. Prerequisite evidence for another topic cannot '
+                             'complete this lesson; assess its objective or preserve it in_progress.')
     order = {a['id']: i for i, a in enumerate(state['assessments'])}
     for a in state['assessments']:
         lesson = lessons.get(a['lesson_id'])
@@ -141,7 +153,14 @@ def mastery(state, topic, as_of=None):
     return 'developing'
 
 
-def plan(state, today, prerequisite='unknown', source_available=True, lab_available=True):
+def plan(state, today, prerequisite='unknown', source_available=True, lab_available=True, minutes=None):
+    budget = minutes if minutes is not None else state['learner']['daily_minutes']
+    budget_source = 'plan_override' if minutes is not None else 'learner_profile'
+    if budget is None:
+        budget = 420
+        budget_source = 'full_day_default'
+    if not isinstance(budget, int) or isinstance(budget, bool) or budget < 10:
+        raise ValueError('elapsed time budget must be an integer of at least 10 minutes')
     visible = [l for l in state['lessons'] if l['created_on'] <= today]
     def status_on(l):
         for status, field in [('completed','completed_on'), ('in_progress','started_on'), ('assigned','assigned_on')]:
@@ -161,18 +180,41 @@ def plan(state, today, prerequisite='unknown', source_available=True, lab_availa
             if a['observed_on'] <= today: due_on = attempt['next_due_on']
         review_dates[r['id']] = due_on
     due = [rid for rid, on in review_dates.items() if on <= today]
-    topics = {l['topic_id'] for l in visible} | {a['topic_id'] for a in state['assessments'] if a['observed_on'] <= today}
+    observed = [a for a in state['assessments'] if a['observed_on'] <= today]
+    topics = ({l['topic_id'] for l in visible}
+              | {t for l in visible for t in l['prerequisites']}
+              | {a['topic_id'] for a in observed})
     levels = {t: mastery(state,t,today) for t in sorted(topics)}
     if not source_available or not lab_available: action,reason = 'fallback','Use verified pinned sources or paper traces; record limitations, never claim an unobserved run.'
-    elif prerequisite == 'weak': action,reason = 'prerequisite_bridge','Repair the observed gap, then recheck before a new core topic.'
+    elif prerequisite == 'weak': action,reason = 'prerequisite_bridge','Bridge the indicated prerequisite gap, then recheck; a caller flag alone is not observed evidence.'
     elif due: action,reason = 'review','Attempt due retrieval first; review-only if the time budget is consumed.'
-    elif pending: action,reason = 'resume','Resume assigned/in-progress work; do not infer completion.'
+    elif pending: action,reason = 'resume','Offer to resume unfinished work; a requested new objective remains available without inferred completion.'
     elif 'needs_remediation' in levels.values(): action,reason = 'remediation','Target observed errors with a new variation and feedback.'
-    elif prerequisite == 'unknown' or not visible: action,reason = 'diagnostic','Ask goals/time/tools; collect short prerequisite evidence. Mastery is unknown.'
+    elif prerequisite == 'unknown' or not visible: action,reason = 'diagnostic','Include optional self-checks and prerequisite bridges in delivery; unknown knowledge does not block the next lesson.'
     elif generated: action,reason = 'deliver','Inspect existing generated work and diagnostic fit before delivery; do not create a duplicate.'
     elif 'retained_and_transferred' in levels.values(): action,reason = 'deepen','Offer a harder variation or next prerequisite-safe topic based on goals.'
-    else: action,reason = 'core','Select one curriculum objective; check prerequisite evidence and semantic duplication.'
-    observed = [a for a in state['assessments'] if a['observed_on'] <= today]
+    else: action,reason = 'core','Select one topic objective; check prerequisite evidence and semantic duplication.'
+    knowledge = {
+        'background': {'status': 'self_reported' if state['learner']['background'] else 'unknown',
+                       'value': state['learner']['background']},
+        'goals': {'status': 'self_reported' if state['learner']['goals'] else 'unknown',
+                  'value': state['learner']['goals']},
+        'prerequisite_context': {'value': prerequisite,
+                                 'status': 'unknown' if prerequisite == 'unknown' else 'caller_supplied',
+                                 'note': 'The planner does not verify this flag or infer topic mastery from it.'},
+        'topics': {},
+    }
+    for topic in sorted(topics):
+        evidence = [a for a in observed if a['topic_id'] == topic]
+        assessed = [a for a in evidence if a['outcome'] != 'unassessed']
+        knowledge['topics'][topic] = {
+            'status': 'observed' if assessed else 'unknown',
+            'assessment_ids': [a['id'] for a in assessed],
+            'unassessed_ids': [a['id'] for a in evidence if a['outcome'] == 'unassessed'],
+            'observed_misconceptions': [
+                {'assessment_id': a['id'], 'misconceptions': a['misconceptions']}
+                for a in assessed if a['misconceptions']],
+        }
     summary = {
         'completed_core_lessons': sum(l['kind'] == 'core' and l['status'] == 'completed' and l['completed_on'] <= today for l in state['lessons']),
         'assessment_count': len(observed),
@@ -182,7 +224,11 @@ def plan(state, today, prerequisite='unknown', source_available=True, lab_availa
     return {'action':action,'reason':reason,'due_reviews':due,'pending_lessons':pending,
             'generated_lessons':generated,'mastery':levels,
             'unresolved_assessments':{t: unresolved_errors(state,t,today) for t in sorted(topics) if unresolved_errors(state,t,today)},
-            'minutes':state['learner']['daily_minutes'],'summary':summary}
+            'minutes':budget,
+            'time_budget': {'elapsed_minutes': budget, 'includes_breaks': True,
+                            'source': budget_source,
+                            'mode': 'full_day' if budget >= 360 else 'shortened'},
+            'knowledge':knowledge,'summary':summary}
 
 
 def transition(state, lesson_id, target, on):
@@ -212,9 +258,14 @@ def check_private_path(path):
     return path
 
 
-def validate_private_artifacts(state, directory):
+def validate_private_artifacts(state, directory, state_path):
+    canonical_state = state_path.resolve()
     for lesson in state['lessons']:
         artifact = (directory / lesson['artifact']).resolve()
+        if (artifact == canonical_state
+                or (artifact.is_file() and canonical_state.is_file()
+                    and artifact.samefile(canonical_state))):
+            raise ValueError('learner lesson artifact cannot be the canonical state file')
         if not artifact.is_relative_to(directory.resolve()) or not artifact.is_file():
             raise ValueError('learner lesson artifact must exist within the selected private workspace')
 
@@ -226,7 +277,7 @@ def main():
     sub.add_parser('init')
     q=sub.add_parser('migrate'); q.add_argument('--from-state',type=Path,required=True); q.add_argument('--artifact-root',type=Path)
     q=sub.add_parser('profile'); q.add_argument('--timezone'); q.add_argument('--minutes',type=int); q.add_argument('--goal',action='append'); q.add_argument('--background')
-    q=sub.add_parser('plan'); q.add_argument('--on'); q.add_argument('--prerequisite',choices=['unknown','weak','ready'],default='unknown'); q.add_argument('--source-unavailable',action='store_true'); q.add_argument('--lab-unavailable',action='store_true')
+    q=sub.add_parser('plan'); q.add_argument('--on'); q.add_argument('--minutes',type=int,help='One-off elapsed budget including breaks; does not change the profile'); q.add_argument('--prerequisite',choices=['unknown','weak','ready'],default='unknown'); q.add_argument('--source-unavailable',action='store_true'); q.add_argument('--lab-unavailable',action='store_true')
     q=sub.add_parser('transition'); q.add_argument('lesson_id'); q.add_argument('status',choices=['assigned','in_progress','completed']); q.add_argument('--on')
     q=sub.add_parser('add'); q.add_argument('collection',choices=['lessons','assessments','reviews']); q.add_argument('record',type=Path)
     q=sub.add_parser('review'); q.add_argument('review_id'); q.add_argument('assessment_id'); q.add_argument('--next-due',required=True); q.add_argument('--reason',required=True)
@@ -237,8 +288,14 @@ def main():
         if not args.allow_fixture: args.state = check_private_path(args.state)
         if args.cmd in ('init','migrate'):
             if args.state.exists(): raise ValueError('destination already exists; initialization/migration never overwrites state')
-            state = json.loads(TEMPLATE.read_text()) if args.cmd == 'init' else migrate_v1(json.loads(args.from_state.read_text()))
-            validate(state,allow_fixture=args.allow_fixture)
+            state = json.loads(TEMPLATE.read_text()) if args.cmd == 'init' else migrate_legacy(json.loads(args.from_state.read_text()))
+            try:
+                validate(state,allow_fixture=args.allow_fixture)
+            except ValueError as error:
+                if args.cmd == 'migrate':
+                    raise ValueError(f'migration rejected: {error} Original source is unchanged; '
+                                     'verify legacy evidence and correct a copy explicitly before retrying.') from error
+                raise
             if not state['fixture']: args.state = check_private_path(args.state)
             copies=[]
             if args.cmd == 'migrate' and not state['fixture'] and state['lessons']:
@@ -247,6 +304,9 @@ def main():
                 for lesson in state['lessons']:
                     source=(source_root/lesson['artifact']).resolve()
                     destination=(args.state.parent/lesson['artifact']).resolve()
+                    if destination == args.state.resolve():
+                        raise ValueError('migration lesson artifact cannot be the canonical state file; '
+                                         'source preserved and destination not created')
                     if (not source.is_relative_to(source_root) or not source.is_file()
                             or not destination.is_relative_to(args.state.parent.resolve()) or destination.exists()):
                         raise ValueError('migration artifact missing, outside workspace or destination already exists')
@@ -254,17 +314,17 @@ def main():
             args.state.parent.mkdir(mode=0o700,parents=True,exist_ok=True)
             for source,destination in dict(copies).items():
                 destination.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,destination)
-            if not state['fixture']: validate_private_artifacts(state,args.state.parent)
+            if not state['fixture']: validate_private_artifacts(state,args.state.parent,args.state)
             atomic_save(args.state,state); print('Created private state; source preserved.'); return 0
         if not args.state.exists(): raise ValueError('state missing; run init once or select an existing private --state path')
         state=validate(json.loads(args.state.read_text()),allow_fixture=args.allow_fixture)
         if not state['fixture']:
             args.state = check_private_path(args.state)
-            validate_private_artifacts(state,args.state.parent)
+            validate_private_artifacts(state,args.state.parent,args.state)
         today=getattr(args,'on',None) or datetime.now(ZoneInfo(state['learner']['timezone'])).date().isoformat(); date.fromisoformat(today)
         if args.cmd=='validate': print('Learning state valid.'); return 0
         if args.cmd=='plan':
-            print(json.dumps(plan(state,today,args.prerequisite,not args.source_unavailable,not args.lab_unavailable),indent=2)); return 0
+            print(json.dumps(plan(state,today,args.prerequisite,not args.source_unavailable,not args.lab_unavailable,args.minutes),indent=2)); return 0
         if args.cmd=='transition': state=transition(state,args.lesson_id,args.status,today)
         if args.cmd=='profile':
             for field, value in [('timezone',args.timezone),('daily_minutes',args.minutes),('goals',args.goal),('background',args.background)]:
@@ -278,7 +338,7 @@ def main():
             review=next(r for r in state['reviews'] if r['id']==args.review_id)
             review['attempts'].append({'assessment_id':args.assessment_id,'scheduled_for':review['due_on'],'next_due_on':args.next_due,'reason':args.reason}); review['due_on']=args.next_due
         validate(state,allow_fixture=args.allow_fixture)
-        if not state['fixture']: validate_private_artifacts(state,args.state.parent)
+        if not state['fixture']: validate_private_artifacts(state,args.state.parent,args.state)
         atomic_save(args.state,state); print('Saved validated state.'); return 0
     except (ValueError,KeyError,StopIteration,OSError) as e:
         print(f'Invalid state/action: {e}',file=sys.stderr); return 1

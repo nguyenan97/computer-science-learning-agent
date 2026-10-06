@@ -1,0 +1,4 @@
+interface:
+  display_name: "Daily Computer Science Deep Study"
+  short_description: "Practical bilingual CS research, experiments and review"
+  default_prompt: "Use $cs-daily-deep-study to write a complete Vietnamese and English CS learning page: full explanations, code, experiments and worked answers inline; one objective, 420 elapsed minutes with breaks and at least 60% active learning. Keep internal progress/audit records out of the lesson. Add related reading and available previous/next links from the catalog. Exercises remain optional; never invent progress."

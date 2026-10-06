@@ -9,7 +9,7 @@ from learning_state import ROOT, TEMPLATE, validate
 
 
 def validate_skill():
-    directory=ROOT/'skills/master-iuh-daily-learning'
+    directory=ROOT/'skills/cs-daily-deep-study'
     text=(directory/'SKILL.md').read_text()
     match=re.match(r'\A---\n(.*?)\n---\n',text,re.S)
     if not match: raise ValueError('skill requires YAML frontmatter')
@@ -43,7 +43,7 @@ def main():
         if fixture.get('fixture') is not True: raise ValueError(f'{path}: fixture marker missing')
         validate(fixture,allow_fixture=True)
     sample=json.loads((ROOT/'lessons/boundary-search/record.json').read_text())
-    synthetic={'schema_version':2,'fixture':True,'learner':state['learner'],'lessons':[sample],'assessments':[],'reviews':[]}
+    synthetic={'schema_version':3,'fixture':True,'learner':state['learner'],'lessons':[sample],'assessments':[],'reviews':[]}
     validate(synthetic,allow_fixture=True)
     if sample['id'] in {l['id'] for l in state['lessons']}: raise ValueError('sample leaked into learner state')
     for name in ('learning-workflow','pedagogy','source-policy','lesson-template'):
@@ -57,7 +57,7 @@ def main():
         path=(ROOT/l['artifact']).resolve()
         if not path.is_relative_to(ROOT) or not path.is_file(): raise ValueError('lesson artifact missing or outside repo')
     lesson=(ROOT/sample['artifact']).read_text()
-    for heading in ('Selection and measurable outcomes','Retrieval warm-up and prerequisite check','Problem and prediction','Foundation and mental model','Worked example','Guided lab','GitHub repository activity and evaluation','Independent challenge','Rubric, feedback and explain-back','Research sources and review hooks'):
+    for heading in ('Selection and measurable outcomes','Retrieval warm-up and prerequisite check','Problem and prediction','Foundation and mental model','Worked example','Guided lab','Read the standard-library implementation','Independent challenge','Rubric, feedback and explain-back','Further questions and review plan'):
         if not re.search(r'^## '+re.escape(heading),lesson,re.M): raise ValueError('sample missing section: '+heading)
     repo=json.loads((ROOT/'lessons/boundary-search/repository-evidence.json').read_text())
     if not re.fullmatch('[0-9a-f]{40}',repo['pin']) or not repo['checked_on']: raise ValueError('repo requires immutable pin and checked date')
@@ -65,7 +65,7 @@ def main():
         if repo['pin'] not in target['url']: raise ValueError('repo target is not pinned')
     # Local Markdown links are checked throughout docs, excluding Docsify root routes.
     for path in ROOT.rglob('*.md'):
-        if any(part in ('.git','.learning-private','.site-build','.venv') for part in path.parts): continue
+        if any(part in ('.git','.learning-private','.site-build','.venv','work') for part in path.parts): continue
         for target in re.findall(r'\[[^\]]*\]\(([^\s)]+)\)',path.read_text()):
             if target.startswith(('https:','http:','/','#','mailto:')): continue
             clean=target.split('#',1)[0]

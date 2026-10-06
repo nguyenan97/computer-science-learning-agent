@@ -15,12 +15,13 @@ PUBLIC_FILES = (
     'vi/state/learning-ledger.md', 'lessons/boundary-search/lesson.md',
     'lessons/boundary-search/record.json', 'lessons/boundary-search/repository-evidence.json',
     'vi/lessons/boundary-search/lesson.md', 'research/source-checks.json',
-    'research/runtime-source-checks.json', 'skills/master-iuh-daily-learning/SKILL.md',
-    'skills/master-iuh-daily-learning/evals/cases.json',
-    'skills/master-iuh-daily-learning/agents/openai.yaml',
+    'research/runtime-source-checks.json', 'research/deep-study-source-checks.json',
+    'references/topics.json', 'skills/cs-daily-deep-study/SKILL.md',
+    'skills/cs-daily-deep-study/evals/cases.json',
+    'skills/cs-daily-deep-study/agents/openai.yaml',
     'lessons/catalog.json',
 )
-PUBLIC_DOC_DIRS = ('curricula', 'references', 'research', 'vi/curricula', 'vi/references', 'vi/research')
+PUBLIC_DOC_DIRS = ('references', 'research', 'vi/references', 'vi/research')
 PUBLIC_LAB_FILES = ('check.py','observe.py','starter.py','mentor/hints.md','mentor/solution.py')
 
 # Docsify routes are not filesystem paths. Resolve local links while staging,
@@ -104,6 +105,7 @@ def build(source, destination):
     for directory in PUBLIC_DOC_DIRS:
         paths += list((source/directory).rglob('*.md'))
     paths += [source/'vi'/name for name in ('README.md','_404.md','_sidebar.md','_navbar.md')]
+    paths = list(dict.fromkeys(paths))
     for path in paths:
         if not path.is_file() or not path.resolve().is_relative_to(source):
             raise ValueError(f'public file missing or outside source: {path}')

@@ -1,50 +1,66 @@
-# Nghiên cứu learning science và quyết định cho repo
+# Learning science cho ngày học kỹ thuật sâu
 
-Ngày kiểm tra: **2026-10-05**. [Báo cáo chính và danh mục nghiên cứu](../../research/learning-science-review.md) giữ citation/DOI; [access log](../../research/source-checks.json) ghi trạng thái từng nguồn. Đây là tổng hợp có phê bình nhưng **chưa hoàn thành xác minh nghiên cứu gốc**, không phải systematic review mới.
+Kiểm tra **2026-10-06**. Phạm vi: tự học Computer Science, lập trình và thí nghiệm kỹ thuật, prerequisite chưa rõ và nộp bài tùy chọn. Đây là review tập trung có giới hạn truy cập rõ, **không phải systematic review hoặc đánh giá hiệu quả giáo dục của tutor này**. Không có thí nghiệm mới hay effect size định lượng được tuyên bố.
 
-## Phương pháp và giới hạn
+## Đã kiểm tra gì
 
-Chọn tài liệu theo nhóm phương pháp, ưu tiên review/meta-analysis, nghiên cứu gốc và tổng hợp học thuật. Không tìm kiếm toàn diện, preregister, double screening, đánh giá risk-of-bias hay publication-bias. Proxy từ chối DOI (403); không tìm cách vượt policy. Đã đọc trực tiếp bản **Deans for Impact (2015), The Science of Learning**, gồm bibliography, và các episode practice/memory/feedback/teaching của The Carpentries tại commit `50745001271700a108de0622d80341965e249e5b`.
+Tìm kiếm tập trung retrieval, spacing, interleaving, examples, deliberate practice, feedback và cognitive load. Nguồn ứng viên từ publisher học thuật, repo tác giả/trường, PubMed và practice guide dựa bằng chứng. Đọc các phần liên quan để nối claim với hoạt động. Không có search đăng ký trước, screening đầy đủ, đánh giá risk of bias độc lập hay reanalysis. Bằng chứng nền tảng cũ hữu ích nhưng không trả lời mọi task lập trình hiện đại.
 
-Đây là nguồn tổng hợp giảng dạy uy tín, không thay thế xem phương pháp, heterogeneity và độ trễ của meta-analysis. Đối tượng Carpentries thường là người mới học công cụ tính toán; áp dụng sang CS sau đại học vẫn cần đánh giá. Không nhận nguyên cách nói mạnh như “dạy người khác là một trong những cách tốt nhất”. Không đưa effect size chưa kiểm chứng. Productive failure và mastery learning đặc biệt là khuyến nghị thiết kế tạm thời vì chưa đọc được meta-analysis đã chọn.
+[Log chung](../../research/deep-study-source-checks.json) có URL, timestamp, HTTP, bytes, hash, phạm vi đọc và giới hạn. Sáu nguồn có full text và **đã đọc một số phần**; ba nguồn **chỉ đọc abstract**; một publisher ứng viên không truy cập được. Tải thành công không là review toàn paper. [Log trước](../../research/source-checks.json) giữ lịch sử; proxy từ chối trước không mô tả kết quả truy cập hôm nay.
 
-[PDF đã đọc](https://github.com/carpentries/instructor-training/blob/50745001271700a108de0622d80341965e249e5b/episodes/files/papers/science-of-learning-2015.pdf), câu hỏi 1–4 nối prerequisite, ví dụ mẫu, spacing/retrieval, interleaving, feedback theo task và transfer cấu trúc với nghiên cứu được trích. [Memory](https://github.com/carpentries/instructor-training/blob/50745001271700a108de0622d80341965e249e5b/episodes/05-memory.md), [practice](https://github.com/carpentries/instructor-training/blob/50745001271700a108de0622d80341965e249e5b/episodes/02-practice-learning.md), [feedback](https://github.com/carpentries/instructor-training/blob/50745001271700a108de0622d80341965e249e5b/episodes/06-feedback.md) đã đọc trực tiếp.
-
-## Mức bằng chứng và hoạt động hằng ngày
-
-“Được hỗ trợ rộng” nghĩa là nguyên tắc hội tụ trong văn liệu và phù hợp nguồn tổng hợp đọc được, không chứng nhận mọi task/effect. “Phụ thuộc bối cảnh” nghĩa là thiết kế, nền tảng, feedback/control thay đổi kết quả. “Heuristic” là lựa chọn sản phẩm có thể sửa và cần đo.
-
-| Phương pháp / mức tin cậy | Phù hợp / áp dụng / hạn chế | Hoạt động và đo hiệu quả |
+| Nguồn/truy cập | Phần đọc | Giới hạn còn lại |
 |---|---|---|
-| Retrieval — hỗ trợ rộng cho retention; transfer có điều kiện | Definition, invariant, phân biệt concept, tái dựng reasoning/procedure. Thử không ghi chú rồi corrective feedback; tránh high stakes mọi lần, cue đáp án hoặc lặp misconception chưa sửa; mới học có thể cần được dạy trước | Tái dựng invariant, dự đoán query/chọn thuật toán; lưu response/hint/error. Kiểm tra prompt khác sau độ trễ, tách accuracy cùng ngày khỏi retention |
-| Spacing — hỗ trợ rộng; interval tùy điều kiện | Knowledge/procedure cần giữ nhiều tuần. Phân bố practice, xét retention horizon/nền/task; không có lịch tối ưu phổ quát, không dồn backlog vào phiên ngắn | Tạo prompt sau completion/attempt thật, thay due theo recall có lý do. Đo delay thật, success, hint, quá hạn và độ khó tương đương |
-| Interleaving — phụ thuộc bối cảnh | Phân biệt BFS/Dijkstra, seek/scan, lower/upper bound. Có initial blocked practice trước khi mix; không đổi course ngẫu nhiên gây switching cost | Chọn strategy trước khi giải và nêu feature quyết định. Đo lựa chọn/justification ở case mới sau delay, tách correctness code |
-| Self-explanation — có văn liệu hỗ trợ, phụ thuộc task | Causal reasoning, proof, quyết định trong ví dụ, debug. Prompt “vì sao bước này”; kiểm tra explanation sai dù trôi chảy; tránh quá tải novice | Giải thích update giữ invariant, cho counterexample. Rubric mechanism/assumption/counterexample/trade-off; giải thích boundary mới sau delay |
-| Elaboration — phụ thuộc nền tảng | Nối idea mới với cấu trúc đã biết, analogy có giới hạn. Tránh story trang trí/analogy chưa kiểm tra | Nối partition với time-window query và điểm analogy dừng. Đo connection đúng và áp dụng ngữ cảnh mới, không lặp chuyện |
-| Worked example/scaffolding/fading — hỗ trợ novice, expertise reversal có điều kiện | Procedure nhiều bước, proof, tool lạ. Một ví dụ nêu quyết định rồi bỏ dần bước; expert có thể cần independent sớm, tránh guidance dư | Trace → implementation thiếu bước → range query độc lập → record/key mới. Đo giảm hint mà giữ correctness case mới và reconstruction sau delay |
-| Deliberate practice — phụ thuộc domain/định nghĩa | Subskill có chuẩn và corrective feedback. Target lỗi đã chẩn đoán, variation có mục đích; code mỗi ngày không tự là deliberate practice, giờ học không là mastery clock | Minimal counterexample off-by-one, sửa và case đổi. Đo recurrence, debug explanation, độc lập/tái làm sau delay |
-| Feedback/misconception repair — mục đích được hỗ trợ, timing/content có điều kiện | Lỗi mental model, procedure/API. Feedback cụ thể sau attempt, sửa và reattempt; hint sớm có thể spoil retrieval, feedback setup muộn gây lãng phí | “Rule bỏ duplicate đầu, trace `[2,2]`”; sửa invariant rồi case mới. Lưu lỗi gốc, correction, explanation và lần thử sau delay |
-| Cognitive load — framework có nền, intervention tùy bối cảnh | Novice gặp đồng thời concept/tool/reasoning mới. Giảm setup dư, chunk, explanation cạnh code; effort không là phép đo dung lượng trí nhớ | Starter offline, một invariant, checkpoint, không ép Docker. Tách friction/time khỏi conceptual error, effort và kết quả sau delay; nhẹ hơn chưa chắc học tốt hơn |
-| Productive failure — phụ thuộc bối cảnh, tạm thời ở review này | Người có nền thử problem sinh nhiều phương án rồi explicit consolidation. Time-box và debrief; tránh mò mẫm khi nền yếu | Predict duplicate boundary, thử rule, đối chiếu counterexample/ví dụ; novice xem ví dụ trước. Đo alternatives và transfer sau instruction; không thưởng mastery vì struggle |
-| Transfer — phụ thuộc bối cảnh, far transfer khó | Áp cấu trúc sang data/constraint/representation khác. Nhiều case so cấu trúc rõ; một task không chứng minh engineering expertise | Timestamp window, record/key; tách array khỏi B-tree/update cost. Đo near/changing-context riêng và thử lại sau delay không hint |
-| Mastery/adaptation — phụ thuộc bối cảnh, tạm thời | Mục tiêu giới hạn, diagnostic, corrective instruction và reassessment. Rubric trước practice; không có universal 65/85% gate, completion không mastery | Low → sửa lỗi; cùng ngày độc lập → provisional; recall/transfer ngày sau → bằng chứng mạnh hơn. Lưu interval/task/hint và uncertainty |
+| [Dunlosky và cộng sự (2013)](https://iverson.cm.utexas.edu/courses/310M/Handouts/Dunlosky%20et%20al.%20-%202013%20-%20Improving%20Students%E2%80%99%20Learning%20With%20Effective%20Learni.pdf), publisher PDF lưu tại trường, HTTP 200 | Summary, retrieval implementation/assessment, spacing, cautions interleaving, utility table | Chọn section; không audit độc lập từng thí nghiệm gốc |
+| [Cepeda và cộng sự (2006)](https://escholarship.org/content/qt3rr6q10c/qt3rr6q10c_noSplash_2440ea21aa88b3b0722b0afa9171f88b.pdf), repo học thuật, HTTP 200 | Abstract, introduction, search/methods và coding khoảng cách | Author manuscript có thể khác bản cuối; chủ yếu verbal recall |
+| [Shute (2008)](https://myweb.fsu.edu/vshute/pdf/shute%202008_b.pdf), PDF tác giả, HTTP 200 | Abstract, introduction/method, guidelines và timing feedback | Một số phần của review có task/population đa dạng |
+| [Ericsson, Krampe và Tesch-Römer (1993)](https://blogs.ischool.berkeley.edu/i225s14/files/2014/04/Ericsson-1993-article.pdf), PDF tại trường, HTTP 200 | Định nghĩa practice, feedback/resources, thiết kế nhóm nhạc công | Expertise/âm nhạc, không là thử nghiệm đào tạo lập trình |
+| [Sweller, van Merriënboer và Paas (2019)](https://link.springer.com/article/10.1007/s10648-019-09465-5), full text publisher, HTTP 200 | Examples, split attention, expertise reversal và fading | Framework/review, đọc chọn lọc, không quy tắc phổ quát |
+| [Pashler và cộng sự (2007), IES/WWC](https://ies.ed.gov/ncee/WWC/Docs/PracticeGuide/20072004.pdf), HTTP 200 | Bảng evidence, scope và guidance spacing/examples/quizzing/explanations | Chính cho lớp 3–12, có bàn liên quan đại học; không thử agent tutoring |
+| [Rowland (2014)](https://pubmed.ncbi.nlm.nih.gov/25150680/), PubMed HTTP 200 | Abstract/meta-analysis và thư mục | Chưa đọc full methods/moderators |
+| [Brunmair và Richter (2019)](https://pubmed.ncbi.nlm.nih.gov/31556629/), PubMed HTTP 200 | Abstract meta-analysis interleaving | Chưa đọc full methods; web reader fail nhưng executor thành công |
+| [Macnamara, Hambrick và Oswald (2014)](https://pubmed.ncbi.nlm.nih.gov/24986855/), PubMed HTTP 200 | Abstract và notice corrigendum 2018 | Chưa đọc correction/full methods; không dùng claim định lượng |
+| [Atkinson và cộng sự (2000)](https://journals.sagepub.com/doi/10.3102/00346543070002181), publisher HTTP 403 | Chỉ metadata từ search | Không tính full text đã đọc; policy examples dùng nguồn truy cập được ở trên |
 
-## Văn liệu cần kiểm tra tiếp
+Browser service timeout ở publisher Dunlosky, trả 429/fetch fail với một số trang metadata. HTTPS từ executor qua proxy kế thừa sau đó lấy được bản học thuật/abstract. Log ghi riêng hai kết quả; không vượt giới hạn truy cập.
 
-Bản chính ghi rõ nguồn nào có bibliography trong PDF đã đọc và nguồn nào là candidate cần xác minh. DOI đã thử ngày 2026-10-05 nhưng không đọc được full text: Dunlosky et al. 2013 (broad review), Rowland 2014 (testing meta-analysis), Cepeda et al. 2006 (spacing quantitative synthesis), Brunmair & Richter 2019 (interleaving moderators), Bisra et al. 2018 (self-explanation meta-analysis), Atkinson et al. 2000 (worked-example review), Renkl et al. 2002 (fading experiment), Macnamara et al. 2014 (deliberate-practice meta-analysis), Shute 2008 (feedback review), Sweller 1988 (load), Sinha & Kapur 2021 (productive-failure meta-analysis), Kulik et al. 1990 (mastery meta-analysis). Ericsson 1993, *How People Learn* 2000 và *Education for Life and Work* 2012 có trong bibliography nhưng chưa fetch riêng.
+## Finding và lựa chọn dạy
 
-Các citation này không chứng minh đã đọc methods. Cần quyền truy cập học thuật để hoàn tất verification trước khi claim effect chính xác.
+Nghiên cứu hỗ trợ các nguyên tắc chung có giới hạn task/population. Cột cuối là **suy luận thiết kế của project**, không là intervention các paper đã thử.
 
-## Khuyến nghị đã triển khai
+| Phương pháp | Nguyên tắc và giới hạn | Hoạt động kỹ thuật |
+|---|---|---|
+| Retrieval | Review Dunlosky/abstract Rowland hỗ trợ retrieval thay vì chỉ restudy; learning/transfer phụ thuộc task | Tự tái dựng invariant/dự đoán output không notes, xem đáp án rồi sửa model |
+| Spacing | Synthesis Cepeda nối gap hữu ích với mục tiêu lưu giữ; không xác định mốc phổ quát | Trace lại ngày sau, ghi delay/hint thật, chỉnh prompt theo khó khăn quan sát |
+| Interleaving | Abstract Brunmair cho thấy phụ thuộc loại material; trộn tùy tiện không có căn cứ | Sau học ban đầu, so chiến lược liên quan và giải thích lựa chọn trước code |
+| Worked examples | Review Sweller nói lợi ích cho novice, tích hợp thông tin và giảm hỗ trợ theo expertise | Trace giải thích → điền phần còn thiếu → biến thể độc lập mới, giải thích cạnh code |
+| Luyện có mục đích/deliberate | Ericsson mô tả cải thiện đúng điểm yếu có theo dõi; abstract Macnamara cảnh báo giải thích expertise chỉ bằng practice | Tách kiểu bug đã thấy, tạo phản ví dụ nhỏ, sửa/thử case mới; code thường không là bằng chứng |
+| Feedback | Shute đề nghị sửa cụ thể theo task, timing tùy ngữ cảnh | So response thật với tiêu chí, giải thích lệch, hướng sửa và case mới |
+| Cognitive load | Sweller bàn tải từ phần tử tương tác/expertise; cảm giác effort không đo trực tiếp capacity | Bớt setup, ghép code/sơ đồ với giải thích, giảm scaffolding dư |
 
-1. Lifecycle và assessment có bằng chứng thay generation-as-progress; score/explanation chưa biết giữ null.
-2. Một core objective, cho review-only/prerequisite repair; time mode là heuristic sản phẩm.
-3. Ví dụ → lab → independent → transfer, hint tăng dần, lời giải tách mentor.
-4. Completion khác mastery; independent cùng ngày provisional. Ngày sau là tối thiểu quan sát của schema ngày, không phải retention horizon đủ về khoa học.
-5. Lịch ôn sau quan sát, giữ từng attempt và lý do đổi due. +1/+3/+7/+21 hay nhân đôi chỉ là heuristic tùy chọn; fail cần correction/retry phù hợp, success cân nhắc interval dài theo mục tiêu.
-6. Đo vài tuần bằng delayed performance, hint, recurrence, explanation và transfer với difficulty/delay. Trend trước/sau không chứng minh nhân quả vì workload/familiarity/topic là confounder.
-7. Stars chỉ metadata discovery; pin lát cắt implementation/test, ghi việc xác minh thật.
+IES guide độc lập nối spacing, worked solution/problem solving, retrieval và câu hỏi giải thích với khuyến nghị, nhưng mức evidence khác nhau. Không chứng nhận mọi phương pháp ngang nhau hay lịch tutor bảy giờ. Self-explanation dùng để xem suy luận; nói trôi chảy mà sai vẫn phải sửa. Transfer được thử rõ, không suy từ cùng test case.
 
-Xem [workflow](../references/learning-workflow.md), [bài mẫu](../lessons/boundary-search/lesson.md) và [review repo](repository-review.md).
+## Quyết định project, không là tối ưu khoa học
 
-Nguồn đọc thêm: [runtime review](runtime-design-review.md) ghi practice guide IES/WWC 2007 và evidence ratings. Candidate paper trước vẫn chưa full-text verified; đọc guide mới không thay việc đọc chúng.
+Theo yêu cầu, thiết kế **6–8 giờ tổng**, mặc định **420 phút = 360 học + 60 nghỉ**, **235 phút chủ động (65,3% phút học)**. Tối thiểu 60% phút học là kỹ thuật chủ động. Các số này phục vụ ưu tiên thực hành, có thể chỉnh lại. Review không tìm ra liều học/nghỉ/tỷ lệ tối ưu. Ngày có nhiều loại hoạt động và nghỉ, không tuyên bố bảy giờ deliberate practice liên tục là phù hợp.
+
+[Template](../references/lesson-template.md) xác định lịch: orient/retrieve 20; model/worked trace 50; nghỉ 10; source research 45; implementation trace 45; trưa 30; lab/debug 75; nghỉ 10; controlled experiment 45; nghỉ 10; transfer 35; tổng hợp 45. Đọc thụ động, xem, setup và nghỉ không tính active. Bridge self-check thay đào sâu; setup có fallback giới hạn; câu hỏi phụ dời sau. Thời gian ngắn yêu cầu rõ ghi đè default.
+
+Mỗi ngày một objective, outcome hỗ trợ nhỏ, câu hỏi research giới hạn, artifact tái hiện và checkpoint. Research tạo claim ledger; experiment ghi hypothesis, variable, controls, seed/cases, result/limits. Benchmark chỉ đúng workload/môi trường, không xếp implementation phổ quát.
+
+Bản EN/VI đầy đủ với objective, code, sources, lệnh, experiment/lời giải tương đương. Đường chỉ đọc và đáp án có ngay; không nộp vẫn học ngày mai. Tỷ lệ thực hành mô tả **đường full-day được cung cấp**, không ép người chọn đường chỉ đọc.
+
+## Contract kiến thức và evidence
+
+Tách background tự khai, evidence đã quan sát, unknown/unverified và misconception thật. Kinh nghiệm lập trình giúp chọn ví dụ, không là assessment thuật toán/toán. Agent tests kiểm artifact, không proficiency người học. Đọc/xem đáp án không tạo mastery/completion.
+
+Completion khác proficiency: schema v3 cần assessment đủ loại/cùng topic/đúng lifecycle. Tutor kiểm thêm **objective → task → rubric → evidence**, vì topic equality không chứng minh liên hệ. Ghi trợ giúp; đã xem đáp án thì đánh giá independent dùng biến thể mới. Completion có thể đi cùng needs_support. Repair cần evidence fresh/independent/non-exit phù hợp; lỗi gốc vẫn giữ.
+
+Independent cùng ngày là tạm thời. Recall không hint sau delay và transfer có ý nghĩa tăng confidence trong đúng phạm vi. Ngày sau chỉ là độ trễ tối thiểu quan sát, không là mastery bền vững. Lịch/độ khó là heuristic theo kết quả/retention goal, không mốc phổ quát.
+
+## Đánh giá thiết kế
+
+Theo dõi vài tuần: accuracy sau delay, giải thích, lệ thuộc hint, misconception lặp, performance đổi ngữ cảnh, với độ khó và delay thật. Ghi riêng setup, workload và mệt tự khai. Không gọi before/after không kiểm soát là nhân quả: quen task, workload, topic có thể giải thích trend.
+
+Tests repo kiểm state/linkage/privacy/tái hiện; review song ngữ kiểm parity; scenarios skill mô tả hành vi mong muốn. Tests kỹ thuật hay file scenario chưa chạy không chứng minh model tuân thủ hoặc người học tiến bộ. Claim giáo dục mạnh hơn cần outcome người học thật và thiết kế so sánh phù hợp.
+
+Contracts: [pedagogy](../references/pedagogy.md), [workflow](../references/learning-workflow.md), [source policy](../references/source-policy.md), [template](../references/lesson-template.md), [agent skill](../../skills/cs-daily-deep-study/SKILL.md), [ví dụ full-day](../lessons/2026-10-05-cost-model/lesson.md).

@@ -12,9 +12,13 @@ import urllib.error
 import urllib.request
 
 from playwright.async_api import async_playwright
+from add_lesson_navigation import page_path
 
 DEPLOYED_BASE = 'https://nguyenan97.github.io/computer-science-learning-agent/'
-ROUTES = ('lessons/2026-10-05-cost-model/lesson', 'vi/lessons/2026-10-05-cost-model/lesson')
+ROOT = Path(__file__).resolve().parents[1]
+LESSONS = json.loads((ROOT/'lessons/catalog.json').read_text(encoding='utf-8'))['lessons']
+ROUTES = [(index, lang, page_path(entry, lang).as_posix()[:-3])
+          for index, entry in enumerate(LESSONS) for lang in ('en', 'vi')]
 
 
 def fetch(url):
@@ -41,12 +45,18 @@ async def check(base, chromium):
             await route.fulfill(status=status,headers=headers,body=body)
         await page.route('https://**/*',verified_https)
 
-        assets=set(); documents=set(); language_switches=0
-        for route in ROUTES:
+        assets=set(); documents=set(); language_switches=0; neighbor_links=0
+        runtime_errors=[]
+        page.on('pageerror', lambda error: runtime_errors.append(str(error)))
+        async def wait_for_lesson(index, lang):
+            prefix=LESSONS[index]['title'][lang].split(' — ',1)[0]
+            await page.wait_for_function('(text) => document.querySelector(".markdown-section h1")?.textContent.includes(text)', arg=prefix)
+        for index, lang, route in ROUTES:
             await page.goto(base+'#/'+route,wait_until='networkidle')
-            await page.locator('.markdown-section h1').wait_for()
+            await wait_for_lesson(index,lang)
             assert 'Page not found' not in await page.locator('.markdown-section').inner_text()
-            assert 'C#' in await page.locator('.markdown-section h1').inner_text()
+            related='Nội dung liên quan' if lang=='vi' else 'Related reading'
+            await page.locator('.markdown-section h2').filter(has_text=related).wait_for()
             links=await page.locator('.markdown-section a').evaluate_all('(xs)=>xs.map(x=>({href:x.href,text:x.textContent}))')
             for link in links:
                 href=link['href']
@@ -62,23 +72,46 @@ async def check(base, chromium):
                     # build before publication; live mode uses the actual URL.
                     assets.add(base+href.removeprefix(DEPLOYED_BASE))
 
-            switch='English' if route.startswith('vi/') else 'Tiếng Việt'
+            # Exercise the actual bottom previous/next link, preserving language.
+            if len(LESSONS)>1:
+                forward=index<len(LESSONS)-1
+                target_index=index+1 if forward else index-1
+                label=('Bài sau:' if forward else 'Bài trước:') if lang=='vi' else ('Next:' if forward else 'Previous:')
+                neighbor=page.locator('.markdown-section a').filter(has_text=label)
+                assert await neighbor.count()==1, (route,label)
+                expected=base+'#/'+page_path(LESSONS[target_index],lang).as_posix()[:-3]
+                assert await neighbor.evaluate('(a)=>a.href')==expected
+                await neighbor.click()
+                await wait_for_lesson(target_index,lang)
+                neighbor_links+=1
+                await page.goto(base+'#/'+route,wait_until='networkidle')
+                await wait_for_lesson(index,lang)
+
+            switch='English' if lang=='vi' else 'Tiếng Việt'
             await page.locator('.markdown-section a').filter(has_text=switch).first.click()
-            await page.wait_for_function('(text) => document.querySelector(".markdown-section h1")?.textContent.includes(text)',
-                                         arg='Lesson 01' if switch=='English' else 'Bài 01')
+            await wait_for_lesson(index,'en' if lang=='vi' else 'vi')
             language_switches+=1
 
         for href in sorted(documents):
             await page.goto(href,wait_until='networkidle')
             content=await page.locator('.markdown-section').inner_text()
             assert content and 'Page not found' not in content, href
+            # Optional lab guides expose individual source downloads. Check those
+            # assets as well as the complete ZIP linked directly from the lesson.
+            for asset in await page.locator('.markdown-section a').evaluate_all('(xs)=>xs.map(x=>x.href)'):
+                if asset.startswith(base) and not urlsplit(asset).fragment:
+                    assets.add(asset)
+                elif asset.startswith(DEPLOYED_BASE) and not urlsplit(asset).fragment:
+                    assets.add(base+asset.removeprefix(DEPLOYED_BASE))
         for href in sorted(assets):
             status,_,body=await asyncio.to_thread(fetch,href)
             assert status==200 and body, (href,status)
             assert not body.lstrip().startswith(b'<!DOCTYPE html>'), href
         assert any(href.endswith('dotnet-lab.zip') for href in assets)
         assert any(href.endswith('Deduplication.cs') for href in assets)
+        assert not runtime_errors, runtime_errors
         print(json.dumps({'lesson_pages':len(ROUTES),'language_switches':language_switches,
+                          'previous_next_clicks':neighbor_links,'runtime_errors':runtime_errors,
                           'internal_document_links':len(documents),'asset_links':len(assets),
                           'tls_verification':True,'base':base}))
         await browser.close()

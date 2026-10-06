@@ -1,19 +1,19 @@
-# Review repo trước refactor
+# Review repo — học sâu theo chủ đề
 
-Ngày 2026-10-05, baseline `fd054f6`, working tree sạch; không có AGENTS.md trong repo. Đã đọc SKILL, curriculum Anh–Việt, references/ledgers, generator, navigation validator, Docsify và ba CI workflow. [Bản chính](../../research/repository-review.md).
+Review 2026-10-06 trên baseline `fe74583`; không có AGENTS.md trong repo. Phạm vi gồm runtime/state cục bộ, phương pháp có nguồn, bài học song ngữ, navigation, staging và cấu hình release. Đây không phải thí nghiệm người học hay audit bảo mật toàn diện.
 
-Điểm mạnh: curriculum facts canonical và map generated ghi nhãn suy luận; vòng học đã có retrieval/practice/transfer/hint; source policy không chỉ dùng stars; CI kiểm tra navigation song ngữ và map drift.
+## Lỗi cụ thể và sửa đổi
 
-| Khoảng trống | Hệ quả | Đã sửa |
-|---|---|---|
-| SKILL lặp policy/contract/ngưỡng điểm | Drift và mâu thuẫn | SKILL điều phối, reference sở hữu contract |
-| Hai ledger đều gọi canonical | Tách lịch sử | Một JSON, hai trang chỉ dẫn |
-| Ghi record khi tạo bài, không lifecycle | Sinh bài có thể bị hiểu đã học | generated/assigned/in_progress/completed có evidence |
-| Thiếu task/hint/misconception/history ôn | Khó chứng minh adaptation/mastery | Assessment và review attempts có lịch sử |
-| Due từ generation | Lịch tách lần thực hành | Sau completion, giữ due cũ và reason đổi |
-| Giả định trình độ cao, ratio/gate/năm cố định | Quá tải, heuristic như khoa học | Diagnostic, mode theo thời gian, rubric/evidence và verify lúc học |
-| Github chưa có dossier tái lập | Link cũ, quá rộng, không pin | Metadata có ngày, SHA, target/activity/unknown |
-| Lab chung chưa runnable | Không có kiểm chứng workflow | Starter, checkpoint, independent challenge và mentor solution |
-| CI chỉ nav/map | State sai vẫn qua | Schema/semantic check, scenario tests, lesson gate và CI |
+- Pages trước đây có thể deploy khi workflow validation khác thất bại. Nay gọi reusable validation và deploy phụ thuộc thành công của job đó. Cả hai checkout `github.sha`; chỉ main được publish. Release phải pass check PR trước merge; main chạy lại validation trước khi deploy cùng commit.
+- Completion từng chấp nhận assessment của topic không liên quan chỉ vì link cùng lesson. Nay cần task cùng topic, loại hợp lệ, đã quan sát không muộn hơn completion. Prerequisite topic khác vẫn lưu được. Người chấm phải đọc evidence để xác định khớp objective/rubric và nguồn gốc bài làm; match chuỗi không chứng minh được ngữ nghĩa.
+- CDN major tag có thể đổi ngoài commit. Docsify/Prism nay dùng URL version đầy đủ. Browser check kiểm tra candidate đã stage; khả dụng CDN vẫn là dependency bên ngoài.
 
-Không sửa fact curriculum/generated map, không thêm database/backend, không deploy/publish. State thật giữ trống; không bịa lịch sử. Ledger cũ không có record để migrate. Nếu sau này import record cũ thiếu status, giữ artifact, tạo generated/unassessed và yêu cầu bằng chứng attempt/completion trước khi nâng trạng thái.
+## Thiết kế mới
+
+State v3 bỏ metadata mã môn. Migrate v1/v2 chỉ ghi đích mới, giữ nguồn/evidence và từ chối completion cũ không đủ evidence mà không bịa quan sát. Planner tách context tự khai, flag caller, evidence đã chấm, bài chưa chấm, prerequisite unknown và misconception đã ghi nhận. Profile ngân sách null mặc định 420 phút gồm nghỉ; ngân sách ngắn hơn do người học chỉ định vẫn hợp lệ.
+
+Danh mục chủ đề song ngữ thay phần quản lý học thuật. Đề cương kỹ thuật giữ lại làm ghi chú đọc có [attribution](content-provenance.md), bản gốc còn trong snapshot lịch sử cố định. [Skill mới](../../skills/cs-daily-deep-study/SKILL.md), contract và bài mẫu full-day ưu tiên thực hành kiểm soát, research tập trung và nộp evidence tùy chọn.
+
+## Giới hạn review
+
+JSON validator kiểm tra cấu trúc, không chứng minh lời đáp thật hay dịch đúng ngữ nghĩa. Quan hệ chủ đề, ngân sách thời gian và nhãn mastery là lựa chọn kỹ thuật thận trọng, chưa phải mô hình giáo dục được thực nghiệm. [Kiểm chứng](verification.md) báo check thật và giới hạn. [Review learning science](learning-science-review.md) tách phần full text đã đọc, abstract và nguồn chưa truy cập.

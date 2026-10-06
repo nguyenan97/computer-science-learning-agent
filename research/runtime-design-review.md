@@ -1,3 +1,5 @@
+> Historical design review from 2026-10-05. Current full-day skill, state v3 and checks are described in [repository review](repository-review.md) and [verification](verification.md).
+
 # Runtime and skill design review
 
 Checked 2026-10-05. Scope: repair concrete runtime defects and define an interactive,
@@ -53,5 +55,3 @@ A seven-day synthetic CLI walkthrough tests state transitions and scheduling,
 not whether a learner retained CS knowledge. Controlled repeated with/without-skill
 model evaluations and real learner trials remain future work. No speed/token or
 learning improvement numbers are inferred from this refactor.
-
-Follow-up preference update: daily delivery now includes complete Vietnamese/English versions, optional exercises with accessible solutions, 90-minute default and optional 180+ minute depth. No submission gate for a new lesson. Assessment still requires actual evidence. Seven evaluation specifications are defined; no model benchmark claimed.

@@ -1,26 +1,19 @@
-# Repository review before refactor
+# Repository review — topic-based deep study
 
-Reviewed 2026-10-05, baseline commit `fd054f6`. Working tree was clean. No repository AGENTS.md was found. Read the skill, both curricula and translations, all references/ledgers, map generator, navigation validator, Docsify configuration and three CI workflows.
+Reviewed 2026-10-06 against baseline `fe74583`. No repository AGENTS.md was present. Scope covers local runtime/state, source-backed pedagogy, bilingual lesson artifacts, navigation, staging and release configuration. This is not a learner experiment or a full security audit.
 
-## Strengths
+## Concrete defects and repairs
 
-- Curriculum facts are canonical in English; the generator extracts explicit relationships and labels instructional synthesis separately. Preserve this boundary and the original curriculum years.
-- The learning loop already emphasizes retrieval, practical exercises, explain-back, transfer and gradual hints.
-- Source policy recognizes primary docs, theory, maintenance and implementation/tests rather than stars alone.
-- Bilingual navigation and generated-map drift already have checks in CI.
+- The Pages workflow could deploy while validation failed in a separate workflow. It now calls the reusable validation workflow and makes deployment depend on its success. Both check out `github.sha`; publication is restricted to `main`. The release must pass PR checks before merge; main then runs validation again before deploying the same commit.
+- Completion accepted an assessment linked to the lesson but for an unrelated topic. The runtime now requires a qualifying same-topic task observed by completion. Other-topic prerequisites remain recordable. Semantic objective/rubric relevance and learner provenance require the assessor to inspect actual evidence; string matching cannot prove them.
+- CDN major tags could change without a repository commit. Docsify and Prism now use exact version URLs. Browser verification checks the staged candidate, while CDN availability is still an external dependency.
 
-## Gaps and consequences
+## Design changes
 
-| Before | Consequence | Change |
-|---|---|---|
-| Skill repeats source policy, pedagogy, output shape and fixed scoring gates | Multiple conflicting policy owners; long skill can drift | Slim dispatch skill; references own specific contracts |
-| English and Vietnamese ledgers both call themselves canonical | Potential split history | One versioned JSON state; bilingual ledger pages are pointers |
-| Append record at lesson generation; no lifecycle | Produced content can appear learned/completed | Generated → assigned → in_progress → completed; evidence required |
-| Score is null but no assessment context/hints or review history | Cannot justify mastery or adapt reliably | Append assessment evidence, rubric basis, hints, misconceptions and review attempts |
-| Review dates attached at generation | Dates are detached from attempts; overdue handling unspecified | Reviews follow completion, every rescheduling preserves prior due and observation |
-| Default graduate skill assumption, fixed time/score gates and hard-coded update year | Unknown learners receive too much; heuristic looks scientific | Diagnostic start, bounded modes, rubric-based adaptation and verification at lesson time |
-| Github “high-signal” preference without a repeatable dossier | Links may be stale, unpinned or too large to study | Dated metadata, explicit targets, commit pin, quality/adoption uncertainty |
-| Generic lab outline, no runnable example | No proof workflow can produce reproducible practice | Tested deterministic lab with independent starter, checkpoint tests and mentor solution |
-| CI checks navigation/map only | State/evidence errors can pass | Schema + semantic validator, scenario tests, lesson contract checks and CI |
+State v3 removes legacy course metadata. Migration accepts v1/v2 only into a fresh destination, preserves the source/evidence and refuses unsupported legacy completion without inventing observations. Planner separates self-reported context, caller flags, assessed evidence, unassessed work, unknown prerequisites and recorded misconceptions. Null profile budgets default to 420 elapsed minutes, including breaks; explicit shorter budgets remain valid.
 
-No curriculum facts were rewritten; generated maps remain unchanged. No database, backend, deployment or publication was added. Reported research access limits are in the learning-science review. State is intentionally empty; no past work was fabricated. There were no existing LESSON_RECORD entries to migrate. For future legacy imports, unknown status is not completion: preserve old records as artifacts, create generated/unassessed entries, and ask for actual attempt/completion evidence before upgrading them.
+The canonical bilingual topic inventory replaces academic administration. Substantive technical outlines remain as reading notes with [attribution](content-provenance.md); prior originals remain in the fixed historical snapshot. The renamed [skill](../skills/cs-daily-deep-study/SKILL.md), owned contracts and full-day sample emphasize controlled practical work, focused research and optional evidence submission.
+
+## Review limits
+
+The JSON validator verifies structural invariants, not truth of a learner response or semantic translation equivalence. Topic relationships, time allocation and mastery labels are conservative engineering choices, not experimentally validated educational models. [Verification](verification.md) reports checks actually executed and outstanding limits. [Learning-science review](learning-science-review.md) distinguishes read full-text sections, abstracts and inaccessible sources.

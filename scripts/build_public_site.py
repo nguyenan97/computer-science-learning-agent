@@ -16,6 +16,8 @@ PUBLIC_FILES = (
     'references/topic-map.md', 'references/topic-notes.md', 'references/topics.json',
     'vi/references/topic-map.md', 'vi/references/topic-notes.md', 'lessons/catalog.json',
     'docs/content-provenance.md', 'vi/docs/content-provenance.md',
+    'docs/licensing.md', 'vi/docs/licensing.md', 'LICENSE', 'LICENSES/MIT.txt', 'LICENSES/CC-BY-4.0.txt',
+    'references/study-profile.json',
     'vendor/README.md', 'vendor/manifest.json',
     'vendor/docsify-4.13.1/vue.css', 'vendor/docsify-4.13.1/docsify.min.js',
     'vendor/docsify-4.13.1/search.min.js', 'vendor/docsify-4.13.1/LICENSE',

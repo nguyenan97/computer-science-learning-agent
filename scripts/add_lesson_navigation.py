@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generate lesson footers, bilingual sidebars and home lists from the catalog."""
 import argparse
+from generate_topic_map import generate as generate_map
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -175,6 +176,8 @@ def generate(root, check=False):
                 raise ValueError(f'generated navigation cannot use symlinks: {path}')
             old = path.read_text(encoding='utf-8') if path.exists() else ''
             outputs.append((path, old, transform(old, entries, lang)))
+    if (root / "references/topics.json").is_file():
+        generate_map(root, check=check)
     if check:
         stale = [str(path.relative_to(root)) for path, old, new in outputs if old != new]
         if stale:

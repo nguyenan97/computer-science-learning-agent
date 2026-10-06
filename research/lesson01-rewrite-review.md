@@ -1,3 +1,6 @@
+> Historical review. Its former personal-progress tools have been removed.
+> Current workflow: [Maintaining](../docs/maintaining.md).
+
 > Historical review of the 2026-10-05 rewrite; current behavior and checks are in [verification](verification.md).
 
 # Lesson 01 review and rewrite — 2026-10-05

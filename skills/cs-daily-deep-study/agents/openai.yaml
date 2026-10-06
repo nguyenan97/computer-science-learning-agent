@@ -1,4 +1,4 @@
 interface:
   display_name: "Daily Computer Science Deep Study"
   short_description: "Practical bilingual CS research, experiments and review"
-  default_prompt: "Use $cs-daily-deep-study and its lesson spec to write today's complete English and Vietnamese Computer Science lesson. Select one objective from the catalog and topic map, include catalog-based recall, a runnable C# or T-SQL lab and immediately accessible worked answers, then check the artifacts and open a PR. Exercises are optional. Retain no learner records and do not merge without an explicit instruction."
+  default_prompt: "Use $cs-daily-deep-study and its lesson spec to write today's complete English and Vietnamese Computer Science lesson. Run daily_plan.py to select an eligible IUH master-then-doctoral objective in Asia/Ho_Chi_Minh, use its build or paper schedule and catalog recall, include appropriate C# or T-SQL work and immediately accessible worked answers, then check the artifacts and open a PR. Exercises are optional. Retain no learner records and do not merge without an explicit instruction."

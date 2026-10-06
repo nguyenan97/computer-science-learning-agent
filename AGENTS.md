@@ -1,26 +1,28 @@
 # Working in this repository
 
-Use the repository [cs-daily-deep-study skill](skills/cs-daily-deep-study/SKILL.md) when
-the learner requests today's/next lesson, “bài hôm nay”, research, recall or tutoring.
-Read its single [lesson spec](references/lesson-spec.md) before authoring.
-Codex discovery is provided by `.agents/skills/cs-daily-deep-study`, a symlink to the
-canonical skill; edit the canonical files rather than making a second copy.
+Use the canonical [cs-daily-deep-study skill](skills/cs-daily-deep-study/SKILL.md)
+for today's/next lesson, “bài hôm nay”, paper study and tutoring. Read its single
+[lesson spec](references/lesson-spec.md). `.agents/skills/cs-daily-deep-study`
+links to that same skill; never maintain a second copy.
 
-The learner uses Codex, reads public GitHub Pages lessons and requests each day
-manually. Reuse the .NET/data context and full-day research preference. The goal is
-progressively deeper graduate-level reasoning, without claims of degrees or mastery.
-Do not create learner state, progress logs or scheduled runs. Public catalog dates
-drive recall even if the learner skips a day.
+The learner uses Codex cloud and self-studies from IUH master (2020) and doctoral
+(2022) course-name outlines. The planner counts public lesson artifacts, rather than
+learner knowledge. Save no answers, scores, progress logs or automatic schedules.
 
-Keep English and Vietnamese lessons complete, with answers immediately available.
-Use C# by default and T-SQL for data work; an essential Python ecosystem needs a
-concrete bridge to C#. Keep generic lessons/labs public and personal content untracked.
+Run `python scripts/daily_plan.py` before selection. The date is the learner's study
+date in Asia/Ho_Chi_Minh, or an explicitly requested date. The public inventory selects
+an uncovered master topic with covered prerequisites before doctoral topics. Reuse
+an existing same-day lesson. The budget and build/paper blocks live in the study profile.
 
-In a fresh session without the SDK or Python dependencies, run
-`bash scripts/setup_environment.sh` before validation. After adding catalog content, run `python scripts/add_lesson_navigation.py` and
-`work/venv/bin/python scripts/check_all.py` after setup. The catalog is the source for navigation, public build,
-ZIP downloads and runnable labs. Use `work/` for intermediate checks.
+Write complete EN/VI explanations and immediately accessible worked answers.
+Use C# by default, T-SQL for data, and a C# bridge for essential Python ecosystems.
 
-A daily-lesson request authorizes a PR. Merge or push to main only when explicitly
-instructed. A successful local check does not establish a live Pages deployment.
-For environment setup and verification, see [Maintaining](docs/maintaining.md).
+After editing the catalog, run `python scripts/add_lesson_navigation.py` to regenerate
+navigation and coverage. Run `python scripts/check_all.py`; this command automatically
+runs `scripts/setup_environment.sh` when a fresh session lacks Python dependencies or
+.NET. Build labs only in temporary copies. Use `work/` for intermediate files.
+
+“Bài hôm nay” authorizes public files and a PR. The learner normally merges; an explicit
+request to merge authorizes that action for the current work. Verify CI and Pages.
+Original prose uses CC BY 4.0, original code MIT; preserve third-party attribution.
+See [Maintaining](docs/maintaining.md) for implementation and verification commands.

@@ -1,9 +1,0 @@
-PASS stable order and unchanged input
-PASS empty, singleton and repeated input
-PASS ordinal identity and explicit alternative comparer
-PASS null policy
-PASS triangular count and repeated-ID count
-PASS hash path avoids a membership scan on this workload
-PASS forced collisions preserve correctness and expose quadratic work
-PASS duplicate counts and first-occurrence order
-8 checks passed; reference-code verification, not learner mastery.

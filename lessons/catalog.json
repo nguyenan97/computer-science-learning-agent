@@ -116,7 +116,12 @@
             "vi": "Chi phí hash/so sánh key có giới hạn, phân bố hash phù hợp và resize phân tích khấu hao hỗ trợ O(n) kỳ vọng; collision bất lợi có thể tăng số so sánh. Benchmark tổng hợp đo workload và môi trường đã chọn, không đo hàng đợi production, phân bố key, bộ nhớ đỉnh hay độ trễ request."
           }
         }
-      ]
+      ],
+      "topic_ids": [
+        "foundations.program-reasoning",
+        "advanced-algorithms.cost-model-membership.l1"
+      ],
+      "day_type": "build"
     },
     {
       "id": "boundary-search",
@@ -234,7 +239,11 @@
             "vi": "Nếu r<0, vị trí chèn là ~r, không phải -r. Khi tìm thấy, Array.BinarySearch/List<T>.BinarySearch có thể trả bất kỳ vị trí khớp nào, nên dùng lower_bound rõ ràng để lấy phần tử trùng đầu tiên hoặc đếm chính xác [start,end). Input phải được sắp theo cùng comparer."
           }
         }
-      ]
+      ],
+      "topic_ids": [
+        "advanced-algorithms.boundary-search.l1"
+      ],
+      "day_type": "build"
     }
   ]
 }

@@ -16,6 +16,14 @@ spec.loader.exec_module(checker)
 
 
 class CatalogLabChecks(unittest.TestCase):
+    def test_bootstrap_checks_pinned_sdk_even_when_dotnet_exists(self):
+        with patch.object(checker.shutil, 'which', return_value='/usr/bin/dotnet'), \
+                patch.object(checker.subprocess, 'run') as run:
+            run.return_value.stdout = '8.0.400 [/usr/share/dotnet/sdk]\n'
+            self.assertFalse(checker.sdk_ready({}))
+            run.return_value.stdout += '10.0.401 [/usr/share/dotnet/sdk]\n'
+            self.assertTrue(checker.sdk_ready({}))
+
     def test_csharp_archive_runs_same_check_and_builds_optional_projects(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

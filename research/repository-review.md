@@ -1,3 +1,6 @@
+> Historical review. Its former personal-progress tools have been removed.
+> Current workflow: [Maintaining](../docs/maintaining.md).
+
 # Repository review — topic-based deep study
 
 Reviewed 2026-10-06 against baseline `fe74583`. No repository AGENTS.md was present. Scope covers local runtime/state, source-backed pedagogy, bilingual lesson artifacts, navigation, staging and release configuration. This is not a learner experiment or a full security audit.

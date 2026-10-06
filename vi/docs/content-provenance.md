@@ -1,21 +1,25 @@
 # Nguồn nội dung và ghi nhận tác giả
 
-Các đề mục kỹ thuật trong [ghi chú theo chủ đề](../references/topic-notes.md)
-được điều chỉnh từ ghi chú rút gọn trước đây của Khoa Công nghệ Thông tin,
-Trường Đại học Công nghiệp Thành phố Hồ Chí Minh: *Outline of Master Program in
-Computer Science* (2020) và *PhD Program in Computer Science* (tháng 10 năm 2022).
+Lộ trình tự học bám danh sách tên học phần của Trường Đại học Công nghiệp Thành phố
+Hồ Chí Minh (IUH), *Outline of Master Program in Computer Science* (2020) và
+*PhD Program in Computer Science* (tháng 10/2022). Danh sách đã được đối chiếu với
+bảng rút gọn lịch sử trong repo tại commit
+`fe7458371a480a7ac24b0537dded59367087a7ec`; PDF gốc chưa được kiểm chứng lại độc lập.
+Không khẳng định quy định tuyển sinh, tín chỉ hay tốt nghiệp hiện hành.
 
-Thông tin này mô tả nguồn gốc nội dung. Nó không xác nhận sự bảo trợ, quyền phân phối
-lại tài liệu gốc hay yêu cầu bằng cấp hiện hành. Các PDF gốc chưa được kiểm chứng lại
-độc lập. Bản trích xuất lịch sử vẫn có trong lịch sử Git công khai; thay đổi này không
-xóa lịch sử đó.
+[Danh sách học phần](../references/topic-notes.md) giữ tên và mã mang tính dữ kiện,
+gồm cả tên học phần tự chọn. Câu hỏi tự học do project viết mới. Đã bỏ mô tả adapt
+đề cương khỏi ghi chú tiếng Anh và tiếng Việt đang dùng.
+[Mục tiêu và prerequisite](../references/topic-map.md) do project thiết kế,
+không phải quy tắc prerequisite chính thức của IUH.
 
-[Bản đồ chủ đề](../references/topic-map.md), các bài học và lab thực hành là tài liệu
-tự học của project này. Nhận định kỹ thuật dẫn nguồn chính liên quan ngay trên trang
-bài học. Các bài hỗ trợ tự học có chiều sâu và chuẩn bị nghiên cứu; hoàn thành chúng
-không cấp bằng thạc sĩ hay tiến sĩ.
+Độ phủ đo bài đã xuất bản cho các mục tiêu tự học đã hoạch định; không ghi nhận việc
+tham gia học hay mức nắm vững. Chuẩn bị nghiên cứu tiến sĩ gồm phản biện paper,
+reproduce, đặt câu hỏi mới và viết; công bố và luận án cần nghiên cứu thật ngoài việc
+được giao bài hằng ngày. Repo không cấp bằng và không tuyên bố được IUH bảo trợ.
 
-Project chưa chọn giấy phép. Nội dung bên thứ ba giữ thông tin tác giả và điều khoản
-giấy phép riêng.
+Văn bản gốc dùng CC BY 4.0, code gốc dùng MIT; xem [giấy phép](licensing.md).
+Không cấp lại giấy phép cho tài liệu nguồn hay bản trích xuất lịch sử. Không viết lại
+lịch sử Git. Các bài kỹ thuật giữ dẫn nguồn chính riêng.
 
 [English](../../docs/content-provenance.md)

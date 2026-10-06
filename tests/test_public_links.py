@@ -1,5 +1,6 @@
 """Regression checks for catalog publication, download URLs and source archives."""
 import importlib.util
+import sys
 import json
 from pathlib import Path
 import shutil
@@ -9,6 +10,7 @@ from urllib.parse import urljoin
 from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'scripts'))
 spec = importlib.util.spec_from_file_location('site_builder', ROOT / 'scripts/build_public_site.py')
 builder = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(builder)
@@ -102,7 +104,7 @@ class PublishedLinksTests(unittest.TestCase):
             self.assertFalse((site / 'research').exists())
             self.assertFalse((site / 'vi/research').exists())
             self.assertEqual({path.name for path in (site / 'references').iterdir()},
-                             {'topic-map.md', 'topic-notes.md', 'topics.json'})
+                             {'topic-map.md', 'topic-notes.md', 'topics.json', 'study-profile.json'})
             self.assertFalse(any(path.name.startswith('agent-') for path in site.rglob('*')))
 
     def test_new_lesson_requires_only_catalog_and_new_assets(self):
@@ -113,6 +115,7 @@ class PublishedLinksTests(unittest.TestCase):
             catalog = json.loads(catalog_path.read_text())
             entry = {
                 'id': 'synthetic-third', 'date': '2026-10-07',
+                'topic_ids': ['algorithms.graphs'], 'day_type': 'build',
                 'title': {'en': 'Lesson 03 — Synthetic source lab', 'vi': 'Bài 03 — Lab nguồn giả lập'},
                 'files': ['lessons/synthetic-third/lesson.md', 'vi/lessons/synthetic-third/lesson.md',
                           'labs/synthetic-third/dotnet/README.md', 'labs/synthetic-third/dotnet/Program.cs'],

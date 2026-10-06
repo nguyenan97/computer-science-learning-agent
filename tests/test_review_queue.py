@@ -11,6 +11,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'scripts'))
 SCRIPT = ROOT / 'scripts/review_queue.py'
 spec = importlib.util.spec_from_file_location('review_queue', SCRIPT)
 review_queue = importlib.util.module_from_spec(spec)
@@ -42,7 +43,7 @@ class ReviewQueueTests(unittest.TestCase):
         self.assertTrue(all(row['overdue_days'] == 0 for row in queue['reviews']))
         self.assertEqual([row['recall_id'] for row in queue['reviews']],
                          ['question-1', 'question-2', 'question-3'])
-        self.assertEqual(queue['timezone'], 'Asia/Bangkok')
+        self.assertEqual(queue['timezone'], 'Asia/Ho_Chi_Minh')
 
     def test_calendar_rotation_keeps_day_21_from_starving_under_three_question_limit(self):
         older_intervals = set()

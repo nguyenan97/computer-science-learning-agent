@@ -53,7 +53,9 @@ Provide a full EN and VI version with identical objectives, code, sources, comma
 
 Keep self-reported background, actual observed evidence, unknown/unverified knowledge and observed misconceptions distinct. A programming career can guide examples but is not an assessment of algorithms or mathematics. Agent tests verify artifacts, never learner proficiency. Reading/answer viewing does not generate mastery or completion.
 
-Completion is separate from proficiency: schema v3 requires a qualifying lifecycle-valid assessment on the same topic. The tutor additionally checks **objective → task → rubric → evidence** alignment, which topic equality cannot establish. Assistance is recorded; a solution already shown requires a fresh unseen variation for any later independent assessment. Completion can coexist with needs_support. Repair links need relevant fresh independent non-exit evidence; original errors remain available.
+The current workflow retains no learner outcomes. Discuss voluntary feedback in the
+current chat and use a fresh example after an answer has been viewed. Catalog coverage
+records publication only; a delivered prompt is not a performed review.
 
 Same-day independent performance is provisional. Delayed unaided recall and meaningful changed-context transfer strengthen confidence only within their scope. One later calendar date is a minimal observable delay, not proof of lasting mastery. Review dates and difficulty choices are heuristics based on observed results and retention goals, not fixed universal schedules.
 
@@ -61,6 +63,6 @@ Same-day independent performance is provisional. Delayed unaided recall and mean
 
 Over weeks, compare delayed accuracy, explanation quality, hint dependence, repeated misconceptions and changed-context performance, recording task difficulty and actual delays. Track setup time, workload and self-reported fatigue separately. Do not label uncontrolled before/after improvement causal: familiarity, workload and topic difficulty can explain trends.
 
-Repository tests verify state/linkage/privacy and reproducibility; bilingual review checks content parity; skill scenarios specify desired behavior. Neither technical tests nor unexecuted scenario files establish that the model follows the skill or that learners improve. A stronger educational claim would require actual learner outcomes and a suitable comparison design.
+Repository tests verify catalog planning, publication isolation and reproducibility; bilingual review checks content parity; skill scenarios specify desired behavior. Neither technical tests nor unexecuted scenario files establish that the model follows the skill or that learners improve. A stronger educational claim would require actual learner outcomes and a suitable comparison design.
 
 Implemented contracts: [pedagogy](../references/pedagogy.md), [workflow](../references/learning-workflow.md), [source policy](../references/source-policy.md), [template](../references/lesson-template.md), [agent skill](../skills/cs-daily-deep-study/SKILL.md) and [full-day example](../lessons/2026-10-05-cost-model/lesson.md).

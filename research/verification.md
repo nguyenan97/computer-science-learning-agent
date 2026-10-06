@@ -1,3 +1,6 @@
+> Historical review. Its former personal-progress tools have been removed.
+> Current workflow: [Maintaining](../docs/maintaining.md).
+
 # Verification — topic-based full-day study
 
 This record documents local pre-merge checks on 2026-10-06, based on `fe74583`. Release workflow and deployment status are recorded separately in GitHub Actions. No real private learner state was read, migrated or modified; state cases use synthetic temporary workspaces.

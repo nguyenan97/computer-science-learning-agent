@@ -1,11 +1,13 @@
 """Protect bilingual reader navigation as catalog entries are added or reordered."""
 import importlib.util
+import sys
 import json
 from pathlib import Path
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'scripts'))
 spec = importlib.util.spec_from_file_location('navigation', ROOT / 'scripts/add_lesson_navigation.py')
 navigation = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(navigation)

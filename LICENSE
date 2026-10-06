@@ -1,0 +1,21 @@
+Project licensing
+
+Original project prose, lesson explanations and original study questions:
+Creative Commons Attribution 4.0 International (CC-BY-4.0).
+Full terms: LICENSES/CC-BY-4.0.txt
+https://creativecommons.org/licenses/by/4.0/
+
+Original project software, configuration, tests and code examples (including
+code snippets inside lessons): MIT.
+Full terms: LICENSES/MIT.txt
+
+For attribution, credit computer-science-learning-agent contributors and link
+to https://github.com/nguyenan97/computer-science-learning-agent. Identify changes
+and retain existing source citations.
+
+Third-party code, quotations and assets keep their own licenses and attribution.
+In particular vendor/ retains its upstream license files. These project grants
+cover only rights held by project contributors: they do not relicense cited
+papers, IUH source documents or historical syllabus extracts in earlier commits.
+Course names/codes and source references identify the self-study map; they are
+not a grant to redistribute the underlying institutional documents.

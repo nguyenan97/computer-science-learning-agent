@@ -10,7 +10,10 @@ import yaml
 
 from add_lesson_navigation import validate_catalog as validate_navigation
 from build_public_site import build
-from learning_state import ROOT, TEMPLATE, validate
+from generate_topic_map import covered_topics
+from study_profile import load_profile
+
+ROOT = Path(__file__).resolve().parents[1]
 from review_queue import validate_catalog as validate_recall
 
 EXCLUDED = {'.git', '.agents', '.learning-private', '.site-build', '.venv', 'work',
@@ -40,16 +43,6 @@ def validate_private_isolation():
     tracked = subprocess.run(['git', 'ls-files', '--', '.learning-private'], cwd=ROOT,
                              check=True, capture_output=True, text=True)
     if tracked.stdout.strip(): raise ValueError('private learner workspace must not be tracked by Git')
-    state = json.loads(TEMPLATE.read_text(encoding='utf-8'))
-    validate(state)
-    if any(state[key] for key in ('lessons', 'assessments', 'reviews')):
-        raise ValueError('legacy public initialization template must remain empty')
-    if state['learner'] != {'timezone': 'Asia/Bangkok', 'daily_minutes': None, 'goals': [], 'background': None}:
-        raise ValueError('public template must not contain a real learner profile')
-    for path in (ROOT / 'tests/fixtures').glob('*.json'):
-        fixture = json.loads(path.read_text(encoding='utf-8'))
-        if fixture.get('fixture') is not True: raise ValueError(f'{path}: fixture marker missing')
-        validate(fixture, allow_fixture=True)
 
 
 def markdown_links(text):
@@ -84,6 +77,8 @@ def main():
         entries = json.loads((ROOT / 'lessons/catalog.json').read_text(encoding='utf-8'))['lessons']
         validate_navigation(ROOT, entries)
         validate_recall(entries)
+        covered_topics(json.loads((ROOT / "references/topics.json").read_text(encoding="utf-8")), entries)
+        load_profile()
         validate_links()
         with tempfile.TemporaryDirectory(prefix='public-validation-') as directory:
             count = build(ROOT, Path(directory) / 'site')

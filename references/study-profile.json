@@ -1,0 +1,230 @@
+{
+  "timezone": "Asia/Ho_Chi_Minh",
+  "daily_minutes": 420,
+  "day_types": {
+    "build": {
+      "blocks": [
+        {
+          "id": "recall",
+          "minutes": 20,
+          "break": false,
+          "output": {
+            "en": "Recall a previous mechanism and check the answer.",
+            "vi": "Nhớ lại cơ chế đã học rồi đối chiếu đáp án."
+          }
+        },
+        {
+          "id": "foundation",
+          "minutes": 50,
+          "break": false,
+          "output": {
+            "en": "Annotate a worked trace and state an invariant.",
+            "vi": "Chú thích trace có lời giải và nêu bất biến."
+          }
+        },
+        {
+          "id": "break",
+          "minutes": 10,
+          "break": true,
+          "output": {
+            "en": "Rest away from the screen.",
+            "vi": "Nghỉ, rời màn hình."
+          }
+        },
+        {
+          "id": "sources",
+          "minutes": 45,
+          "break": false,
+          "output": {
+            "en": "Answer bounded source questions with a claim ledger.",
+            "vi": "Trả lời câu hỏi nguồn có giới hạn bằng bảng nhận định và bằng chứng."
+          }
+        },
+        {
+          "id": "implementation-reading",
+          "minutes": 45,
+          "break": false,
+          "output": {
+            "en": "Trace one pinned implementation slice and predict edge cases.",
+            "vi": "Trace một phần implementation ở pin và dự đoán trường hợp biên."
+          }
+        },
+        {
+          "id": "lunch",
+          "minutes": 30,
+          "break": true,
+          "output": {
+            "en": "Eat and rest.",
+            "vi": "Ăn trưa và nghỉ."
+          }
+        },
+        {
+          "id": "lab",
+          "minutes": 75,
+          "break": false,
+          "output": {
+            "en": "Implement, test and explain one defect repair.",
+            "vi": "Implement, test và giải thích một lần sửa lỗi."
+          }
+        },
+        {
+          "id": "break",
+          "minutes": 10,
+          "break": true,
+          "output": {
+            "en": "Rest away from the screen.",
+            "vi": "Nghỉ, rời màn hình."
+          }
+        },
+        {
+          "id": "experiment",
+          "minutes": 45,
+          "break": false,
+          "output": {
+            "en": "Measure a controlled change and explain the limits.",
+            "vi": "Đo một thay đổi có kiểm soát và giải thích giới hạn."
+          }
+        },
+        {
+          "id": "break",
+          "minutes": 10,
+          "break": true,
+          "output": {
+            "en": "Rest away from the screen.",
+            "vi": "Nghỉ, rời màn hình."
+          }
+        },
+        {
+          "id": "transfer",
+          "minutes": 35,
+          "break": false,
+          "output": {
+            "en": "Solve a changed-context case with a worked answer.",
+            "vi": "Giải tình huống đổi ngữ cảnh kèm lời giải."
+          }
+        },
+        {
+          "id": "synthesis",
+          "minutes": 45,
+          "break": false,
+          "output": {
+            "en": "Write a revised model, uncertainty and next question.",
+            "vi": "Viết mô hình đã chỉnh, điều chưa rõ và câu hỏi tiếp theo."
+          }
+        }
+      ]
+    },
+    "paper": {
+      "blocks": [
+        {
+          "id": "recall",
+          "minutes": 20,
+          "break": false,
+          "output": {
+            "en": "Reconstruct a prior claim and its assumptions.",
+            "vi": "Dựng lại nhận định trước cùng các giả định."
+          }
+        },
+        {
+          "id": "foundation",
+          "minutes": 50,
+          "break": false,
+          "output": {
+            "en": "Derive the minimum mathematics needed by the paper.",
+            "vi": "Suy ra phần toán tối thiểu cần cho paper."
+          }
+        },
+        {
+          "id": "break",
+          "minutes": 10,
+          "break": true,
+          "output": {
+            "en": "Rest away from the screen.",
+            "vi": "Nghỉ, rời màn hình."
+          }
+        },
+        {
+          "id": "paper-reading",
+          "minutes": 75,
+          "break": false,
+          "output": {
+            "en": "Annotate the argument, methods and a bounded claim ledger.",
+            "vi": "Chú thích lập luận, phương pháp và bảng nhận định có giới hạn."
+          }
+        },
+        {
+          "id": "claim-checking",
+          "minutes": 45,
+          "break": false,
+          "output": {
+            "en": "Separate evidence, inference and an alternative explanation.",
+            "vi": "Tách bằng chứng, suy luận và giải thích thay thế."
+          }
+        },
+        {
+          "id": "lunch",
+          "minutes": 30,
+          "break": true,
+          "output": {
+            "en": "Eat and rest.",
+            "vi": "Ăn trưa và nghỉ."
+          }
+        },
+        {
+          "id": "reproduction",
+          "minutes": 60,
+          "break": false,
+          "output": {
+            "en": "Reproduce one derivation, table or executable result.",
+            "vi": "Reproduce một phép suy diễn, bảng hoặc kết quả chạy được."
+          }
+        },
+        {
+          "id": "break",
+          "minutes": 10,
+          "break": true,
+          "output": {
+            "en": "Rest away from the screen.",
+            "vi": "Nghỉ, rời màn hình."
+          }
+        },
+        {
+          "id": "comparison",
+          "minutes": 45,
+          "break": false,
+          "output": {
+            "en": "Compare a baseline, counterexample or related paper.",
+            "vi": "So baseline, phản ví dụ hoặc paper liên quan."
+          }
+        },
+        {
+          "id": "break",
+          "minutes": 10,
+          "break": true,
+          "output": {
+            "en": "Rest away from the screen.",
+            "vi": "Nghỉ, rời màn hình."
+          }
+        },
+        {
+          "id": "synthesis",
+          "minutes": 35,
+          "break": false,
+          "output": {
+            "en": "Identify a defensible research gap and a falsifying experiment.",
+            "vi": "Nêu khoảng trống nghiên cứu có căn cứ và thí nghiệm có thể bác bỏ."
+          }
+        },
+        {
+          "id": "writing",
+          "minutes": 30,
+          "break": false,
+          "output": {
+            "en": "Write a cited critique and the limits of reproduction.",
+            "vi": "Viết phản biện có nguồn và giới hạn của việc reproduce."
+          }
+        }
+      ]
+    }
+  }
+}

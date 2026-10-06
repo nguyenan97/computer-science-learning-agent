@@ -1,78 +1,75 @@
 ---
 name: cs-daily-deep-study
 description: >-
-  Write and tutor complete bilingual Computer Science research days with runnable
-  labs and worked answers. Use for today's/next lesson, bài hôm nay, học cả ngày,
-  deep research, recall, labs, quizzes or clarification of an existing lesson.
+  Write complete bilingual CS self-study days mapped to IUH master and doctoral
+  outlines. Use for bài hôm nay, today's/next lesson, full-day research, paper
+  reading, labs, recall or clarification of an existing lesson.
 ---
 
-# Daily Computer Science deep study
+# Daily IUH Computer Science self-study
 
-This is a repository-scoped Codex skill. Locate the repository root with Git;
-the canonical skill is `skills/cs-daily-deep-study/SKILL.md`.
-Match the conversation language. Deliver complete English and Vietnamese lessons.
+This is a repository-scoped Codex skill. Locate the repository root with Git.
+Use this canonical file through `.agents/skills/cs-daily-deep-study` discovery.
+Match the conversation language; every daily lesson is complete in English and Vietnamese.
 
-## Load and select
+## Plan the day
 
-1. Read [lesson spec](../../references/lesson-spec.md), the single authoring contract.
-2. Read `lessons/catalog.json` and the relevant [topic map](../../references/topic-map.md).
-   Inspect previous objectives before choosing one coherent next objective.
-3. Use the learner's local date; an explicit requested date takes precedence.
-   Run `python scripts/review_queue.py --on YYYY-MM-DD` for opening recall prompts.
-4. Reuse stated context: full-day research, a familiar .NET/data stack and the goal
-   of developing graduate-level reasoning. Build foundations, proofs, experiments
-   and paper criticism progressively; do not claim a degree or certified mastery.
-5. Prefer continuity and useful prerequisites. A deeper lesson needs a changed
-   objective. Current-chat misunderstandings can guide a short correction.
+1. Read the single [lesson spec](../../references/lesson-spec.md).
+2. Run `python scripts/daily_plan.py`, or supply `--on YYYY-MM-DD` when the learner
+   names a study date. Its default calendar is Asia/Ho_Chi_Minh.
+3. Follow the returned topic: an uncovered master unit with published prerequisites,
+   then a doctoral unit after the master inventory is covered. Inventory order breaks
+   ties. Coverage counts published artifacts and never certifies knowledge or a degree.
+4. If today's lesson already exists, return it rather than generate a duplicate.
+   An explicitly requested topic may override selection; explain the prerequisite bridge.
+5. Use the returned `build` or `paper` schedule and opening recall. Both use the budget
+   in [study profile](../../references/study-profile.json); honor a smaller request.
+6. Keep the familiar C#/data context, deepen proofs, critical paper reading,
+   reproduction and research writing progressively. Current-chat errors can guide a
+   fresh correction; do not save answers, scores or a progress log.
 
-## Write for the reader
+## Teach on the page
 
-Teach the entire objective on each language page: connected explanations,
-derivations, narrated traces, complete task code, commands and interpreted results.
-Sources and downloads supplement the page. An outline or reading list is insufficient.
-Introduce unfamiliar foundations with optional self-checks and a worked bridge.
-Provide a reading-only route and optional depth; no prior submission is required.
+Explain the full objective in connected prose: foundation, derivation, narrated trace,
+complete task code, expected observations, worked answers and limits.
+Sources and ZIPs supplement the explanations. An outline or link list is insufficient.
+Provide optional self-checks, a foundation bridge and a reading-only route.
+Every recall prompt, exercise and lab has a complete answer available immediately.
+Trying first is optional; access to the next lesson requires no submission.
 
-Use the spec's flexible blocks with outputs and stop conditions. Replace depth
-with a foundation bridge when necessary; bound setup and offer an offline trace.
-Keep the day focused on one objective with a small set of research questions.
-Default to C# labs, T-SQL for data work. Use Python only when an essential ecosystem
-requires it, and explain the transfer to C# rather than changing the teaching stack.
+A build day emphasizes implementation, debugging and a controlled experiment.
+A paper day produces annotations, a claim ledger, a reproduced result or derivation,
+and a cited critique. Reading with such output is active work; no percentage quota
+penalizes paper study. Use the profile's output and stop conditions to bound the day.
 
-Every recall question, exercise, diagnostic and lab has a complete answer available
-immediately. Trying first is optional. Hints, submission and completion never unlock
-answers or the next lesson. Give concrete success criteria and explain likely errors.
+C# is the default executable lab; T-SQL handles data work. Use Python only for an
+essential research ecosystem, with a concrete C# bridge. A paper's derivation may be
+reproduced analytically when executable reproduction is unavailable; label that scope.
 
-## Research and verify
+## Sources and verification
 
-Use primary papers, standards, official documentation or a manageable implementation.
-Explain what each citation supports and its relevant limits; separate observed results
-from predictions and instructor inference. Pin implementation links to a commit SHA
-and give one sentence explaining why that slice serves the objective.
-Preserve attribution and license notices. Do not invent source access or measurements.
-Do not publish source dumps, agent logs or internal audit dossiers as lesson content.
+Use primary papers, standards, official documentation and a manageable code slice.
+Pin implementation links to a commit SHA and explain the slice's teaching value.
+Separate verified findings, predictions and instructor inference. Never invent access,
+measurements or novelty. Preserve citations and third-party license notices.
+Use the IUH source only for names/codes; do not republish its syllabus descriptions.
 
-Review EN/VI meaning as well as structural parity: objectives, code, examples,
-commands, experiments, answers, limits and troubleshooting must match.
-Run `work/venv/bin/python scripts/check_all.py` after environment setup, including
-the applicable runnable lab checks.
-Check generated navigation, language routes and ZIP contents before calling a download
-usable. Report actual checks and any unrun environment-dependent verification.
+Review EN/VI meaning, code, commands, examples, answers and limitations.
+Run `python scripts/check_all.py`; it bootstraps dependencies and the SDK in a fresh
+checkout. Required checks include labs and extracted ZIPs. Browser and benchmark
+checks are separate diagnostics; report whether they ran.
 
-## Save and deliver
+## Publish through a PR
 
-A request for today's/next lesson authorizes generic public lesson/lab files and a PR.
-Write `lessons/<id>/lesson.md`, `vi/lessons/<id>/lesson.md` and shared lab assets;
-add the entry, recall questions/answers and runnable lab metadata to the catalog.
-Run `python scripts/add_lesson_navigation.py` to generate catalog-derived navigation.
-Never hard-code lesson order in this contract or link to an unpublished future page.
+“Bài hôm nay” authorizes generic public pages, lab assets and a PR. Write
+`lessons/<id>/lesson.md`, its complete `vi/lessons/<id>/lesson.md` mirror and shared labs.
+Add date, `topic_ids`, `day_type`, titles, files, related reading and three bilingual
+recall question/answer entries to the catalog. Use the study date for the ID and date.
+Run `python scripts/add_lesson_navigation.py` to refresh navigation and coverage.
+Never edit generated blocks or hard-code lesson order.
 
-Do not create learner state, assessment records, progress logs or automatic schedules.
-Selection and recall use published catalog dates even when the learner skips a day.
-The legacy state engine is outside this loop. Feedback is handled in the current chat.
-Never interpret lesson delivery, reading or agent tests as learner proficiency.
-
-Open a reviewable PR when GitHub access is available. Do not merge it or push to main
-without a separate explicit instruction. After an authorized merge, verify deployment
-before returning a live page link; otherwise return the PR and available preview.
-End with a brief explanation of the objective, recall choice and verified deliverables.
+The learner normally merges on GitHub. Merge only if the current conversation
+explicitly authorizes it; existing authorization need not be requested again.
+After a merge, verify Pages before claiming the lesson is live.
+No automatic daily schedule is created. Finish with the objective, recall choice,
+verified artifacts and the PR or verified live page link.

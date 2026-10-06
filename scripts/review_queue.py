@@ -20,11 +20,11 @@ from datetime import date, datetime
 import json
 from pathlib import Path
 import re
-from zoneinfo import ZoneInfo
+from study_profile import load_profile, study_date
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TIMEZONE = 'Asia/Bangkok'
+TIMEZONE = load_profile()['timezone']
 OFFSETS = (1, 3, 7, 21)
 MAX_QUESTIONS = 3
 LANGUAGES = ('en', 'vi')
@@ -171,8 +171,8 @@ def render_markdown(queue, language):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--catalog', type=Path, default=ROOT / 'lessons/catalog.json')
-    parser.add_argument('--on', default=datetime.now(ZoneInfo(TIMEZONE)).date().isoformat(),
-                        help='calendar date YYYY-MM-DD (default: today in Asia/Bangkok)')
+    parser.add_argument('--on', default=study_date().isoformat(),
+                        help='calendar date YYYY-MM-DD (default: today in Asia/Ho_Chi_Minh)')
     parser.add_argument('--language', choices=LANGUAGES, default='vi',
                         help='Markdown language; JSON always contains both languages')
     parser.add_argument('--format', choices=('json', 'markdown'), default='json')

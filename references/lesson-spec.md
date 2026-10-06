@@ -6,41 +6,50 @@ The website teaches the learner; this spec governs authoring and remains reposit
 
 ## Scope and selection
 
-Choose one measurable objective that follows existing catalog objectives and the relevant
-[topic map](topic-map.md). Explain why it matters in a concrete engineering or research
-problem. Include supporting outcomes and the minimum foundations needed to follow it.
-Use the learner's .NET/data experience for examples without assuming mathematical mastery.
+Self-study follows IUH master (2020) and doctoral (October 2022) course-name
+inventories, with original project objectives and prerequisites. Read the public
+[topic map](topic-map.md) and [source scope](../docs/content-provenance.md).
+No credits, admissions, degree award or verified proficiency are inferred.
 
-Build toward graduate-level depth through explicit assumptions, derivations or proofs,
-counterexamples, controlled experiments and critical reading of research. Introduce
-these gradually instead of assigning an unrelated advanced paper to fill a day.
-The material supports self-study; it does not award a degree or certify competence.
+Run `python scripts/daily_plan.py --on YYYY-MM-DD`. The default date is the study date
+in **Asia/Ho_Chi_Minh**, including an evening or early-morning request. The script
+chooses the first uncovered eligible master topic, then doctoral topics after all
+master units are represented. Array order breaks ties; only published catalog
+`topic_ids` on or before that date satisfy prerequisites. The same input produces
+the same plan. An existing same-day lesson is returned rather than duplicated.
+An explicit topic request may override this order with a stated foundation bridge.
 
-Reuse the learner's stated time and tools. Without a smaller request, plan a full
-research day. Use flexible blocks, each with an estimated range, a concrete output
-and a stop condition. Adapt ranges to this objective rather than copying a fixed
-total or percentage table. Budget breaks and setup explicitly. A foundation bridge
-replaces a depth block; an experiment ends when its question has enough evidence.
+Coverage is the ratio of planned topics with published artifacts in each level/area.
+One lesson may name several topics only when its actual content teaches their stated
+objectives. Repeated lessons do not inflate the count. This is artifact coverage,
+not evidence that the learner studied or mastered a topic. All elective names are
+available for optional breadth; the inventory does not assert official enrollment choices.
 
-| Block | Useful output | Stop condition |
-|---|---|---|
-| Recall and readiness | Reconstructed prior idea; prerequisite prediction | Compare with answers, identify one foundation to revisit |
-| Contract, foundation and worked trace | Annotated trace; model or invariant; counterexample | Explain the mechanism and its assumptions |
-| Bounded source investigation | Answers to a few research questions; testable claim | Each question has support or a stated uncertainty |
-| Implementation and debugging | Runnable C# or T-SQL artifact; explained edge cases | Correctness checks pass and failures are understood |
-| Controlled experiment | Measurements with controls; interpretation and limits | Evidence answers the hypothesis without unbounded benchmarking |
-| Transfer and synthesis | Changed-context solution; revised model; open question | Explain when to apply the model and when it fails |
+## Build day and paper day
 
-Prefer prediction, reconstruction, tracing, implementation, debugging, claim checking
-and changed-context reasoning over long uninterrupted exposition. Source reading can
-be the main activity when it produces a defended argument, derivation or comparison.
-Offer a reading-only route through worked traces, lab explanations and solutions.
-All hands-on tasks are optional; continuing tomorrow requires no submission.
+[study-profile.json](study-profile.json) owns the default **420 elapsed minutes**,
+the Vietnamese timezone and both block schedules. Both schedules sum to that budget
+and include breaks. Honor a shorter explicit request. A bridge replaces depth work;
+bound setup, stop a block at its timebox and carry unresolved questions forward.
+Do not copy a budget table into the contract or require an active-work percentage.
+
+A **build day** produces an invariant/trace, runnable implementation, edge-case
+checks, a controlled experiment and a changed-context worked answer.
+A **paper day** produces annotated claims and methods, an explicit claim ledger,
+one reproduced result or derivation, a comparison and a cited critique. Reading
+that produces an argument, annotation, claim ledger or reproduction counts as active
+work. Passive reading is allowed but does not stand in for those planned outputs.
+Paper study is not forced to include a benchmark or a new code lab when analytic
+reproduction better tests the objective. Explain any unrun executable reproduction.
+
+Each block has the profile's concrete output plus an objective-specific stop condition.
+Offer a reading-only route through worked traces, lab explanations and answers.
+All tasks remain optional, and access to tomorrow's lesson requires no submission.
 
 ## Recall without learner records
 
-Run `python scripts/review_queue.py --on YYYY-MM-DD` using the requested study date
-or the learner's current local date. Start with its selection of at most three
+Use the recall returned by `daily_plan.py`; the standalone
+`python scripts/review_queue.py --on YYYY-MM-DD` uses the same Vietnamese calendar. Start with its selection of at most three
 questions from earlier catalog lessons around the 1, 3, 7 and 21-day offsets.
 Selection is deterministic and tolerates gaps in publication dates. The daily cap
 samples eligible intervals; it does not guarantee every lesson appears at every
@@ -63,7 +72,7 @@ Each page independently teaches the whole objective in connected prose. Include:
 
 - Practical motivation, the main objective and concrete prerequisites with optional
   self-checks, worked answers and a foundation bridge.
-- The flexible plan for this particular day, followed by a concrete contract,
+- The selected build/paper plan for this particular day, followed by a concrete contract,
   prediction, foundation, narrated example or trace and a counterexample.
 - A few answerable research questions, source-backed explanations, an implementation
   slice and the assumptions that connect theory to behavior.
@@ -82,7 +91,7 @@ languages. Translate explanatory comments when helpful without changing behavior
 Structural parity checks supplement a review of meaning; equal headings alone do
 not prove an accurate translation.
 
-Write only learner-useful information on the page. Internal IDs, state procedures,
+Write only learner-useful information on the page. Internal audits and
 source-access logs and agent verification reports belong in maintainer work, not
 the lesson or published catalog assets. Cite relevant claims briefly and describe
 source or execution limitations only when they affect understanding or reproduction.
@@ -119,10 +128,11 @@ requires an explicit instruction. There is no automatic daily schedule. The lear
 requests a lesson when ready, including the next morning after a skipped evening.
 
 1. Add EN and VI lesson pages and shared lab assets, then update the catalog with
-   bilingual title, publication date, files, related reading, recall and lab metadata.
+   bilingual title, Vietnamese study date, `topic_ids`, `day_type`, files, related
+   reading, recall and lab metadata.
 2. Run `python scripts/add_lesson_navigation.py`. The catalog generates lesson footers,
-   sidebars and homepage lists; neither contract nor workflow maintains lesson order.
-3. Run `work/venv/bin/python scripts/check_all.py` after environment setup. Correctness,
+   sidebars, homepage lists and topic coverage; neither contract nor workflow maintains lesson order.
+3. Run `python scripts/check_all.py`; a fresh session bootstraps its environment automatically. Correctness,
    structural parity and public-asset checks are required. Optional browser/benchmark diagnostics belong in verification,
    with observed results reported honestly.
 4. Inspect the staged lesson, language switch, catalog links and downloads. Test the
@@ -131,6 +141,8 @@ requests a lesson when ready, including the next morning after a skipped evening
    deployment before claiming the new public URL works.
 
 Use `work/` for temporary verification. Never commit personal submissions or records.
-The legacy state engine is maintainer-only and is not initialized or consulted for
-daily lessons. Agent checks verify artifacts; only actual learner work can support
+There is no personal-progress engine. Agent checks verify artifacts; only actual learner work can support
 an observation about learning, and no such record is retained by this workflow.
+
+Original project prose uses CC BY 4.0 and original code snippets use MIT.
+Keep third-party notices and source citations; see [licensing](../docs/licensing.md).

@@ -1,3 +1,6 @@
+> Historical review. Its former personal-progress tools have been removed.
+> Current workflow: [Maintaining](../docs/maintaining.md).
+
 > Historical design review from 2026-10-05. Current full-day skill, state v3 and checks are described in [repository review](repository-review.md) and [verification](verification.md).
 
 # Runtime and skill design review

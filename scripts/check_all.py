@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run the required lesson checks, including labs from their downloadable ZIPs."""
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -13,6 +14,7 @@ from zipfile import ZipFile
 from build_public_site import build
 
 ROOT = Path(__file__).resolve().parents[1]
+SDK_VERSION = '10.0.401'
 IGNORED_LAB_OUTPUTS = shutil.ignore_patterns('bin', 'obj', '__pycache__', 'BenchmarkDotNet.Artifacts')
 
 
@@ -70,6 +72,18 @@ def require_sdk(labs, env):
     if any(lab['language'] == 'csharp' for lab in labs) and not shutil.which('dotnet', path=env.get('PATH')):
         raise ValueError('C# lab checks require .NET SDK 10.0.401. Run bash scripts/setup_environment.sh, '
                          'then work/venv/bin/python scripts/check_all.py.')
+
+
+def sdk_ready(env):
+    executable = shutil.which('dotnet', path=env.get('PATH'))
+    if not executable:
+        return False
+    try:
+        result = subprocess.run([executable, '--list-sdks'], env=env, capture_output=True,
+                                text=True, check=True)
+    except (OSError, subprocess.CalledProcessError):
+        return False
+    return any(line.split()[0] == SDK_VERSION for line in result.stdout.splitlines() if line.strip())
 
 
 def command_for_python(command):
@@ -151,9 +165,18 @@ def check_all(root=ROOT, benchmarks_only=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--no-bootstrap', action='store_true', help='require an already provisioned environment')
     parser.add_argument('--benchmarks-only', action='store_true', help='run optional catalog benchmark commands')
     args = parser.parse_args()
     try:
+        # Fresh Codex sessions can run the same command without editing cloud configuration.
+        env = environment(ROOT)
+        if not args.no_bootstrap and (importlib.util.find_spec('yaml') is None
+                                     or not sdk_ready(env)):
+            subprocess.run(['bash', str(ROOT / 'scripts/setup_environment.sh')], cwd=ROOT, check=True)
+            command = [str(ROOT / 'work/venv/bin/python'), str(Path(__file__).resolve()), '--no-bootstrap']
+            if args.benchmarks_only: command.append('--benchmarks-only')
+            return subprocess.run(command, cwd=ROOT, env=environment(ROOT)).returncode
         check_all(benchmarks_only=args.benchmarks_only)
     except (ValueError, subprocess.CalledProcessError) as error:
         print(f'Check failed: {error}', file=sys.stderr)

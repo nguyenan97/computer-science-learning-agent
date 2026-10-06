@@ -2,8 +2,8 @@
 
 [Tiếng Việt](README.vi.md) · [English lesson](../../../lessons/boundary-search/lesson.md)
 
-This standalone console lab implements a first-duplicate lower boundary and counts
-sorted integer timestamps in `[start,end)`. Full worked code is in
+This standalone console lab finds the first value greater than or equal to a target
+and counts sorted integer timestamps in `[start,end)`. Full worked code is in
 [LessonLab/BoundarySearch.cs](LessonLab/BoundarySearch.cs); tests are in
 [LessonLab/Checks.cs](LessonLab/Checks.cs). Reimplement it in a copy for practice,
 then compare your reasoning with the solution whenever useful.

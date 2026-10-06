@@ -39,17 +39,21 @@ inside a collapsible `<details>` block under its prompt (see the lesson spec).
 Trying first is optional; access to the next lesson requires no submission.
 
 Page rules that readers flagged on lesson 1 (details in the lesson spec):
-- Open with a concept primer: each key term (e.g. Big-O) in one or two plain sentences
-  plus a tiny example, before any formal definition.
-- No "full day / 420 minutes" header or schedule table. Put the profile block, minutes
+- Open with a short concept primer for the central ideas (e.g. Big-O), using a plain
+  explanation and a small example before formal definitions. Familiar English developer
+  words do not need glossary entries; explain supporting ideas where they are used.
+- No "full day / 420 minutes" header or schedule table. Put the activity, minutes
   and task at the start of each section, and a one-line divider for breaks.
 - Plain hyphen `-` only; never `—` or `–`.
-- Developer-natural Vietnamese. Keep English terms (duplicate, dedupe, hash, trace,
-  benchmark, worst case, amortized) per [vi-style-glossary](../../references/vi-style-glossary.md);
-  never literal-translate ("khử trùng" is wrong).
+- Natural Vietnamese with precise technical and research terminology, following
+  [vi-style-glossary](../../references/vi-style-glossary.md). Keep familiar English
+  words where useful, without compulsory glosses; use established Vietnamese terms
+  for the explanation. Never use "khử trùng" for deduplication. Remove filler while
+  preserving assumptions, evidence and limits needed for a correct conclusion.
 - Real-world application plus one researched case study from a well-known GitHub
   repository, pinned to a commit: what problem the idea solves there and how to apply it.
-- Enough depth for the whole day; add traces, scenarios and sources rather than cut.
+- Preserve substantive depth and practice for the whole day while removing redundant
+  prose. Add traces, scenarios or sources only when an objective needs more material.
 
 A build day emphasizes implementation, debugging and a controlled experiment.
 A paper day produces annotations, a claim ledger, a reproduced result or derivation,

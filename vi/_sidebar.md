@@ -2,8 +2,8 @@
 
 <!-- LESSON_SIDEBAR_START -->
 - **Bài học**
-  - [Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#](/vi/lessons/2026-10-05-cost-model/lesson)
-  - [Bài 02 - Tìm biên và cửa sổ thời gian](/vi/lessons/boundary-search/lesson)
+  - [Bài 01 - Big-O và cấu trúc dữ liệu: dedupe mã đơn hàng bằng C#](/vi/lessons/2026-10-05-cost-model/lesson)
+  - [Bài 02 - Tìm biên bằng binary search và đếm sự kiện theo khoảng thời gian](/vi/lessons/boundary-search/lesson)
 <!-- LESSON_SIDEBAR_END -->
 
 - **Khám phá**

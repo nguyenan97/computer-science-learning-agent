@@ -3,7 +3,7 @@
 <!-- LESSON_SIDEBAR_START -->
 - **Lessons**
   - [Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#](/lessons/2026-10-05-cost-model/lesson)
-  - [Lesson 02 - Boundary search and time windows](/lessons/boundary-search/lesson)
+  - [Lesson 02 - Boundary search with binary search and time-window counts](/lessons/boundary-search/lesson)
 <!-- LESSON_SIDEBAR_END -->
 
 - **Explore**

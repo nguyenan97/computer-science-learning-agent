@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Validate, inspect and update one local canonical learning state. No network."""
+"""Archived optional v3 state tools, outside the daily lesson loop. No network."""
 from __future__ import annotations
 import argparse
 import copy
 from datetime import date, datetime
 import json
 import os
-import shutil
 from pathlib import Path
 import sys
 import tempfile
@@ -17,22 +16,6 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = json.loads((ROOT / 'state/learning-state.schema.json').read_text())
 TEMPLATE = ROOT / 'state/learning-state.example.json'
 DEFAULT_STATE = ROOT / '.learning-private/learning-state.json'
-
-
-def migrate_legacy(state):
-    """Convert v1/v2 fields; the caller must preserve the unmodified source."""
-    new = copy.deepcopy(state)
-    version = new.get('schema_version')
-    if version not in (1, 2):
-        raise ValueError('migration requires schema version 1 or 2')
-    new['schema_version'] = 3
-    for lesson in new['lessons']:
-        # Legacy course metadata remains in the original source, not active state.
-        lesson.pop('course_code', None)
-    if version == 1:
-        for assessment in new['assessments']:
-            assessment.setdefault('resolves_assessment_ids', [])
-    return new
 
 
 def validate(state, *, allow_fixture=False):
@@ -275,7 +258,6 @@ def main():
     p.add_argument('--state',type=Path,default=DEFAULT_STATE); p.add_argument('--allow-fixture',action='store_true')
     sub=p.add_subparsers(dest='cmd',required=True); sub.add_parser('validate')
     sub.add_parser('init')
-    q=sub.add_parser('migrate'); q.add_argument('--from-state',type=Path,required=True); q.add_argument('--artifact-root',type=Path)
     q=sub.add_parser('profile'); q.add_argument('--timezone'); q.add_argument('--minutes',type=int); q.add_argument('--goal',action='append'); q.add_argument('--background')
     q=sub.add_parser('plan'); q.add_argument('--on'); q.add_argument('--minutes',type=int,help='One-off elapsed budget including breaks; does not change the profile'); q.add_argument('--prerequisite',choices=['unknown','weak','ready'],default='unknown'); q.add_argument('--source-unavailable',action='store_true'); q.add_argument('--lab-unavailable',action='store_true')
     q=sub.add_parser('transition'); q.add_argument('lesson_id'); q.add_argument('status',choices=['assigned','in_progress','completed']); q.add_argument('--on')
@@ -286,36 +268,14 @@ def main():
         if args.allow_fixture and args.state.resolve() == DEFAULT_STATE.resolve():
             raise ValueError('fixtures require a separate explicit --state path')
         if not args.allow_fixture: args.state = check_private_path(args.state)
-        if args.cmd in ('init','migrate'):
-            if args.state.exists(): raise ValueError('destination already exists; initialization/migration never overwrites state')
-            state = json.loads(TEMPLATE.read_text()) if args.cmd == 'init' else migrate_legacy(json.loads(args.from_state.read_text()))
-            try:
-                validate(state,allow_fixture=args.allow_fixture)
-            except ValueError as error:
-                if args.cmd == 'migrate':
-                    raise ValueError(f'migration rejected: {error} Original source is unchanged; '
-                                     'verify legacy evidence and correct a copy explicitly before retrying.') from error
-                raise
+        if args.cmd == 'init':
+            if args.state.exists(): raise ValueError('destination already exists; initialization never overwrites state')
+            state = json.loads(TEMPLATE.read_text())
+            validate(state,allow_fixture=args.allow_fixture)
             if not state['fixture']: args.state = check_private_path(args.state)
-            copies=[]
-            if args.cmd == 'migrate' and not state['fixture'] and state['lessons']:
-                if args.artifact_root is None: raise ValueError('migration with lessons requires --artifact-root for original lesson files')
-                source_root=args.artifact_root.resolve()
-                for lesson in state['lessons']:
-                    source=(source_root/lesson['artifact']).resolve()
-                    destination=(args.state.parent/lesson['artifact']).resolve()
-                    if destination == args.state.resolve():
-                        raise ValueError('migration lesson artifact cannot be the canonical state file; '
-                                         'source preserved and destination not created')
-                    if (not source.is_relative_to(source_root) or not source.is_file()
-                            or not destination.is_relative_to(args.state.parent.resolve()) or destination.exists()):
-                        raise ValueError('migration artifact missing, outside workspace or destination already exists')
-                    copies.append((source,destination))
             args.state.parent.mkdir(mode=0o700,parents=True,exist_ok=True)
-            for source,destination in dict(copies).items():
-                destination.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,destination)
             if not state['fixture']: validate_private_artifacts(state,args.state.parent,args.state)
-            atomic_save(args.state,state); print('Created private state; source preserved.'); return 0
+            atomic_save(args.state,state); print('Created private v3 state.'); return 0
         if not args.state.exists(): raise ValueError('state missing; run init once or select an existing private --state path')
         state=validate(json.loads(args.state.read_text()),allow_fixture=args.allow_fixture)
         if not state['fixture']:

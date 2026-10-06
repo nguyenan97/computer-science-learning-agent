@@ -99,59 +99,6 @@ class PrivateWorkspaceTests(unittest.TestCase):
             self.assertEqual(self.run_cli(path,'profile','--minutes','1').returncode,1);self.assertEqual(path.read_bytes(),before)
             self.assertEqual(self.run_cli(ROOT/'state/learning-state.example.json','init').returncode,1)
 
-    def test_migration_preserves_original_and_keeps_errors_unresolved(self):
-        with tempfile.TemporaryDirectory() as directory:
-            old=Path(directory)/'v1.json';new=Path(directory)/'v3.json'
-            state=completed('needs_support');state['schema_version']=1
-            state['lessons'][0]['course_code']='legacy-course-metadata'
-            for a in state['assessments']:del a['resolves_assessment_ids']
-            old.write_text(json.dumps(state));before=old.read_bytes()
-            result=self.run_cli(new,'--allow-fixture','migrate','--from-state',str(old))
-            self.assertEqual(result.returncode,0,result.stderr);self.assertEqual(old.read_bytes(),before)
-            migrated=engine.validate(json.loads(new.read_text()),allow_fixture=True)
-            self.assertEqual(migrated['schema_version'],3)
-            self.assertNotIn('course_code',migrated['lessons'][0])
-            self.assertEqual(json.loads(old.read_text())['lessons'][0]['course_code'],'legacy-course-metadata')
-            self.assertEqual(migrated['assessments'][0]['evidence'],state['assessments'][0]['evidence'])
-            self.assertEqual(engine.unresolved_errors(migrated,migrated['lessons'][0]['topic_id']),['practice'])
-
-    def test_v2_migration_preserves_evidence_repair_history_and_source_metadata(self):
-        with tempfile.TemporaryDirectory() as directory:
-            old=Path(directory)/'v2.json';new=Path(directory)/'v3.json'
-            state=completed('needs_support');state['schema_version']=2
-            state['lessons'][0]['course_code']='legacy-course-metadata'
-            l=state['lessons'][0];repair=assessment(l,'repair',on='2026-10-06')
-            repair['resolves_assessment_ids']=['practice'];add(state,repair)
-            old.write_text(json.dumps(state));before=old.read_bytes()
-            result=self.run_cli(new,'--allow-fixture','migrate','--from-state',str(old))
-            self.assertEqual(result.returncode,0,result.stderr)
-            self.assertEqual(old.read_bytes(),before)
-            migrated=engine.validate(json.loads(new.read_text()),allow_fixture=True)
-            self.assertEqual(migrated['schema_version'],3)
-            self.assertEqual(migrated['assessments'],state['assessments'])
-            self.assertEqual(migrated['learner'],state['learner'])
-            self.assertEqual(migrated['lessons'][0]['objective'],l['objective'])
-            self.assertNotIn('course_code',migrated['lessons'][0])
-            self.assertEqual(json.loads(old.read_text())['lessons'][0]['course_code'],'legacy-course-metadata')
-            self.assertEqual(engine.mastery(migrated,l['topic_id']),'provisional')
-
-    def test_invalid_legacy_completion_rejected_without_writes_or_promoted_mastery(self):
-        for version in (1,2):
-            with self.subTest(version=version),tempfile.TemporaryDirectory() as directory:
-                old=Path(directory)/'old.json';new=Path(directory)/'private/state.json'
-                state=completed();state['schema_version']=version
-                state['lessons'][0]['course_code']='legacy-course-metadata'
-                state['assessments'][0].update(kind='prerequisite',topic_id='array-indexing')
-                if version==1:del state['assessments'][0]['resolves_assessment_ids']
-                old.write_text(json.dumps(state));before=old.read_bytes()
-                result=self.run_cli(new,'--allow-fixture','migrate','--from-state',str(old))
-                self.assertEqual(result.returncode,1)
-                self.assertIn('same lesson topic',result.stderr)
-                self.assertIn('Original source is unchanged',result.stderr)
-                self.assertFalse(new.exists())
-                self.assertFalse(new.parent.exists())
-                self.assertEqual(old.read_bytes(),before)
-
     def test_cli_one_off_budget_never_changes_profile(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'state.json';engine.atomic_save(path,empty());before=path.read_bytes()
@@ -197,38 +144,6 @@ class PrivateWorkspaceTests(unittest.TestCase):
                 self.assertIn('canonical state file',result.stderr)
                 self.assertEqual(path.read_bytes(),before)
 
-    def test_migration_canonical_artifact_collision_rejected_before_any_write(self):
-        for version in (1,2):
-            with self.subTest(version=version),tempfile.TemporaryDirectory() as directory:
-                directory=Path(directory);old=directory/'old.json';new=directory/'private/state.json'
-                state=empty();state.update(schema_version=version,fixture=False)
-                record=lesson();record.update(artifact='state.json',course_code='legacy-course-metadata')
-                state['lessons']=[record];old.write_text(json.dumps(state));before=old.read_bytes()
-                source=directory/'original';source.mkdir()
-                artifact=source/'state.json';artifact.write_text('Synthetic lesson that must survive migration.')
-                artifact_before=artifact.read_bytes()
-                result=self.run_cli(new,'migrate','--from-state',str(old),'--artifact-root',str(source))
-                self.assertEqual(result.returncode,1)
-                self.assertIn('canonical state file',result.stderr)
-                self.assertFalse(new.exists())
-                self.assertFalse(new.parent.exists())
-                self.assertEqual(old.read_bytes(),before)
-                self.assertEqual(artifact.read_bytes(),artifact_before)
-
-    def test_real_migration_copies_lesson_files_and_refuses_missing_sources(self):
-        with tempfile.TemporaryDirectory() as directory:
-            directory=Path(directory);old=directory/'v1.json';new=directory/'private/state.json'
-            state=completed('needs_support');state['fixture']=False;state['schema_version']=1
-            for a in state['assessments']:del a['resolves_assessment_ids']
-            old.write_text(json.dumps(state));before=old.read_bytes()
-            self.assertEqual(self.run_cli(new,'migrate','--from-state',str(old)).returncode,1)
-            self.assertFalse(new.exists())
-            source=directory/'original';artifact=source/state['lessons'][0]['artifact'];artifact.parent.mkdir(parents=True);artifact.write_text('Synthetic migration lesson')
-            result=self.run_cli(new,'migrate','--from-state',str(old),'--artifact-root',str(source))
-            self.assertEqual(result.returncode,0,result.stderr);self.assertEqual(old.read_bytes(),before)
-            self.assertEqual((new.parent/state['lessons'][0]['artifact']).read_text(),artifact.read_text())
-            self.assertEqual(self.run_cli(new,'validate').returncode,0)
-
     def test_seven_day_synthetic_cli_loop(self):
         with tempfile.TemporaryDirectory() as directory:
             directory=Path(directory);path=directory/'state.json';engine.atomic_save(path,empty())
@@ -267,23 +182,26 @@ class PublicSiteTests(unittest.TestCase):
         builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
         with tempfile.TemporaryDirectory() as directory:
             source=Path(directory)/'source';source.mkdir()
-            for name in (*builder.PUBLIC_FILES, *(f'labs/boundary-search/{p}' for p in builder.PUBLIC_LAB_FILES), *(f'vi/{p}' for p in ('README.md','_404.md','_sidebar.md','_navbar.md'))):
+            for name in builder.PUBLIC_FILES:
                 target=source/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/name,target)
             for path in builder.catalog_files(ROOT):
                 target=source/path.relative_to(ROOT);target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(path,target)
-            for name in builder.PUBLIC_DOC_DIRS: shutil.copytree(ROOT/name,source/name,dirs_exist_ok=True)
-            for name in ('.learning-private/learning-state.json','state/learning-state.json','lessons/private/lesson.md'):
+            hidden=('.learning-private/learning-state.json','state/learning-state.json','lessons/private/lesson.md',
+                    'research/internal-review.md','vi/research/internal-review.md','skills/example/SKILL.md',
+                    'references/internal-agent-spec.md','vi/references/internal-agent-spec.md')
+            for name in hidden:
                 p=source/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('SYNTHETIC_PRIVATE_MARKER')
             out=Path(directory)/'site';builder.build(source,out)
             self.assertTrue((out/'index.html').is_file())
             self.assertTrue((out/'lessons/boundary-search/lesson.md').is_file())
             self.assertTrue((out/'lessons/2026-10-05-cost-model/lesson.md').is_file())
             self.assertTrue((out/'vi/lessons/2026-10-05-cost-model/lesson.md').is_file())
-            self.assertTrue((out/'state/learning-state.example.json').is_file())
+            self.assertFalse((out/'state').exists())
             self.assertFalse((out/'state/learning-state.json').exists())
-            for name in ('.learning-private','.git','tests','scripts','.github'):
+            for name in ('.learning-private','.git','tests','scripts','.github','skills','research','vi/research'):
                 self.assertFalse((out/name).exists())
             self.assertFalse((out/'lessons/private/lesson.md').exists())
+            for name in hidden:self.assertFalse((out/name).exists())
             self.assertFalse(any(b'SYNTHETIC_PRIVATE_MARKER' in p.read_bytes() for p in out.rglob('*') if p.is_file()))
             with self.assertRaises(ValueError):builder.build(source,out)
             (source/'index.html').unlink();(source/'index.html').symlink_to(source/'.learning-private/learning-state.json')

@@ -1,9 +1,8 @@
-<!-- contract-version: 1 -->
 # Bài 02 — Tìm biên: từ mảng có thứ tự đến truy vấn khoảng thời gian
 
-**Một ngày đầy đủ: 420 phút · 360 phút học + 60 phút nghỉ**
+**Học theo thời gian của bạn: trace → implement → test → transfer**
 
-[English](../../../lessons/boundary-search/lesson.md)
+[English](../../../lessons/boundary-search/lesson.md) · [Tải lab C#](https://nguyenan97.github.io/computer-science-learning-agent/labs/boundary-search/dotnet-lab.zip)
 
 Bài trước hỏi một ID đã xuất hiện chưa. Bây giờ dữ liệu đã sorted, ta cần câu trả lời khác: **điều kiện bắt đầu đúng ở vị trí nào?** Biên đó giúp đếm event trong khoảng thời gian mà không quét mọi event cho mỗi query. Thuật toán đầy đủ, lập luận và bài tập có lời giải nằm trên trang; link standard library để đọc sâu.
 
@@ -13,22 +12,17 @@ Bài trước hỏi một ID đã xuất hiện chưa. Bây giờ dữ liệu đ
 
 Cần indexed access, comparison và loop. Quy ước khoảng nửa mở được giải thích dưới đây. Nếu mới học binary search, bắt đầu bằng ví dụ có index thay vì học thuộc code.
 
-| Phút tính từ đầu | Hoạt động | Phút thực hành chủ động |
-|---|---|---:|
-| 0–20 | Nhớ cost model bài trước; kiểm tra index/ký hiệu khoảng | 10 |
-| 20–70 | Hiểu partition, tự dựng worked trace | 20 |
-| 70–80 | Nghỉ | 0 |
-| 80–125 | Đọc nguồn standard library chọn lọc, trả lời câu hỏi | 10 |
-| 125–170 | Đọc implementation; trace target bằng, thiếu, ngoài khoảng | 40 |
-| 170–200 | Ăn trưa, nghỉ | 0 |
-| 200–275 | Implement lower_bound, dự đoán case và debug | 70 |
-| 275–285 | Nghỉ | 0 |
-| 285–330 | Đếm access, so chi phí query/update | 40 |
-| 330–340 | Nghỉ | 0 |
-| 340–375 | Implement count_window và biến thể record/key | 35 |
-| 375–420 | Giải thích invariant, xem lại lỗi, chọn câu ôn | 10 |
+| Block | Hoạt động | Output cụ thể |
+|---|---|---|
+| 1 | Nhớ cost model và khoảng nửa mở | Giải thích index được tính và chi phí insert đầu |
+| 2 | Suy ra partition, tự dựng trace | Ghi rõ hai vùng đã biết và từng update |
+| 3 | Dự đoán duplicate, empty và target thiếu | Biên kỳ vọng cho từng case trước khi chạy code |
+| 4 | Implement và debug lab C# | Biên dưới và window count đã đối chiếu với case biên |
+| 5 | So contract library và đếm element read | Giải thích equality search, insertion encoding và chi phí query/update |
+| 6 | Chuyển contract window sang event record và T-SQL | Query cùng ngữ nghĩa endpoint và giải thích index |
+| 7 | Explain-back, xem lại một lỗi | Nêu invariant, trả lời case duplicate mới không ghi chú |
 
-Lộ trình dành 235/360 phút học cho thực hành. Điều chỉnh block đọc/code theo kinh nghiệm; trace giấy phù hợp khi chưa chạy được Python. Giữ mục tiêu ở query in-memory đã sorted, chưa xây database hôm nay.
+Nghỉ và mở rộng phần đọc nguồn theo thời gian research thực tế. Mỗi block có thể trace giấy; chạy lab tùy chọn. Giữ phần cốt lõi ở query đã sorted, rồi dùng phần database để hiểu cách chuyển lập luận, chưa xây database application hôm nay.
 
 ## Retrieval và prerequisite
 
@@ -132,7 +126,7 @@ assert values == [2, 4, 4, 9]
 
 Giá trị thiếu có vị trí chèn: target 5 nằm giữa 4 cuối và 9. Vì vậy lower_bound vẫn hữu ích dù không có equality match.
 
-Dùng block 75 phút để tự dựng method (20), dự đoán case biên (15), trace/test (20), cố tình tạo/debug lỗi nhánh (15), giải thích correction (5). Hai lỗi đáng thử:
+Tự dựng method, dự đoán case biên, trace/test, cố tình tạo/debug lỗi nhánh, rồi giải thích correction. Hai lỗi đáng thử:
 
 - `hi=mid-1`: với `[1,3]`, target 3, midpoint đầu là 1; hi=0 làm mất đáp án đúng 1. Invariant nửa mở cần hi=mid.
 - `lo=mid`: vùng chưa biết dài một, value quá nhỏ thì mid==lo, đoạn không co lại. Dùng lo=mid+1.
@@ -174,6 +168,70 @@ Output có lời giải:
 
 Target gần giữa sequence giả lập. n từ 1.024 lên 65.536 tăng 64 lần nhưng chỉ thêm sáu read. Target khác có thể có read count khác; tốc độ tăng worst-case vẫn logarithmic. Đây là element access, chưa phải CPU instruction, wall-clock hay database page read.
 
+## Chuyển sang C#: contract search và lab chạy được
+
+C# là ngôn ngữ implementation của lab chạy được trong bài này. Ví dụ Python được giữ vì CPython công khai implementation `bisect_left` ngắn, dễ đọc và test: so contract partition giữa các ngôn ngữ, không thêm dependency Python vào công việc .NET.
+
+### BinarySearch tìm match, không hứa trả duplicate đầu tiên
+
+Cả [`Array.BinarySearch`](https://learn.microsoft.com/en-us/dotnet/api/system.array.binarysearch?view=net-10.0) và [`List<T>.BinarySearch`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.binarysearch?view=net-10.0) yêu cầu dữ liệu sorted theo comparer dùng để search. Search thành công trả một index matching, nhưng contract **không** đảm bảo duplicate đầu hoặc cuối. Target thiếu trả bitwise complement của insertion position: giải mã kết quả **âm** bằng `~result`.
+
+```csharp
+long[] values = [10, 10, 20, 30, 30, 40];
+int match = Array.BinarySearch(values, 30L);
+Console.WriteLine(values[match]);
+
+List<long> list = [.. values];
+int result = list.BinarySearch(11L);
+int position = result >= 0 ? result : ~result;
+Console.WriteLine($"{result}, {position}");
+```
+
+Code in `30`, rồi `-3, 2`: 11 sẽ được chèn tại index 2. `-result` cho 3, là sai. Khi target trên max, insertion position là `Count`: biên hợp lệ nhưng không phải phần tử để đọc. Key không có thì không có duplicate cần phân biệt, nên vị trí giải mã này bằng lower boundary. Equality search thành công không hứa trả duplicate đầu. Không trừ hai kết quả `BinarySearch` thành công để đếm window có endpoint duplicate.
+
+### Implement partition bằng C#
+
+Đây là implementation đầy đủ trong [lab C#](../../../labs/boundary-search/dotnet/README.vi.md). Nó nhận array và `List<long>` qua indexed access của `IReadOnlyList<long>`:
+
+```csharp
+public static class BoundarySearch
+{
+    public static int LowerBound(IReadOnlyList<long> values, long target)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        int lo = 0, hi = values.Count;
+        while (lo < hi)
+        {
+            int mid = lo + (hi - lo) / 2;
+            if (values[mid] < target)
+                lo = mid + 1;
+            else
+                hi = mid;
+        }
+        return lo;
+    }
+
+    public static int CountWindow(IReadOnlyList<long> timestamps, long start, long end)
+    {
+        ArgumentNullException.ThrowIfNull(timestamps);
+        if (end < start)
+            throw new ArgumentException("end precedes start", nameof(end));
+        return LowerBound(timestamps, end) - LowerBound(timestamps, start);
+    }
+}
+```
+
+Nhánh equality giữ duplicate đầu làm candidate. `lo + (hi - lo) / 2` tránh cộng hai index `int` lớn; `(lo + hi) / 2` có thể overflow trong C#, còn integer Python không có giới hạn fixed-width đó. Method so key `long` mà không trừ chúng, nên timestamp cực trị không gây arithmetic overflow. Kết luận comparisons logarithmic vẫn giả định `Count`, indexing và comparison có chi phí hằng số; implementation `IReadOnlyList` bất kỳ không nhất thiết thỏa các giả định này.
+
+Từ `labs/boundary-search/dotnet`, với SDK 10.0.401:
+
+```bash
+dotnet run -c Release --project LessonLab
+dotnet run -c Release --project LessonLab -- --check
+```
+
+Lệnh mặc định cho lower boundary 3 với 30, window count 3, 0 và 3 cho `[10,30)`, `[30,30)` và `[11,39)`. Check gồm duplicate đầu, target thiếu, window empty/equal/reversed, key âm/cực trị, giữ nguyên input và insertion encoding của .NET. Chúng còn search mảng ảo có `int.MaxValue` vị trí mà không cấp phát mảng, so case nhỏ với phép quét. Check fail thì exit khác 0. Tự implement trước khi đối chiếu nếu hữu ích; lời giải luôn xem được và hoàn thành lab tùy chọn.
+
 ## Đọc implementation standard library
 
 Implementation `bisect` chính thức của Python dùng ý tưởng partition này. Source slice sau ghim để so implementation ổn định thay vì branch di chuyển:
@@ -184,7 +242,7 @@ Implementation `bisect` chính thức của Python dùng ý tưởng partition n
 
 **Đáp án đọc:** bisect_left trả biên trước các value bằng, bisect_right trả biên sau. Module Python có thể dùng implementation C nội bộ; interpreter đã cài không nhất thiết chạy body source Python từng dòng. Contract là điểm so sánh hữu ích.
 
-Trong block experiment 45 phút, so read count khi target dưới, trong và trên sequence; dự đoán bound đổi ra sao khi n gấp đôi. Sau đó đếm entry phải dịch nếu insert gần đầu. Search O(log n), insert array-backed List O(n) vì phải dịch storage. Sort batch chưa có thứ tự một lần tốn O(n log n) theo mô hình so sánh thường dùng; preprocessing tách khỏi chi phí từng query sau đó.
+Trong experiment chi phí, so read count khi target dưới, trong và trên sequence; dự đoán bound đổi ra sao khi n gấp đôi. Sau đó đếm entry phải dịch nếu insert gần đầu. Search O(log n), insert array-backed List O(n) vì phải dịch storage. Sort batch chưa có thứ tự một lần tốn O(n log n) theo mô hình so sánh thường dùng; preprocessing tách khỏi chi phí từng query sau đó.
 
 ## Challenge độc lập và biến thể transfer
 
@@ -230,6 +288,41 @@ Truyền 20, không truyền full record, làm target. List phải sorted theo t
 
 Nếu write thường xuyên, sorted List phẳng có thể không phù hợp. Ordered index/tree có chi phí query/update/storage riêng. Lập luận partition chuyển sang được, nhưng số so sánh in-memory chưa dự đoán database I/O, concurrency, collation hay query plan.
 
+## Chuyển sang SQL Server: time window trên index
+
+Cùng contract membership chuyển trực tiếp sang T-SQL: `ts >= @s AND ts < @e`. Trong database thử nghiệm, ví dụ này giữ timestamp duplicate thành các event riêng:
+
+```sql
+CREATE TABLE dbo.Events
+(
+    event_id bigint IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+    ts datetime2(7) NOT NULL
+);
+CREATE INDEX IX_Events_ts ON dbo.Events(ts);
+
+INSERT dbo.Events(ts) VALUES
+('2026-10-06T10:00:00'),
+('2026-10-06T10:00:00'),
+('2026-10-06T10:10:00'),
+('2026-10-06T10:30:00'),
+('2026-10-06T10:30:00'),
+('2026-10-06T10:40:00');
+
+DECLARE @s datetime2(7) = '2026-10-06T10:00:00';
+DECLARE @e datetime2(7) = '2026-10-06T10:30:00';
+IF @e < @s THROW 50001, 'end precedes start', 1;
+
+SELECT COUNT_BIG(*) AS event_count
+FROM dbo.Events
+WHERE ts >= @s AND ts < @e;
+```
+
+Count kỳ vọng là **3**: tính hai row ở start và row 10:10; loại hai row ở end. Biên bằng nhau trả zero. `BETWEEN @s AND @e` sẽ tính end, đổi contract. Không dùng unique index trên `ts` trừ khi domain cấm event đồng thời; timestamp và định danh event trả lời hai câu hỏi khác nhau.
+
+Range predicate là **sargable**: so trực tiếp cột có index với parameter có kiểu tương thích, cho phép SQL Server dùng biên index seek. Function như `CAST(ts AS date)` bọc cột có thể cản range access trực tiếp này; tính query bound trước query. Sargability cho phép seek, không đảm bảo seek: selectivity, statistics, kích thước table và optimizer quyết định plan. Xem actual execution plan và `SET STATISTICS IO ON` khi chạy ví dụ SQL tùy chọn.
+
+Hai lower boundary trên random-access array cho count bằng phép trừ index. Index SQL Server thông thường không biến `COUNT_BIG` thành phép O(log n) tương đương: execution vẫn có thể phải đọc mọi index entry thỏa điều kiện để aggregate count. Tìm range và đếm range có chi phí riêng. `datetime2` không lưu timezone; dùng quy ước UTC nhất quán hoặc representation đã normalize rõ cho cả value lưu và bound. Khớp unit và precision, không cộng “epsilon” tùy ý vào endpoint inclusive. Console lab check logic integer-window, không thực thi ví dụ SQL này.
+
 ## Rubric, feedback và exit
 
 Dùng các câu sau để review implementation:
@@ -263,14 +356,16 @@ Ba câu để đọc sâu: Vì sao left/right boundary khác ở equality? Key f
 - [Tài liệu Python bisect](https://docs.python.org/3/library/bisect.html): contract partition left/right chính xác, key behavior và insert cost.
 - [CPython bisect source](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py) và [tests](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py): so quyết định implementation với trace và test tự thiết kế.
 - [Python sorting how-to](https://docs.python.org/3/howto/sorting.html): chuẩn bị dữ liệu sorted, key function và stable ordering trước query.
+- [List<T>.BinarySearch](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.binarysearch?view=net-10.0) và [Array.BinarySearch](https://learn.microsoft.com/en-us/dotnet/api/system.array.binarysearch?view=net-10.0): contract duplicate match và insertion position được complement.
+- [SQL Server index design guide](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide?view=sql-server-ver17): range predicate, lựa chọn index và query plan.
 
 <!-- LESSON_NAVIGATION_START -->
 ## Nội dung liên quan
 
-- [Bài 01 — Mô hình chi phí và khử trùng giữ thứ tự](../2026-10-05-cost-model/lesson.md) — Ôn cách công việc bên trong vòng lặp quyết định chi phí.
+- [Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#](../2026-10-05-cost-model/lesson.md) — Ôn cách công việc bên trong vòng lặp quyết định chi phí.
 - [Ghi chú theo chủ đề kỹ thuật](../../references/topic-notes.md) — Khám phá chỉ mục có thứ tự, xử lý truy vấn và thiết kế thuật toán.
 
 ---
 
-[← Bài trước: Bài 01 — Big-O và khử trùng bằng C#](../2026-10-05-cost-model/lesson.md) · [Danh sách bài học](../../README.md)
+[← Bài trước: Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#](../2026-10-05-cost-model/lesson.md) · [Danh sách bài học](../../README.md)
 <!-- LESSON_NAVIGATION_END -->

@@ -641,4 +641,4 @@ Tổng quan nghiên cứu kết nối một câu hỏi có phạm vi với evide
 
 ---
 
-[Bản đồ chủ đề](topic-map.md) · [Nguồn nội dung và attribution](../research/content-provenance.md)
+[Bản đồ chủ đề](topic-map.md) · [Nguồn nội dung và attribution](../docs/content-provenance.md)

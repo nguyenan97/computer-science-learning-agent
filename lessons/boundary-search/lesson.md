@@ -1,9 +1,8 @@
-<!-- contract-version: 1 -->
 # Lesson 02 — Boundary search: from sorted arrays to time-window queries
 
-**One full day: 420 minutes · 360 minutes of study + 60 minutes of breaks**
+**Study at your pace: trace → implement → test → transfer**
 
-[Tiếng Việt](../../vi/lessons/boundary-search/lesson.md)
+[Tiếng Việt](../../vi/lessons/boundary-search/lesson.md) · [Download the C# lab](https://nguyenan97.github.io/computer-science-learning-agent/labs/boundary-search/dotnet-lab.zip)
 
 The previous lesson asked whether an ID had appeared before. Now the data is sorted, and we need a different answer: **where does a condition first become true?** That boundary lets us count events in a time window without scanning every event for every query. The complete algorithm, its reasoning and worked exercises are on this page; the standard-library links are further reading.
 
@@ -13,22 +12,17 @@ The previous lesson asked whether an ID had appeared before. Now the data is sor
 
 You need indexed access, comparisons and loops. The half-open interval convention is explained below. If binary search is new, start with the numbered example rather than memorizing code.
 
-| Elapsed minutes | Activity | Hands-on minutes |
-|---|---|---:|
-| 0–20 | Recall the previous cost model; check indices and interval notation | 10 |
-| 20–70 | Understand the partition and reconstruct the worked trace | 20 |
-| 70–80 | Break | 0 |
-| 80–125 | Read the selected standard-library sources and answer the questions | 10 |
-| 125–170 | Inspect the implementation; trace equal, missing and beyond-range targets | 40 |
-| 170–200 | Lunch and rest | 0 |
-| 200–275 | Implement lower_bound, predict cases and debug | 70 |
-| 275–285 | Break | 0 |
-| 285–330 | Count element accesses and compare query/update costs | 40 |
-| 330–340 | Break | 0 |
-| 340–375 | Implement count_window and the record/key variation | 35 |
-| 375–420 | Explain the invariant, revisit errors and choose a review question | 10 |
+| Block | Activity | Concrete output |
+|---|---|---|
+| 1 | Recall cost models and half-open intervals | Explain the included indices and the cost of a front insertion |
+| 2 | Derive the partition and reconstruct the trace | Label both known regions and every update |
+| 3 | Predict duplicate, empty and missing-target cases | Expected boundary for each case before running code |
+| 4 | Implement and debug the C# lab | A lower boundary and window count checked against edge cases |
+| 5 | Compare library contracts and count element reads | Explain equality search, insertion encoding and query/update cost |
+| 6 | Transfer the window contract to event records and T-SQL | A query with matching endpoint semantics and an index explanation |
+| 7 | Explain back and revisit one error | State the invariant and answer a fresh duplicate case without notes |
 
-This route reserves 235 of 360 study minutes for active practice. Adjust the reading and coding blocks to your experience; paper traces work when you cannot run Python. Keep the main task bounded to sorted in-memory queries rather than building a database today.
+Take breaks and expand source reading according to your available research time. Every block can be traced on paper; running the lab is optional. Keep the core task bounded to sorted queries, then use the database section to understand the transfer rather than build a database application today.
 
 ## Retrieval warm-up and prerequisite check
 
@@ -132,7 +126,7 @@ assert values == [2, 4, 4, 9]
 
 A missing value has an insertion position: target 5 belongs between the last 4 and 9. This is why lower_bound remains useful without an equality match.
 
-Use the 75-minute block to reconstruct the method (20), predict edge cases (15), trace and test (20), deliberately introduce/debug a branch error (15), then explain the correction (5). Two especially useful mistakes:
+Reconstruct the method, predict edge cases, trace and test, deliberately introduce/debug a branch error, then explain the correction. Two especially useful mistakes:
 
 - `hi=mid-1`: on `[1,3]`, target 3, the first midpoint is 1; setting hi=0 loses the correct answer 1. The half-open invariant needs hi=mid.
 - `lo=mid`: when the region has length one and the value is too small, mid==lo, so the interval never shrinks. Use lo=mid+1.
@@ -174,6 +168,70 @@ Worked output:
 
 The target is near the middle of these synthetic sequences. Increasing n from 1,024 to 65,536 multiplies size by 64 but adds only six reads. Other targets can use a different number of reads; the worst-case growth remains logarithmic. This counts element accesses, not CPU instructions, wall-clock time or database page reads.
 
+## Transfer to C#: search contracts and a runnable lab
+
+C# is the implementation language for this lesson's runnable lab. The Python examples remain because CPython exposes a short, readable `bisect_left` implementation and its tests: compare the partition contract across languages, rather than add a Python dependency to your .NET work.
+
+### BinarySearch finds a match; it does not promise the first duplicate
+
+Both [`Array.BinarySearch`](https://learn.microsoft.com/en-us/dotnet/api/system.array.binarysearch?view=net-10.0) and [`List<T>.BinarySearch`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.binarysearch?view=net-10.0) require data sorted under the search comparer. A successful search returns a matching index, but the contract does **not** guarantee the first or last matching duplicate. A missing target returns the bitwise complement of its insertion position: decode a **negative** result with `~result`.
+
+```csharp
+long[] values = [10, 10, 20, 30, 30, 40];
+int match = Array.BinarySearch(values, 30L);
+Console.WriteLine(values[match]);
+
+List<long> list = [.. values];
+int result = list.BinarySearch(11L);
+int position = result >= 0 ? result : ~result;
+Console.WriteLine($"{result}, {position}");
+```
+
+This prints `30`, then `-3, 2`: 11 would be inserted at index 2. `-result` would produce 3 and be wrong. When a target is above the maximum, the insertion position is `Count`; it is a valid boundary but not an element you can read. An absent key has no duplicates to resolve, so this decoded position equals a lower boundary. A successful equality search provides no such first-duplicate promise. Do not subtract two successful `BinarySearch` results to count a window with duplicate endpoints.
+
+### Implement the partition in C#
+
+This is the full implementation from [the C# lab](../../labs/boundary-search/dotnet/README.md). It accepts arrays and `List<long>` through indexed `IReadOnlyList<long>` access:
+
+```csharp
+public static class BoundarySearch
+{
+    public static int LowerBound(IReadOnlyList<long> values, long target)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        int lo = 0, hi = values.Count;
+        while (lo < hi)
+        {
+            int mid = lo + (hi - lo) / 2;
+            if (values[mid] < target)
+                lo = mid + 1;
+            else
+                hi = mid;
+        }
+        return lo;
+    }
+
+    public static int CountWindow(IReadOnlyList<long> timestamps, long start, long end)
+    {
+        ArgumentNullException.ThrowIfNull(timestamps);
+        if (end < start)
+            throw new ArgumentException("end precedes start", nameof(end));
+        return LowerBound(timestamps, end) - LowerBound(timestamps, start);
+    }
+}
+```
+
+The equality branch keeps the first duplicate as a candidate. `lo + (hi - lo) / 2` avoids adding two large `int` indices; `(lo + hi) / 2` can overflow in C#, whereas Python integers do not have that fixed-width limit. The methods compare `long` keys without subtracting them, so extreme timestamps do not cause arithmetic overflow. The logarithmic comparison claim still assumes constant-time `Count`, indexing and comparison; an arbitrary `IReadOnlyList` implementation need not satisfy those assumptions.
+
+From `labs/boundary-search/dotnet`, with SDK 10.0.401:
+
+```bash
+dotnet run -c Release --project LessonLab
+dotnet run -c Release --project LessonLab -- --check
+```
+
+The default run shows a lower boundary of 3 for 30 and window counts 3, 0 and 3 for `[10,30)`, `[30,30)` and `[11,39)`. Checks cover first duplicates, absent targets, empty/equal/reversed windows, negative and extreme keys, input preservation and .NET insertion encoding. They also search a virtual array with `int.MaxValue` positions without allocating it, and compare small cases against a scan. A failing check exits nonzero. Reimplement before comparing if useful; the worked answer is always available and lab completion is optional.
+
 ## Read the standard-library implementation
 
 Python's official `bisect` implementation uses this partition idea. The following source slice is pinned so you can compare a stable implementation rather than a moving branch:
@@ -184,7 +242,7 @@ Python's official `bisect` implementation uses this partition idea. The followin
 
 **Reading answers:** bisect_left returns the boundary before equal values; bisect_right returns the boundary after equal values. The Python module can use a C implementation internally, so the installed interpreter need not execute the Python source body line by line. The contract remains the useful comparison.
 
-For the 45-minute experiment block, compare element reads for targets below, inside and above the sequence; predict how doubling n changes the bound. Then count how many entries must move when inserting near the front. Search is O(log n), but an array-backed list insertion is O(n) because storage must shift. Sorting an unsorted batch once costs O(n log n) in the usual comparison model; that preparation is separate from the cost of each later query.
+For the cost experiment, compare element reads for targets below, inside and above the sequence; predict how doubling n changes the bound. Then count how many entries must move when inserting near the front. Search is O(log n), but an array-backed list insertion is O(n) because storage must shift. Sorting an unsorted batch once costs O(n log n) in the usual comparison model; that preparation is separate from the cost of each later query.
 
 ## Independent challenge: time windows
 
@@ -230,6 +288,41 @@ Pass 20, not a full event record, as the target. The list must be sorted by time
 
 For frequent writes, a flat sorted list may be a poor fit. Ordered indexes or trees have their own query/update and storage costs. The partition reasoning transfers, but an in-memory comparison count alone does not predict database I/O, concurrency, collation or query plans.
 
+## Transfer to SQL Server: a time window over an index
+
+The same membership contract maps directly to T-SQL: `ts >= @s AND ts < @e`. In a scratch database, this example preserves duplicate timestamps as distinct events:
+
+```sql
+CREATE TABLE dbo.Events
+(
+    event_id bigint IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+    ts datetime2(7) NOT NULL
+);
+CREATE INDEX IX_Events_ts ON dbo.Events(ts);
+
+INSERT dbo.Events(ts) VALUES
+('2026-10-06T10:00:00'),
+('2026-10-06T10:00:00'),
+('2026-10-06T10:10:00'),
+('2026-10-06T10:30:00'),
+('2026-10-06T10:30:00'),
+('2026-10-06T10:40:00');
+
+DECLARE @s datetime2(7) = '2026-10-06T10:00:00';
+DECLARE @e datetime2(7) = '2026-10-06T10:30:00';
+IF @e < @s THROW 50001, 'end precedes start', 1;
+
+SELECT COUNT_BIG(*) AS event_count
+FROM dbo.Events
+WHERE ts >= @s AND ts < @e;
+```
+
+The expected count is **3**: both rows at start and the row at 10:10 are included; both rows at end are excluded. Equal bounds return zero. `BETWEEN @s AND @e` would include end and change the contract. Do not use a unique index on `ts` unless the domain forbids simultaneous events; timestamps and event identity answer different questions.
+
+The range predicate is **sargable**: the indexed column is directly compared with compatible parameter types, allowing SQL Server to use index seek boundaries. A function such as `CAST(ts AS date)` around the column can prevent this direct range access; compute query bounds before the query instead. Sargability permits a seek but does not guarantee one: selectivity, statistics, table size and the optimizer determine the plan. Inspect an actual execution plan and `SET STATISTICS IO ON` when you run the optional SQL example.
+
+Two lower boundaries in a random-access array give a count by index subtraction. A normal SQL Server index does not make `COUNT_BIG` an equivalent O(log n) operation: the execution may still visit all qualifying index entries to aggregate the count. Range location and range counting have separate costs. `datetime2` stores no timezone; use a consistent UTC convention or an explicitly normalized representation for both stored values and bounds. Match units and precision rather than add an arbitrary “epsilon” to an inclusive endpoint. The console lab checks integer-window logic and does not execute this SQL example.
+
 ## Rubric, feedback and explain-back
 
 Use these checks to review your implementation:
@@ -263,14 +356,16 @@ Three questions for deeper reading: Why do left and right boundaries differ on e
 - [Python bisect documentation](https://docs.python.org/3/library/bisect.html): precise left/right partition contracts, key behavior and insertion costs.
 - [CPython bisect source](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/bisect.py) and [tests](https://github.com/python/cpython/blob/0b05ead877f909b7efe712db758012d9dbece7ce/Lib/test/test_bisect.py): compare implementation choices with your trace and test design.
 - [Python sorting how-to](https://docs.python.org/3/howto/sorting.html): establish sorted data, key functions and stable ordering before querying.
+- [List<T>.BinarySearch](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.binarysearch?view=net-10.0) and [Array.BinarySearch](https://learn.microsoft.com/en-us/dotnet/api/system.array.binarysearch?view=net-10.0): duplicate-match and complemented insertion-position contracts.
+- [SQL Server index design guide](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide?view=sql-server-ver17): range predicates, index choices and query plans.
 
 <!-- LESSON_NAVIGATION_START -->
 ## Related reading
 
-- [Lesson 01 — Cost models and stable deduplication](../2026-10-05-cost-model/lesson.md) — Review how hidden work inside a loop determines its cost.
+- [Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#](../2026-10-05-cost-model/lesson.md) — Review how hidden work inside a loop determines its cost.
 - [Technical topic notes](../../references/topic-notes.md) — Explore ordered indexes, query processing and algorithm design.
 
 ---
 
-[← Previous: Lesson 01 — Big-O and stable deduplication in C#](../2026-10-05-cost-model/lesson.md) · [All lessons](../../README.md)
+[← Previous: Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#](../2026-10-05-cost-model/lesson.md) · [All lessons](../../README.md)
 <!-- LESSON_NAVIGATION_END -->

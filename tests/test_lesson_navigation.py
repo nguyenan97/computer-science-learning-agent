@@ -58,14 +58,53 @@ class LessonNavigationTests(unittest.TestCase):
             self.assertNotIn('Previous:',first)
             self.assertIn('Next: Lesson 2',first)
             self.assertEqual(first.count(navigation.START),1)
+            self.assertLess((root/'_sidebar.md').read_text().index('Lesson 3'),
+                            (root/'_sidebar.md').read_text().index('Lesson 1'))
+            self.assertIn('1. **[Lesson 3](lessons/lesson-3/lesson.md)**', (root/'README.md').read_text())
+
+    def test_sidebar_and_home_are_generated_without_replacing_reader_prose(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);entries=fixture(root)
+            entries[0]['summary']={'en':'Trace the cost.', 'vi':'Trace chi phí.'}
+            (root/'lessons/catalog.json').write_text(json.dumps({'lessons':entries}))
+            for language,prefix,heading in (('en','','Start learning'),('vi','vi/','Bắt đầu học')):
+                (root/(prefix+'README.md')).write_text(f'# Home\n\n## {heading}\n\n1. Old list\n2. Old second\n\nKeep this reader advice.\n')
+                sidebar_heading = 'Lessons' if language == 'en' else 'Bài học'
+                (root/(prefix+'_sidebar.md')).write_text(f'- [Home](/)\n\n- **{sidebar_heading}**\n  - [Old](/old)\n\n- **Explore**\n')
+            navigation.generate(root)
+            for prefix in ('','vi/'):
+                home=(root/(prefix+'README.md')).read_text()
+                self.assertIn('Keep this reader advice.',home)
+                self.assertNotIn('Old list',home)
+                self.assertEqual(home.count(navigation.LIST_START),1)
+                sidebar=(root/(prefix+'_sidebar.md')).read_text()
+                self.assertIn('- **Explore**',sidebar)
+                self.assertNotIn('[Old]',sidebar)
+                self.assertEqual(sidebar.count(navigation.SIDEBAR_START),1)
+            self.assertIn('Trace the cost.',(root/'README.md').read_text())
+            self.assertIn('Trace chi phí.',(root/'vi/README.md').read_text())
+            navigation.generate(root,check=True)
+
+    def test_stale_or_malformed_home_block_is_detected_before_any_mutations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);fixture(root);navigation.generate(root)
+            home=root/'README.md'
+            home.write_text(home.read_text().replace('Lesson 1','Outdated title'))
+            with self.assertRaisesRegex(ValueError,'README.md'):navigation.generate(root,check=True)
+            navigation.generate(root)
+            home.write_text(home.read_text().replace(navigation.LIST_END,''))
+            page=root/'lessons/lesson-1/lesson.md';before=page.read_bytes()
+            with self.assertRaisesRegex(ValueError,'markers'):navigation.generate(root)
+            self.assertEqual(page.read_bytes(),before)
 
     def test_missing_private_or_malformed_targets_fail_before_any_writes(self):
-        for variant in ('missing','private','incomplete-marker','content-after-footer'):
+        for variant in ('missing','private','unpublished','incomplete-marker','content-after-footer'):
             with self.subTest(variant=variant),tempfile.TemporaryDirectory() as directory:
                 root=Path(directory);entries=fixture(root)
                 first=root/entries[0]['files'][0]
                 last=root/entries[-1]['files'][-1]
                 if variant=='missing':entries[0]['related']['en'][0]['path']='references/missing.md'
+                if variant=='unpublished':entries[0]['published']=False
                 if variant=='private':
                     private=root/'.learning-private/notes.md';private.parent.mkdir();private.write_text('private')
                     entries[0]['related']['en'][0]['path']='.learning-private/notes.md'

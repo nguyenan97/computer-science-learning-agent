@@ -641,4 +641,4 @@ A literature review connects a bounded question to evidence, assumptions, disagr
 
 ---
 
-[Topic map](topic-map.md) · [Content sources and attribution](../research/content-provenance.md)
+[Topic map](topic-map.md) · [Content sources and attribution](../docs/content-provenance.md)

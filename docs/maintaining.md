@@ -1,47 +1,87 @@
 # Maintaining the learning agent
 
-The public home and lesson pages teach the reader. This repository document covers authoring, private state and release checks.
+Daily lessons use the public catalog. They do not require learner state, saved
+answers, attendance or completion. The learner requests each day manually in Codex.
 
-## Authoring
+## Codex and environment setup
 
-Keep the repository available when using [cs-daily-deep-study](../skills/cs-daily-deep-study/SKILL.md); its instructions use shared [pedagogy](../references/pedagogy.md), [source policy](../references/source-policy.md), [template](../references/lesson-template.md) and [workflow](../references/learning-workflow.md). Every lesson has full English and Vietnamese explanations, inline worked answers and supplementary sources/downloads. Internal state, audit logs and agent implementation details belong in maintainer documents or private workspaces.
+The root [AGENTS.md](../AGENTS.md) selects the canonical
+[cs-daily-deep-study skill](../skills/cs-daily-deep-study/SKILL.md), also discoverable
+through `.agents/skills/cs-daily-deep-study`. Both paths use one skill source.
+The single [lesson spec](../references/lesson-spec.md) owns authoring requirements.
 
-Edit [topics.json](../references/topics.json), then run `python scripts/generate_topic_map.py`. Keep publication order, bilingual titles and useful related links in [catalog](../lessons/catalog.json). Add only generic lesson/lab assets to its explicit `files` list. Run `python scripts/add_lesson_navigation.py` after publishing a new page or changing catalog order. It updates the bottom related/previous/next links for every language and never points to an unpublished lesson.
-
-## Private state and migration
-
-Use Python 3.12 and `requirements-dev.txt`. Canonical state defaults to ignored `.learning-private/learning-state.json` or an explicit external `--state`. Keep authored personal lessons, code and evidence beside it, untracked. Public [template](../state/learning-state.example.json) remains empty; [schema v3](../state/learning-state.schema.json) has no course codes. Initializing state is not required to read the website.
-
-```bash
-python -m pip install -r requirements-dev.txt
-python scripts/learning_state.py init
-python scripts/learning_state.py validate
-python scripts/learning_state.py plan
-python scripts/learning_state.py plan --minutes 60
-```
-
-For existing v1/v2 state, choose a fresh destination and retain the source:
+Use Python 3.12 and install the development dependencies. From the repository root:
 
 ```bash
-python scripts/learning_state.py --state /private/new/learning-state.json migrate --from-state /private/old/learning-state.json --artifact-root /private/old
+bash scripts/setup_environment.sh
+work/venv/bin/python scripts/check_all.py
 ```
 
-Migration preserves source and evidence; course metadata remains in the original. Invalid old completion linkage is rejected without inventing observations. Artifact/state path collisions are rejected before copying. Storage supports one writer; atomic replacement is not locking or backup. Structural topic linkage does not establish semantic objective/evidence relevance, which the assessor must review. See workflow for lifecycle, error-repair links and review history.
+The setup script installs the pinned .NET SDK used by the labs and prepares Python
+dependencies in `work/venv`. Activate that virtual environment before using the
+short `python` commands below. To make setup available in a new Codex cloud session, add the script
+invocation to that environment's setup configuration; a session-local installation
+does not configure future containers. Follow the script's output for its SDK path.
+Do not claim environment configuration was changed merely because local setup ran.
 
-## Validation and release
+## Add a lesson
+
+Write the complete page in `lessons/<id>/lesson.md` and
+`vi/lessons/<id>/lesson.md`, with shared runnable lab assets. Use C# by default,
+T-SQL for data work and Python only for an essential ecosystem with a C# bridge.
+Explanations, essential code and complete answers belong on each page; sources and
+downloads are supplements. Do not publish agent logs, audit dossiers or learner data.
+
+Update [catalog](../lessons/catalog.json) with its date, bilingual title, public
+files, related reading, three bilingual recall questions/answers and runnable lab
+metadata. Lab entries identify language, directory, correctness command and an
+optional archive; optional benchmark commands are diagnostic. Catalog entries are
+the source for navigation, lab archives, the public build and correctness runs.
 
 ```bash
-python scripts/generate_topic_map.py --check
-python scripts/add_lesson_navigation.py --check
-python scripts/validate_docs_navigation.py
-python scripts/validate_learning.py
-python -m unittest discover -s tests -v
-python scripts/build_public_site.py --output .site-build
-python scripts/check_lesson_site.py --site .site-build
+python scripts/review_queue.py --on YYYY-MM-DD
+python scripts/add_lesson_navigation.py
+work/venv/bin/python scripts/check_all.py
 ```
 
-The browser check needs playwright==1.62.0 and installed Chromium. CI additionally runs Python labs, .NET SDK 10.0.401 correctness checks, BenchmarkDotNet Dry and an extracted lab build. Checks verify artifacts, not learner mastery or educational effectiveness. The [verification record](../research/verification.md) and [learning-science review](../research/learning-science-review.md) give evidence and remaining limits; [skill scenarios](../skills/cs-daily-deep-study/evals/cases.json) are specifications, not executed model benchmarks.
+Copy the queue's selected questions and worked answers into the new lesson opening.
+It samples up to three eligible lessons deterministically, tolerates gaps in dates
+and uses no learner history; it does not guarantee each lesson at every interval. Discuss
+voluntary feedback in the current chat; do not persist a wrong-answer queue or log.
 
-The site builder normalizes repository Markdown links to Docsify routes, sends assets outside hash routing and stages only public content. Main-branch deployment calls the reusable validation job on the same `github.sha` and requires success. Editing or local staging does not publish; merging/pushing main triggers the existing Pages workflow.
+The navigation generator updates lesson footers, sidebars and marked homepage lists.
+Do not edit generated blocks manually. To change the broader topic map, edit
+[topics.json](../references/topics.json) and run `python scripts/generate_topic_map.py`.
+Adding a lesson does not require changing the skill, contract or CI workflow.
 
-Inherited [attribution](../research/content-provenance.md) is retained separately from topic selection. A project license remains undecided. Semantic bilingual parity requires review beyond structural checks.
+## Verification and publication
+
+The consolidated check runs required artifact validation, unit tests, catalog lab
+correctness, public build and extracted archive checks. Structural EN/VI parity
+does not replace a review of translation meaning. Browser verification and benchmark
+Dry runs are separate diagnostics; report whether they actually ran and their limits.
+Use `work/` for temporary copies so lab builds do not leave generated files in source.
+
+A request for today's lesson authorizes generic public files and a PR. Open the PR
+after checks pass, but merge or push main only after an explicit instruction. The
+existing main-branch Pages workflow deploys after required validation. Verify its
+result before reporting a new page as live. Local staging alone is not publication.
+
+The public builder stages catalog assets and a small explicit learner-document set,
+generates lab archives and normalizes links for Docsify. Verify both language pages,
+navigation and extracted lab commands. Never expose state, private directories or
+internal reports through the public file list. Tests verify code and content;
+they do not establish learner proficiency or educational effectiveness.
+
+## Legacy tools and provenance
+
+`scripts/learning_state.py` and the retained schema/tests are legacy maintainer tools,
+outside the daily loop. No real learner state is needed or initialized, and there is
+no old state to retain; v1/v2 migration support has been removed. Do not add a new state schema or mastery
+model to support ordinary lesson creation.
+
+Keep attribution and redistribution limits in
+[content provenance](content-provenance.md). The repository's public content should
+be original explanations with concise citations. Raw institutional syllabus extracts
+and internal research reviews are not public learning assets. Existing history is
+not rewritten by these authoring and build rules.

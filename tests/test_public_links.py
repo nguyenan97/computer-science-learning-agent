@@ -30,9 +30,12 @@ class PublishedLinksTests(unittest.TestCase):
                     self.assertIn('dotnet/'+name,names)
                 self.assertFalse(any('/bin/' in n or '/obj/' in n or '.learning-private' in n for n in names))
                 self.assertIn(b'(Core/Deduplication.cs)',archive.read('dotnet/README.md'))
-            # Assets bypass Docsify's Markdown routing; translated documents retain routes.
+            # Complete inline lessons link the runnable ZIP; optional guides expose
+            # individual source assets outside Docsify's Markdown routing.
             lesson=(site/'vi/lessons/2026-10-05-cost-model/lesson.md').read_text()
-            self.assertIn('labs/cost-model/dotnet/Core/Deduplication.cs ":ignore"',lesson)
+            self.assertIn('/labs/cost-model/dotnet-lab.zip',lesson)
+            guide=(site/'labs/cost-model/dotnet/README.vi.md').read_text()
+            self.assertIn('labs/cost-model/dotnet/Core/Deduplication.cs ":ignore"',guide)
             self.assertIn('/lessons/2026-10-05-cost-model/lesson)',lesson)
 
 

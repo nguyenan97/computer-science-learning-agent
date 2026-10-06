@@ -1,69 +1,23 @@
-# Verification and remaining limitations
+# Verification — topic-based full-day study
 
-Runtime refactor checked locally **2026-10-05**, Python **3.12.14**, jsonschema
-**4.26.0**, PyYAML **6.0.3**. All walkthroughs use synthetic data in temporary workspaces; no actual
-learner history was created. These changes have not been pushed, merged or deployed.
-The earlier main commit had successful GitHub checks and a Pages deployment; that
-is separate from verification of this refactor.
+This record documents local pre-merge checks on 2026-10-06, based on `fe74583`. Release workflow and deployment status are recorded separately in GitHub Actions. No real private learner state was read, migrated or modified; state cases use synthetic temporary workspaces.
 
-## Current results
+## Executed checks
 
-| Check | Result / scope |
-|---|---|
-| Curriculum generator --check | EN/VI maps unchanged and up to date |
-| Docsify navigation | Route mirrors, navbar and hash routing pass |
-| Learning validator | Empty public v2 template, fixture isolation, semantic checks, matching contract versions, skill metadata/eval identifiers, sample artifacts and local links pass; rejects tracked private workspace |
-| Unittest discover | 27 behavioral tests pass, all synthetic |
-| Reference lab --stage all | 4 tests pass, including partition/search budget, window edge cases, input preservation and logarithmic window access |
-| Observer | n=8/1024/65536: indices 4/512/32768, reads 3/10/16; duplicate index 1, missing index 3 |
-| OpenAI skill-creator quick_validate | Skill frontmatter/name/description valid; this is structural, not a model-behavior evaluation |
-| Public-site builder | Stages public documentation/template/fixed sample; planted synthetic private state, legacy state and extra learner lesson excluded; symlink-based public inclusion rejected |
-| Diff whitespace | git diff --check passes |
+- Runtime regressions cover same-topic completion, unknown/self-reported/observed knowledge, full-day/short budgets, v1/v2 migration and evidence preservation, private artifacts, repair links, due reviews and public/private isolation.
+- CI configuration is checked for a reusable validation gate, a main-branch deployment condition, least-privilege validation and identical `github.sha` checkouts. This documents local configuration checks; the release PR must also pass GitHub CI before merge.
+- Topic graph generation validates bilingual fields, unique nonblank IDs, missing prerequisites and cycles. Generated maps are checked for drift; navigation mirrors and shared contract versions are validated.
+- Python reference labs: 4 boundary-search checks and 4 cost-model checks pass. Observed counts agree with lesson examples.
+- .NET SDK 10.0.401: all 8 C# correctness checks pass and the observation command produces the advertised stable output/counts. BenchmarkDotNet 0.15.8 executes 12 Dry cases. Dry validates the harness, not speed estimates; no new ShortRun/production benchmark claim.
 
-Regression tests cover: an unrelated developing exit cannot erase needs_support;
-only valid explicit independent non-exit repair links resolve errors; unresolved
-prerequisite topics remain visible without a completed lesson; generated drafts are
-reused; lifecycle and review dates project through an earlier day; same-day failed
-review/retry retains order and true dates; linear or mutating challenge implementations
-are rejected; initialization never overwrites; invalid changes preserve file bytes;
-real artifact paths cannot escape the workspace; v1 migration preserves original
-bytes, keeps errors unresolved and copies lesson files from an explicit artifact root.
+Integrated checks: **47 unit tests pass**; map/navigation/learning validators pass; site stages **76 public files**. Chromium verifies **4 lesson pages, 4 language switches, 4 previous/next clicks, 97 internal document links and 2 download assets** with verified TLS. The extracted ZIP runs all **8 C# checks** and builds the benchmark project with zero warnings/errors without a repository checkout. Visual home/lesson review confirms meaningful rendered content, navigation and no horizontal page overflow or JavaScript runtime exceptions. Docsify emits four expected 404 probes for nested `_navbar.md`/`_sidebar.md` before loading the correct ancestor menu; these were inspected and are not broken lesson links.
 
-The seven-day synthetic CLI walkthrough executes generated → assigned → in_progress
-→ practice → completed → scheduled review → failed recall → same-day repair → delayed
-recall/transfer. It preserves three actual simulated review attempts and the original
-scheduled date. This proves script interoperability for the scenario, not learning.
+## Content and skill review
 
-## Research and behavioral limits
+The renamed [skill](../skills/cs-daily-deep-study/SKILL.md) and bilingual owned contracts specify a complete day, optional submissions, accessible answers, evidence-based adaptation and no gate on the next lesson. Both published lessons include full inline explanations, runnable examples, reasoned answers and catalog-generated related/previous/next links. All inline Python examples execute; the two inline C# methods compile and pass order, equality, boundary and null-policy checks. Navigation regressions cover reordering, first/last boundaries, invalid targets and lesson-file/parent symlinks without private or partial writes. The [cost-model sample](../lessons/2026-10-05-cost-model/lesson.md) has matching English/Vietnamese objectives, commands, solutions, rubric and schedule: 420 elapsed minutes = 360 learning + 60 breaks; 235 planned active minutes (65.3%). The timetable is a design heuristic; actual learner time was not measured.
 
-The [runtime design review](runtime-design-review.md) and [source log](runtime-source-checks.json)
-record Agent Skills/OpenAI engineering guidance and directly read IES/WWC practice-guide
-sections. The earlier Deans for Impact/Carpentries source checks remain historical
-records; inaccessible candidate primary papers are still not independently verified.
-No effect size, universal spacing schedule, token saving or learner improvement is claimed.
+The [learning-science review](learning-science-review.md) and [access log](deep-study-source-checks.json) distinguish inspected full-text sections, abstract-only evidence and inaccessible materials. [Provenance](content-provenance.md) retains inherited attribution without institutional requirements in active planning. [Evaluation scenarios](../skills/cs-daily-deep-study/evals/cases.json) are synthetic specifications, not executed model benchmarks.
 
-Six [skill evaluation specifications](../skills/master-iuh-daily-learning/evals/cases.json)
-cover cold start, interrupted drafts, contradictory evidence, same-day correction,
-offline short sessions and draft-only requests. They have not been run as isolated
-model trials against a baseline. Deterministic state tests do not prove tutor adherence.
+## Limits
 
-Dates are day-granularity with append order within a day; no intra-day retention
-interval is inferred. Plan projections are not a historical audit of profile changes
-or review creation time. The evidence summary is a conservative heuristic, not a
-validated psychometric model; tutor must assess repair relevance, difficulty,
-explanation, independence and semantic duplication.
-
-Private files are Git-ignored, not encrypted. Do not force-add learner data to a public
-repository. One-writer coordination, durable storage and backups remain host tasks.
-Migration preserves free-text evidence references without rewriting them; keep their
-code/output revisions and check links before resuming.
-
-Translation checks are structural; bilingual semantic review is still required.
-Original curriculum PDFs/current IUH regulations, full upstream CPython tests,
-SQL/.NET/cloud labs, interactive browser rendering and real learner retention were
-not verified in this refactor. The starter remains intentionally unfinished, and
-mentor solutions are separated by tutoring convention rather than access control.
-
-Follow-up preference update: daily delivery now includes complete Vietnamese/English versions, optional exercises with accessible solutions, 90-minute default and optional 180+ minute depth. No submission gate for a new lesson. Assessment still requires actual evidence. Seven evaluation specifications are defined; no model benchmark claimed.
-
-Public lesson follow-up: Lesson 01 is published in paired EN/VI paths with its shared lab and source/agent-check assets. Pages reads an explicit lesson catalog. Packaging tests now verify both public language versions, reject private catalog paths, and still exclude synthetic private markers. Personal session state is not included.
+No independent learner response, delayed retention/transfer outcome or educational-effectiveness study was conducted. Semantic objective/evidence relevance, assistance provenance and translation quality require assessor review; JSON matching does not prove them. The current topic sequence, allocation of time and mastery labels are project choices. No upstream .NET/CPython full suite, Windows/macOS test, live production deployment in this local record, new statistically useful performance benchmark or exhaustive systematic literature review is claimed. The project license remains undecided.

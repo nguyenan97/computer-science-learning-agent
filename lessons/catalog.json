@@ -29,6 +29,77 @@
         "labs/cost-model/dotnet/LessonLab/Checks.cs",
         "labs/cost-model/dotnet/Benchmarks/Benchmarks.csproj",
         "labs/cost-model/dotnet/Benchmarks/Program.cs"
+      ],
+      "related": {
+        "en": [
+          {
+            "title": "Topic map",
+            "path": "references/topic-map.md",
+            "description": "Choose the foundations or deeper topic to study next."
+          },
+          {
+            "title": "C# lab guide",
+            "path": "labs/cost-model/dotnet/README.md",
+            "description": "SDK setup, copyable commands and benchmark troubleshooting."
+          }
+        ],
+        "vi": [
+          {
+            "title": "Bản đồ chủ đề",
+            "path": "vi/references/topic-map.md",
+            "description": "Chọn phần nền tảng hoặc chủ đề muốn học sâu tiếp theo."
+          },
+          {
+            "title": "Hướng dẫn lab C#",
+            "path": "labs/cost-model/dotnet/README.vi.md",
+            "description": "Cài SDK, lệnh chạy và cách xử lý lỗi benchmark."
+          }
+        ]
+      }
+    },
+    {
+      "id": "boundary-search",
+      "date": "2026-10-06",
+      "title": {
+        "en": "Lesson 02 — Boundary search and time windows",
+        "vi": "Bài 02 — Tìm biên và cửa sổ thời gian"
+      },
+      "related": {
+        "en": [
+          {
+            "title": "Lesson 01 — Cost models and stable deduplication",
+            "path": "lessons/2026-10-05-cost-model/lesson.md",
+            "description": "Review how hidden work inside a loop determines its cost."
+          },
+          {
+            "title": "Technical topic notes",
+            "path": "references/topic-notes.md",
+            "description": "Explore ordered indexes, query processing and algorithm design."
+          }
+        ],
+        "vi": [
+          {
+            "title": "Bài 01 — Mô hình chi phí và khử trùng giữ thứ tự",
+            "path": "vi/lessons/2026-10-05-cost-model/lesson.md",
+            "description": "Ôn cách công việc bên trong vòng lặp quyết định chi phí."
+          },
+          {
+            "title": "Ghi chú theo chủ đề kỹ thuật",
+            "path": "vi/references/topic-notes.md",
+            "description": "Khám phá chỉ mục có thứ tự, xử lý truy vấn và thiết kế thuật toán."
+          }
+        ]
+      },
+      "files": [
+        "lessons/boundary-search/lesson.md",
+        "vi/lessons/boundary-search/lesson.md",
+        "lessons/boundary-search/record.json",
+        "lessons/boundary-search/repository-evidence.json",
+        "labs/boundary-search/starter.py",
+        "labs/boundary-search/check.py",
+        "labs/boundary-search/observe.py",
+        "labs/boundary-search/mentor/solution.py",
+        "labs/boundary-search/mentor/hints.md"
       ]
     }
   ]

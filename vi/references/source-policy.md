@@ -1,23 +1,41 @@
-<!-- contract-version: 1 -->
+<!-- contract-version: 5 -->
 # Chính sách nguồn
 
-Bản dịch của [policy chính](../../references/source-policy.md), là nguồn duy nhất cho nghiên cứu và đánh giá repo. Curriculum xác định phạm vi; tài liệu kỹ thuật gốc xác định hành vi triển khai; nghiên cứu học thuật xác định claim lý thuyết/học tập; OSS cho thấy một implementation; instructor synthesis đề xuất kết nối. Ghi nhãn cả năm vai trò; prerequisite suy luận không phải quy định IUH.
+Chọn phạm vi từ mục tiêu, prerequisite và [bản đồ chủ đề](topic-map.md). Nguồn học thuật hỗ trợ claim lý thuyết/học tập; tài liệu/chuẩn chính thức mô tả hành vi kỹ thuật; implementation/test được ghim cho thấy một cách triển khai; tổng hợp của tutor đề xuất kết nối. Ghi rõ vai trò. Topic map là thiết kế project, không chứng minh năng lực hay là yêu cầu đào tạo bên ngoài.
 
 ## Research mỗi bài
 
-Đọc curriculum trước, nghiên cứu nền tảng và một cập nhật liên quan trực tiếp. Ưu tiên systematic review/meta-analysis và nghiên cứu gốc cho pedagogy; xem đối tượng, task, control, độ trễ, outcome, uncertainty và moderator trước claim hiệu quả. API ưu tiên docs/standard/source/test chính thức. Theory cũ vẫn có giá trị; mới không đồng nghĩa bằng chứng tốt hơn.
+Bắt đầu với một objective đo được và 2–4 câu hỏi có thể trả lời. Tách claim nền tảng ổn định với implementation thay đổi. Ưu tiên nghiên cứu gốc, systematic review/meta-analysis và tổng hợp học thuật cho phương pháp học; tài liệu, chuẩn và code/test chính thức cho kỹ thuật. Mới/cũ không tự quyết định chất lượng.
 
-Chọn bộ nguồn đủ nhỏ hỗ trợ mục tiêu (thường 3–6, heuristic). Ghi title/author, URL, role, claim/section dùng, ngày kiểm tra, version/commit, trạng thái read/metadata_only/unavailable và giới hạn/conflict. Đọc abstract/citation không phải đọc methods; không bịa kết quả từ nguồn không truy cập được. Tách theory ổn định, hành vi đã xác minh theo version, hướng dẫn hiện hành chưa xác minh và nhận định người hướng dẫn.
+Dùng bộ nguồn nhỏ hữu ích, thường 3–6 (heuristic). Ghi title/tác giả, URL, vai trò, claim/section dùng, ngày kiểm tra, version/commit, trạng thái (`read`, `metadata_only`, `unavailable`) và **phạm vi đọc**: abstract, một số phần full text, toàn văn hay metadata. Tải PDF không có nghĩa đã đọc; abstract không phải review methods. Giữ attribution gốc khi tổ chức lại. Không chép lượng lớn văn bản nguồn vào bài.
 
-Fact thay đổi phải kiểm tra lúc học: dependency/tool version, support, cloud limit, security, API, stars/activity. Version ghim để tái lập tách khỏi version mới nhất/khuyến nghị production. Access thất bại → nguồn ổn định đã kiểm tra hoặc hoãn; không gắn năm hiện hành cố định.
+Với claim nghiên cứu, xem population, task, comparison, độ trễ, outcome và giới hạn trong mức truy cập thật. Tách finding của paper với suy luận áp dụng sang học lập trình. Không bịa effect size, nhân quả, khuyến nghị hay tuyên bố review đầy đủ. Ghi correction/retraction nếu phát hiện; khi chưa đọc thì không dùng số liệu có thể bị ảnh hưởng. Nêu nguồn mâu thuẫn và điều gì có thể phân biệt chúng.
 
-## Quy trình GitHub
+[Review learning science](../research/learning-science-review.md) và [log truy cập chung](../../research/deep-study-source-checks.json) cung cấp bằng chứng kiểm tra ban đầu. Chúng không chứng minh hiệu quả agent, lịch phổ quát hay tỷ lệ thực hành tối ưu.
 
-1. Query hẹp theo mục tiêu/stack; khám phá repo nhiều star và lựa chọn chính thức/chuyên sâu. Thường chọn một, đôi lúc hai; chủ đề không phù hợp thì giải thích bỏ GitHub.
-2. Ghi stars chính xác nếu lấy được, thời điểm, maintainer, archived, commit branch mặc định và release. API ưu tiên; HTML có provenance được chấp nhận. Chưa biết → null và lý do, không ước lượng. Ngưỡng stars chỉ giúp discovery.
-3. Đánh giá fit, authority, usage có bằng chứng, maintenance/release, code/test/benchmark/docs, license, chi phí chạy và độ phức tạp học. Stars không chứng minh adoption; ghi điều chưa biết, không bịa điểm tổng hợp.
-4. Chọn lát cắt vừa đủ; giải thích lựa chọn ít star hơn khi tốt cho mục tiêu, ghi ngắn alternative bị loại. Archived cần xác minh trực tiếp; không thấy banner là bằng chứng yếu hơn field rõ.
-5. Ghim SHA hoặc release với SHA đã resolve; link file/function/test/benchmark/issue/PR cụ thể. Thiết kế predict, trace, fix, experiment hoặc comparison nối theory với trade-off.
-6. Ghi version/data/commands, observation dự kiến và việc đã chạy thật. Có thể đọc code ghim rồi chạy bản cục bộ tương đương, nhưng không gọi đó là upstream build. License không tự cho quyền phân phối mọi dependency/curriculum.
+## Đọc để trả lời và kiểm tra câu hỏi
 
-Không README-only link dump, không stars-as-quality, không benchmark thiếu workload/environment, không dùng API sinh ra làm bằng chứng. Stack mặc định C#/.NET/T-SQL/TypeScript/Azure dùng khi hợp mục tiêu; không ép GitHub/công cụ.
+Giải thích ý chính có nguồn hỗ trợ, ví dụ và code bằng lời của bài ngay trên trang.
+Không buộc người học mở paper/repo/download để lấy phần giải thích hay lời giải
+chính. Đọc bổ sung có section, câu hỏi và output: bảng claim, dự đoán, trace chú thích,
+so sánh hoặc thí nghiệm. Giới hạn lướt mở; giữ câu hỏi chưa trả lời cho sau. Tách kết
+quả đã quan sát, dự đoán, suy luận và claim chưa xác minh.
+
+Ngày/status kiểm tra, hash, access log, dossier đánh giá repo và log agent ở artifact
+riêng hoặc tài liệu maintainer. Trang cho người học có trích dẫn ngắn liên quan và
+footer đọc bổ sung chọn lọc, mô tả mỗi nguồn giúp gì. Giữ attribution. Chỉ đưa giới
+hạn truy cập/xác minh lên bài khi cần hiểu kết quả hoặc chạy code; không chép bảng
+audit nội bộ hay lặp disclaimer trong mọi bài.
+
+Kiểm tra thông tin thay đổi khi viết bài: API/dependency, hỗ trợ, hạn mức cloud, hướng dẫn bảo mật và hoạt động repo. Pin version tái hiện riêng; ví dụ cũ tái hiện được không tự là khuyến nghị production mới nhất. Truy cập thất bại thì ghi giới hạn thật, dùng nguồn ổn định đã xác minh/tương đương cục bộ hoặc dời claim. Hai ngôn ngữ cùng nêu uncertainty.
+
+## Quy trình implementation/repo
+
+1. Tìm hẹp từ objective. So implementation chính thức/chuyên môn với phương án phổ biến liên quan khi hữu ích. GitHub tùy chọn nếu chuẩn, local implementation hoặc paper trace dạy tốt hơn.
+2. Ghi maintainer, license, archive, release/default branch và stars với thời điểm nếu lấy được. Trường thiếu/mơ hồ dùng null kèm lý do. Phổ biến chỉ giúp discovery, không bảo đảm chất lượng học hay mức sử dụng.
+3. Đánh giá độ khớp objective, thẩm quyền, bảo trì, code/test, docs, setup và độ phức tạp. Chọn phần nhỏ, thường một repo; giải thích phương án không chọn, không bịa điểm tổng hợp.
+4. Pin commit SHA bất biến (hoặc release có SHA đã giải quyết), link file/function/test/benchmark chính xác. Giao dự đoán, trace, sửa lỗi hoặc so sánh có kiểm soát nối behavior với model.
+5. Ghi working directory, runtime/dependency/data, seed, lệnh, observation kỳ vọng và phần agent thật sự chạy. Tách upstream execution, local equivalent và đọc code. Benchmark có workload/môi trường; một máy không chứng minh ưu thế tốc độ phổ quát.
+6. Giữ notice/license và attribution code phân phối; kiểm tra dependency riêng. Giữ riêng submissions và source artifact có thông tin nhận dạng.
+
+Không link dump chỉ README, API do model bịa, xếp stars thành chất lượng hay benchmark giả. Hỗ trợ offline. Nguồn không truy cập/lab chưa chạy giữ rõ trong research record, giải thích hệ quả liên quan người học khi cần.

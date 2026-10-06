@@ -1,6 +1,8 @@
+> Historical review of the 2026-10-05 rewrite; current behavior and checks are in [verification](verification.md).
+
 # Lesson 01 review and rewrite — 2026-10-05
 
-Scope: both lesson translations, linked labs/solutions, curriculum fit, sources,
+Scope: both lesson translations, linked labs/solutions, objective fit, sources,
 skill/template/workflow, private learning state, public staging and CI. This is an
 artifact/runtime review, not a learner study or a full security audit.
 
@@ -34,8 +36,7 @@ artifact/runtime review, not a learner study or a full security audit.
 
 ## What was verified
 
-- The curriculum's course 6001127 includes analysis/performance/algorithm selection.
-  This lesson sequence is instructor synthesis; current IUH regulations were not checked.
+- Historical objective selection used the prior academic source. Active selection now uses the topic map; attribution and originals are retained in [content provenance](content-provenance.md).
 - C# reference code: eight checks, including stable order, unchanged input, null/equality
   policy, collision correctness and duplicate counts.
 - ShortRun: 12 cases on Linux, with three warmup/measurement iterations each. Full
@@ -56,7 +57,7 @@ Bài cũ chưa đạt yêu cầu sử dụng: link lab/đổi ngôn ngữ bị l
 nhìn menu hoặc file tồn tại, và chưa dùng background nghề nghiệp mới được cung cấp.
 Bản viết lại sửa đường dẫn trong bước build, giải thích từ yêu cầu → trace → tổng
 chi phí → HashSet/correctness/bộ nhớ, dùng C# làm lab chính và tách benchmark vào nhánh
-180+ phút. Bài tập/lab/nộp bài vẫn tùy chọn, lời giải truy cập ngay, bản Việt–Anh đầy đủ.
+nghiên cứu sâu (lịch lịch sử; bản hiện tại dùng full-day). Bài tập/lab/nộp bài vẫn tùy chọn, lời giải truy cập ngay, bản Việt–Anh đầy đủ.
 
 Kiểm tra code, website và ZIP xác minh khả năng đọc/chạy artifact. Chúng chưa chứng
 minh người học hiểu bài hoặc học hiệu quả. Profile chỉ lưu riêng; không tạo assessment,

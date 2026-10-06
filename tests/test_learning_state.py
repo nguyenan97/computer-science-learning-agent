@@ -45,6 +45,41 @@ class ScenarioTests(unittest.TestCase):
         s=self.check(empty()); self.assertEqual(engine.plan(s,'2026-10-05')['action'],'diagnostic')
         self.assertEqual(engine.mastery(s,'new-topic'),'unknown')
 
+    def test_full_day_default_and_explicit_elapsed_budgets(self):
+        s=self.check(empty())
+        default=engine.plan(s,'2026-10-05')
+        self.assertEqual(default['minutes'],420)
+        self.assertTrue(default['time_budget']['includes_breaks'])
+        self.assertEqual(default['time_budget']['source'],'full_day_default')
+        s['learner']['daily_minutes']=25
+        self.assertEqual(engine.plan(s,'2026-10-05')['minutes'],25)
+        overridden=engine.plan(s,'2026-10-05',minutes=90)
+        self.assertEqual(overridden['minutes'],90)
+        self.assertEqual(overridden['time_budget']['mode'],'shortened')
+        self.assertEqual(s['learner']['daily_minutes'],25)
+        with self.assertRaises(ValueError):engine.plan(s,'2026-10-05',minutes=1)
+
+    def test_self_reported_background_and_unassessed_work_stay_unknown(self):
+        s=empty();s['learner']['background']='I have programmed for several years.'
+        l=lesson('in_progress');s['lessons']=[l]
+        a=assessment(l,outcome='unassessed');add(s,a);self.check(s)
+        p=engine.plan(s,'2026-10-05','ready')
+        self.assertEqual(p['knowledge']['background']['status'],'self_reported')
+        self.assertEqual(p['knowledge']['prerequisite_context']['status'],'caller_supplied')
+        self.assertEqual(p['knowledge']['topics'][l['topic_id']]['status'],'unknown')
+        self.assertEqual(p['knowledge']['topics'][l['topic_id']]['unassessed_ids'],['practice'])
+        self.assertEqual(p['knowledge']['topics']['array-indexing']['status'],'unknown')
+        self.assertEqual(p['mastery'][l['topic_id']],'unknown')
+
+    def test_observed_misconceptions_are_separate_from_background(self):
+        s=completed('needs_support');a=s['assessments'][0]
+        a['misconceptions']=['Treating the end position as inclusive.'];self.check(s)
+        p=engine.plan(s,'2026-10-05')
+        topic=p['knowledge']['topics'][a['topic_id']]
+        self.assertEqual(topic['status'],'observed')
+        self.assertEqual(topic['observed_misconceptions'],[{'assessment_id':'practice','misconceptions':a['misconceptions']}])
+        self.assertEqual(p['knowledge']['background']['status'],'unknown')
+
     def test_assigned_unattempted_resume_no_mastery(self):
         s=empty(); s['lessons']=[lesson('assigned')]; self.check(s)
         self.assertEqual(engine.plan(s,'2026-10-05')['action'],'resume')
@@ -107,6 +142,32 @@ class ScenarioTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.check(s)
         s=empty(); s['lessons']=[lesson('completed')]
         with self.assertRaises(ValueError): self.check(s)
+
+    def test_unrelated_evidence_cannot_complete_main_lesson(self):
+        for kind in ('prerequisite','practice','retrieval','transfer'):
+            with self.subTest(kind=kind):
+                s=completed('needs_support');s['assessments'][0].update(kind=kind,topic_id='array-indexing')
+                with self.assertRaisesRegex(ValueError,'same lesson topic'):self.check(s)
+
+    def test_other_topic_prerequisite_is_stored_without_completing_main_objective(self):
+        s=empty();l=lesson('in_progress');s['lessons']=[l]
+        prerequisite=assessment(l,'prereq','prerequisite',outcome='developing')
+        prerequisite['topic_id']='array-indexing';add(s,prerequisite);self.check(s)
+        with self.assertRaisesRegex(ValueError,'same lesson topic'):
+            engine.transition(s,l['id'],'completed','2026-10-05')
+        add(s,assessment(l,outcome='needs_support'))
+        result=engine.transition(s,l['id'],'completed','2026-10-05')
+        self.assertEqual(result['lessons'][0]['status'],'completed')
+        self.assertEqual(len(result['assessments']),2)
+        self.assertEqual(engine.mastery(result,l['topic_id']),'needs_remediation')
+
+    def test_future_attempt_or_exit_alone_cannot_complete_lesson(self):
+        for variant in ('future','exit'):
+            with self.subTest(variant=variant):
+                s=completed()
+                if variant=='future':s['assessments'][0]['observed_on']='2026-10-06'
+                else:s['assessments'][0]['kind']='exit'
+                with self.assertRaisesRegex(ValueError,'completion requires'):self.check(s)
 
     def test_no_duplicate_core_but_intentional_remediation_allowed(self):
         s=completed(); other=lesson(); other['id']='second'; s['lessons'].append(other)

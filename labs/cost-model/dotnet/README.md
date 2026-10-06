@@ -2,9 +2,13 @@
 
 [Tiếng Việt](README.vi.md) · [English lesson](../../../lessons/2026-10-05-cost-model/lesson.md)
 
-Optional reference lab; complete worked code is in [Core/Deduplication.cs](Core/Deduplication.cs).
-No learner implementation or submission is required. The older Python files one directory
-above are retained for existing GitHub links; this C# project is the current lesson's lab.
+The full-day lesson uses this lab for guided C# implementation, debugging and a
+CPU/allocation experiment. Complete worked code is in [Core/Deduplication.cs](Core/Deduplication.cs).
+Keep your attempts and experiment notes in a private copy; unchanged commands run
+reference code and do not demonstrate independent learner work. All practice and
+submission remain optional, and the next lesson is available without submitting.
+The Python files one directory above provide an offline fallback and a small language
+comparison; their counters and set internals are not interchangeable with this C# lab.
 
 ## Run the small lab
 

@@ -2,9 +2,12 @@
 
 [English](README.md) · [Bài tiếng Việt](../../../vi/lessons/2026-10-05-cost-model/lesson.md)
 
-Lab tùy chọn; lời giải đầy đủ ở [Core/Deduplication.cs](Core/Deduplication.cs).
-Không cần tự code hay nộp bài. File Python ở thư mục cha được giữ để link GitHub cũ
-còn dùng được; project C# này là lab chính của bài đã viết lại.
+Bài học full-day dùng lab này để implement C# có hướng dẫn, debug và thí nghiệm
+CPU/allocation. Lời giải đầy đủ ở [Core/Deduplication.cs](Core/Deduplication.cs).
+Giữ attempt và ghi chú thí nghiệm trong bản riêng tư; lệnh chưa sửa chạy code mẫu,
+chưa chứng minh người học làm độc lập. Thực hành/nộp bài đều tùy chọn, không nộp
+vẫn được học ngày sau. File Python ở thư mục cha hỗ trợ fallback offline và đối chiếu
+nhỏ giữa ngôn ngữ; counter và set internals không thay thế tương đương cho lab C#.
 
 ## Chạy lab nhỏ
 

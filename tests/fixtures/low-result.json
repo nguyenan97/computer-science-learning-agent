@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "fixture": true,
   "learner": {
     "timezone": "Asia/Bangkok",
@@ -13,7 +13,6 @@
     {
       "id": "fixture-session",
       "topic_id": "advanced-algorithms.boundary-search.l1",
-      "course_code": "6001127",
       "title": "Boundary search and half-open time windows",
       "objective": "Implement and justify lower_bound; transfer partition reasoning to time-window counting",
       "concepts": [

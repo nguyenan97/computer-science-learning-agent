@@ -1,0 +1,381 @@
+{
+  "version": 1,
+  "relationship_basis": "project instructional design; verify readiness from learner evidence",
+  "topics": [
+    {
+      "id": "foundations.program-reasoning",
+      "title": {
+        "en": "Program contracts and invariants",
+        "vi": "Hợp đồng chương trình và bất biến"
+      },
+      "prerequisites": [],
+      "objective": {
+        "en": "Trace a loop, state its invariant and produce a counterexample to a broken boundary rule.",
+        "vi": "Trace vòng lặp, nêu bất biến và dựng phản ví dụ cho quy tắc biên sai."
+      },
+      "practice": {
+        "en": "Build a small table-driven checker with empty, duplicate and boundary inputs.",
+        "vi": "Viết checker theo bảng cho dữ liệu rỗng, trùng lặp và ở biên."
+      }
+    },
+    {
+      "id": "advanced-algorithms.cost-model-membership.l1",
+      "title": {
+        "en": "Stable deduplication and cost models",
+        "vi": "Khử trùng giữ thứ tự và mô hình chi phí"
+      },
+      "prerequisites": [
+        "foundations.program-reasoning"
+      ],
+      "objective": {
+        "en": "Select scan or hashing under explicit order/equality/memory constraints and justify counts separately from timings.",
+        "vi": "Chọn scan hoặc hash theo ràng buộc thứ tự/bằng nhau/bộ nhớ, giải thích số phép tính riêng với thời gian đo."
+      },
+      "practice": {
+        "en": "Implement, test collisions and benchmark scan versus HashSet on controlled datasets.",
+        "vi": "Implement, kiểm tra collision và benchmark scan với HashSet trên dữ liệu có kiểm soát."
+      }
+    },
+    {
+      "id": "advanced-algorithms.boundary-search.l1",
+      "title": {
+        "en": "Boundary search and ordered queries",
+        "vi": "Tìm biên và truy vấn có thứ tự"
+      },
+      "prerequisites": [
+        "foundations.program-reasoning"
+      ],
+      "objective": {
+        "en": "Derive lower/upper bounds and implement half-open window counting with logarithmic access.",
+        "vi": "Suy ra lower/upper bound và đếm cửa sổ nửa mở với số lần truy cập logarithm."
+      },
+      "practice": {
+        "en": "Use pinned bisect source, trace duplicates, test access budget and transfer to timestamp windows.",
+        "vi": "Đọc bisect ở pin, trace dữ liệu trùng, kiểm tra số truy cập và áp dụng cho cửa sổ timestamp."
+      }
+    },
+    {
+      "id": "algorithms.graphs",
+      "title": {
+        "en": "Graphs and strategy selection",
+        "vi": "Đồ thị và chọn chiến lược"
+      },
+      "prerequisites": [
+        "foundations.program-reasoning"
+      ],
+      "objective": {
+        "en": "Choose BFS or Dijkstra from edge assumptions and demonstrate a counterexample for the wrong choice.",
+        "vi": "Chọn BFS hay Dijkstra theo giả thiết trọng số và đưa phản ví dụ khi chọn sai."
+      },
+      "practice": {
+        "en": "Build a route solver and compare visited nodes and path correctness.",
+        "vi": "Viết bộ tìm đường, so sánh node đã thăm và tính đúng đường đi."
+      }
+    },
+    {
+      "id": "algorithms.optimization",
+      "title": {
+        "en": "Dynamic programming and approximation",
+        "vi": "Quy hoạch động và xấp xỉ"
+      },
+      "prerequisites": [
+        "algorithms.graphs"
+      ],
+      "objective": {
+        "en": "Define state/recurrence, compare a greedy counterexample and bound solution quality for one optimization task.",
+        "vi": "Định nghĩa state/công thức truy hồi, so phản ví dụ greedy và chặn chất lượng cho một bài tối ưu."
+      },
+      "practice": {
+        "en": "Implement a small exact oracle and compare candidate heuristics on generated instances.",
+        "vi": "Viết oracle chính xác nhỏ và so heuristic trên dữ liệu sinh."
+      }
+    },
+    {
+      "id": "data.indexes",
+      "title": {
+        "en": "Storage, indexes and query plans",
+        "vi": "Lưu trữ, chỉ mục và query plan"
+      },
+      "prerequisites": [
+        "advanced-algorithms.boundary-search.l1"
+      ],
+      "objective": {
+        "en": "Explain seek versus scan from selectivity, ordering and update cost, using a real query plan.",
+        "vi": "Giải thích seek với scan theo selectivity, thứ tự và chi phí cập nhật bằng query plan thật."
+      },
+      "practice": {
+        "en": "Populate a local database, inspect plans and measure indexed and unindexed workloads.",
+        "vi": "Nạp database cục bộ, đọc plan và đo workload có/không có index."
+      }
+    },
+    {
+      "id": "data.transactions",
+      "title": {
+        "en": "Transactions, concurrency and recovery",
+        "vi": "Transaction, đồng thời và phục hồi"
+      },
+      "prerequisites": [
+        "data.indexes"
+      ],
+      "objective": {
+        "en": "Reproduce one isolation anomaly and explain the selected prevention and recovery mechanism.",
+        "vi": "Tái hiện một anomaly isolation và giải thích cơ chế ngăn chặn/phục hồi đã chọn."
+      },
+      "practice": {
+        "en": "Run two concurrent clients with a logged schedule and crash/recovery trace.",
+        "vi": "Chạy hai client đồng thời với lịch thực thi ghi lại và trace crash/recovery."
+      }
+    },
+    {
+      "id": "statistics.uncertainty",
+      "title": {
+        "en": "Probability, estimation and uncertainty",
+        "vi": "Xác suất, ước lượng và độ bất định"
+      },
+      "prerequisites": [],
+      "objective": {
+        "en": "Interpret sampling variation and confidence intervals without treating one run as a universal result.",
+        "vi": "Diễn giải biến thiên lấy mẫu và khoảng tin cậy, không xem một lần chạy là kết quả phổ quát."
+      },
+      "practice": {
+        "en": "Simulate samples, plot distributions and test assumptions on a reproducible seed.",
+        "vi": "Mô phỏng mẫu, vẽ phân phối và kiểm tra giả thiết với seed tái lập."
+      }
+    },
+    {
+      "id": "statistics.experiments",
+      "title": {
+        "en": "Experimental design and causal limits",
+        "vi": "Thiết kế thí nghiệm và giới hạn nhân quả"
+      },
+      "prerequisites": [
+        "statistics.uncertainty"
+      ],
+      "objective": {
+        "en": "Control one experiment, report uncertainty and distinguish association from a causal claim.",
+        "vi": "Kiểm soát một thí nghiệm, báo bất định và phân biệt tương quan với kết luận nhân quả."
+      },
+      "practice": {
+        "en": "Run baseline/treatment comparisons with confound checks and a reproducible notebook.",
+        "vi": "So baseline/treatment, kiểm tra confound trong notebook tái lập."
+      }
+    },
+    {
+      "id": "ml.evaluation",
+      "title": {
+        "en": "Learning systems and honest evaluation",
+        "vi": "Hệ học và đánh giá trung thực"
+      },
+      "prerequisites": [
+        "statistics.experiments"
+      ],
+      "objective": {
+        "en": "Build a baseline, prevent leakage and explain metric trade-offs on a held-out dataset.",
+        "vi": "Xây baseline, tránh leakage và giải thích trade-off metric trên tập hold-out."
+      },
+      "practice": {
+        "en": "Fit a small model, inspect errors and compare against a simple rule baseline.",
+        "vi": "Fit mô hình nhỏ, đọc lỗi và so với baseline quy tắc đơn giản."
+      }
+    },
+    {
+      "id": "ml.neural-networks",
+      "title": {
+        "en": "Neural networks and optimization",
+        "vi": "Mạng neural và tối ưu"
+      },
+      "prerequisites": [
+        "ml.evaluation"
+      ],
+      "objective": {
+        "en": "Diagnose overfitting or optimization failure with loss curves and one controlled intervention.",
+        "vi": "Chẩn đoán overfitting hoặc lỗi tối ưu bằng loss curve và một can thiệp có kiểm soát."
+      },
+      "practice": {
+        "en": "Implement a small network, verify gradients and run a targeted ablation.",
+        "vi": "Implement mạng nhỏ, kiểm tra gradient và làm ablation có mục tiêu."
+      }
+    },
+    {
+      "id": "ml.language",
+      "title": {
+        "en": "Language models and retrieval evaluation",
+        "vi": "Mô hình ngôn ngữ và đánh giá truy hồi"
+      },
+      "prerequisites": [
+        "ml.evaluation"
+      ],
+      "objective": {
+        "en": "Evaluate one text/retrieval pipeline with an error taxonomy and transparent dataset limitations.",
+        "vi": "Đánh giá một pipeline text/retrieval bằng phân loại lỗi và giới hạn dữ liệu rõ ràng."
+      },
+      "practice": {
+        "en": "Compare lexical and embedding retrieval and inspect failed queries.",
+        "vi": "So truy hồi lexical với embedding và phân tích query thất bại."
+      }
+    },
+    {
+      "id": "ml.vision",
+      "title": {
+        "en": "Image processing and vision",
+        "vi": "Xử lý ảnh và thị giác"
+      },
+      "prerequisites": [
+        "ml.neural-networks"
+      ],
+      "objective": {
+        "en": "Explain a representation choice and evaluate robustness on a bounded image task.",
+        "vi": "Giải thích lựa chọn biểu diễn và đánh giá robustness cho tác vụ ảnh cụ thể."
+      },
+      "practice": {
+        "en": "Compare a classical transform and a learned baseline under controlled perturbations.",
+        "vi": "So biến đổi cổ điển với baseline học khi perturb có kiểm soát."
+      }
+    },
+    {
+      "id": "systems.parallel",
+      "title": {
+        "en": "Parallelism and synchronization",
+        "vi": "Song song và đồng bộ"
+      },
+      "prerequisites": [
+        "foundations.program-reasoning"
+      ],
+      "objective": {
+        "en": "Reproduce a race, fix synchronization and explain scaling limits from measured work and overhead.",
+        "vi": "Tái hiện race, sửa đồng bộ và giải thích giới hạn scale từ work/overhead đo được."
+      },
+      "practice": {
+        "en": "Compare serial and parallel implementations with correctness and contention checks.",
+        "vi": "So implement tuần tự/song song, kiểm tra đúng và contention."
+      }
+    },
+    {
+      "id": "systems.distributed",
+      "title": {
+        "en": "Distributed data and fault tolerance",
+        "vi": "Dữ liệu phân tán và chịu lỗi"
+      },
+      "prerequisites": [
+        "data.transactions",
+        "systems.parallel"
+      ],
+      "objective": {
+        "en": "Trace failure/retry behavior and justify consistency and idempotency choices.",
+        "vi": "Trace failure/retry và giải thích lựa chọn consistency/idempotency."
+      },
+      "practice": {
+        "en": "Inject duplicate delivery and process failure into a small local pipeline.",
+        "vi": "Chèn giao nhận lặp và process failure vào pipeline cục bộ nhỏ."
+      }
+    },
+    {
+      "id": "systems.networks",
+      "title": {
+        "en": "Networks and communication",
+        "vi": "Mạng và truyền thông"
+      },
+      "prerequisites": [
+        "foundations.program-reasoning"
+      ],
+      "objective": {
+        "en": "Explain latency, throughput and protocol behavior from a captured request trace.",
+        "vi": "Giải thích latency, throughput và hành vi giao thức từ trace request."
+      },
+      "practice": {
+        "en": "Measure a local client/server and inspect retries, timeouts and congestion assumptions.",
+        "vi": "Đo client/server cục bộ, kiểm tra retry, timeout và giả thiết congestion."
+      }
+    },
+    {
+      "id": "security.threat-models",
+      "title": {
+        "en": "Security and threat modeling",
+        "vi": "Bảo mật và threat modeling"
+      },
+      "prerequisites": [
+        "systems.networks"
+      ],
+      "objective": {
+        "en": "State assets/trust boundaries and verify one mitigation against a reproducible attack case.",
+        "vi": "Nêu tài sản/trust boundary và kiểm tra một biện pháp với tình huống tấn công tái lập."
+      },
+      "practice": {
+        "en": "Build an isolated test harness for authorization, input handling or cryptographic misuse.",
+        "vi": "Viết harness cô lập cho authorization, xử lý input hoặc sử dụng crypto sai."
+      }
+    },
+    {
+      "id": "systems.cloud-data",
+      "title": {
+        "en": "Cloud pipelines and observability",
+        "vi": "Pipeline cloud và observability"
+      },
+      "prerequisites": [
+        "systems.distributed"
+      ],
+      "objective": {
+        "en": "Reason about delivery, cost and recovery for a pipeline using measured events.",
+        "vi": "Lập luận delivery, chi phí và recovery của pipeline từ sự kiện đo được."
+      },
+      "practice": {
+        "en": "Prototype locally first, inject faults and record latency/cost assumptions before optional cloud work.",
+        "vi": "Prototype cục bộ trước, chèn fault và ghi giả thiết latency/chi phí trước cloud tùy chọn."
+      }
+    },
+    {
+      "id": "information.models",
+      "title": {
+        "en": "Information theory and simulation",
+        "vi": "Lý thuyết thông tin và mô phỏng"
+      },
+      "prerequisites": [
+        "statistics.uncertainty"
+      ],
+      "objective": {
+        "en": "Connect entropy or a stochastic model to one measurable engineering question.",
+        "vi": "Nối entropy hoặc mô hình ngẫu nhiên với một câu hỏi kỹ thuật đo được."
+      },
+      "practice": {
+        "en": "Simulate a channel or queue, compare predicted and observed distributions.",
+        "vi": "Mô phỏng kênh hoặc queue, so phân phối dự đoán với quan sát."
+      }
+    },
+    {
+      "id": "research.reproduction",
+      "title": {
+        "en": "Reading, reproduction and research synthesis",
+        "vi": "Đọc, tái lập và tổng hợp nghiên cứu"
+      },
+      "prerequisites": [
+        "statistics.experiments"
+      ],
+      "objective": {
+        "en": "State a falsifiable question, reproduce a bounded claim and separate evidence from inference.",
+        "vi": "Nêu câu hỏi có thể bác bỏ, tái lập claim có giới hạn và tách evidence với suy luận."
+      },
+      "practice": {
+        "en": "Inspect methods/code, run a minimal reproduction and write a claim–evidence–limitation log.",
+        "vi": "Đọc methods/code, chạy tái lập nhỏ và viết log claim–evidence–giới hạn."
+      }
+    },
+    {
+      "id": "data.visualization",
+      "title": {
+        "en": "Data exploration and communication",
+        "vi": "Khám phá dữ liệu và trình bày"
+      },
+      "prerequisites": [
+        "statistics.uncertainty"
+      ],
+      "objective": {
+        "en": "Choose a faithful visualization and diagnose a misleading representation.",
+        "vi": "Chọn cách trực quan hóa trung thực và chẩn đoán biểu diễn gây hiểu lầm."
+      },
+      "practice": {
+        "en": "Build EDA plots with missingness/outlier checks and explain one decision from the data.",
+        "vi": "Vẽ EDA, kiểm tra missing/outlier và giải thích một quyết định dựa trên dữ liệu."
+      }
+    }
+  ]
+}

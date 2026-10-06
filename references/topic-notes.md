@@ -1,109 +1,8 @@
-# IUH Master of Computer Science — Condensed Curriculum
+# Technical topic reading notes
 
-> **Source basis:** IUH Faculty of Information Technology, *Outline of Master Program in Computer Science* (2020 curriculum document).
->
-> This file is a learning-oriented Markdown extraction of the official curriculum. It intentionally omits lecturer contacts, assessment matrices, repetitive grading percentages, long bibliography lists, page furniture, and administrative formatting. It is **not** a substitute for current IUH academic regulations.
+These notes help you explore a technical question beyond the two lessons. Each topic lists the ideas and tasks worth investigating; choose one narrow question, build a small example and compare its behavior with your prediction. Older named models and systems provide historical examples, so check current official documentation before selecting production tools.
 
-## Program structure
-
-The curriculum is organized across four semesters. Most taught courses carry **3 credits**; the Master Thesis carries **15 credits**.
-
-### Semester 1 — required
-
-| Code | Course | Credits | Core focus |
-|---|---|---:|---|
-| 6012401 | Philosophy | 3 | Western, Eastern and Marxist philosophy; relationship between philosophy, science and social development |
-| 6011401 | English | 3 | B1-oriented listening, speaking, reading, writing and academic communication |
-| 6001111 | Advanced Database | 3 | Storage, indexing/hashing, query optimization, transactions, concurrency, recovery, distributed databases |
-| 6001114 | Computational Statistics | 3 | EDA, probability distributions, confidence intervals, hypothesis testing, ANOVA, linear regression |
-| 6001115 | Advanced Artificial Intelligence | 3 | AI foundations, probabilistic reasoning, learning methods, inference and intelligent systems |
-
-### Semester 2 — core + electives
-
-**Required/core:**
-
-| Code | Course | Credits |
-|---|---|---:|
-| 6001127 | Advanced Algorithms | 3 |
-| 6001130 | Advanced Data Mining | 3 |
-
-**Elective pool (choose three according to the curriculum diagram):**
-
-| Code | Course | Credits |
-|---|---|---:|
-| 6001122 | Natural Language Processing | 3 |
-| 6001121 | Information Security & Safe | 3 |
-| 6001124 | Parallel Computing | 3 |
-| 6001129 | Text and Web Analytics | 3 |
-| 6001210 | Leadership Development | 3 |
-| 6001219 | Risk Analysis | 3 |
-| 6001132 | Special Topic | 3 |
-| 6001131 | Digital Image Processing | 3 |
-| 6001223 | Deep Learning | 3 |
-
-### Semester 3 — core + electives
-
-**Required/core:**
-
-| Code | Course | Credits |
-|---|---|---:|
-| 6001212 | Pattern Recognition and Analysis | 3 |
-| 6013400 | Scientific Research Methodology | 3 |
-
-**Elective pool (choose three according to the curriculum diagram):**
-
-| Code | Course | Credits |
-|---|---|---:|
-| 6001218 | Information Theory | 3 |
-| 6001220 | Internet Technology of Modern Things | 3 |
-| 6001222 | Data Processing on Cloud Computing | 3 |
-| 6001221 | Big Data Analytics | 3 |
-| 6001126 | Data Analysis Applications | 3 |
-| 6001225 | Data Visualization | 3 |
-
-### Semester 4 — required
-
-| Code | Course | Credits |
-|---|---|---:|
-| 6001229 | Master Thesis | 15 |
-
----
-
-## Course summaries
-
-### Philosophy — `6012401`
-
-**Purpose**
-
-- Build a basic understanding of Western philosophy, Eastern philosophy and Marxist philosophy.
-- Analyze relationships between philosophy and the sciences.
-- Understand the role of science and technology in social development.
-
-**Key outcomes**
-
-- Explain major philosophical foundations covered by the course.
-- Analyze philosophy-science relationships and their social role.
-- Apply philosophical reasoning to science/technology development questions.
-
----
-
-### English — `6011401`
-
-**Purpose**
-
-- Review B1-level grammar, sentence structures and vocabulary.
-- Practice listening, speaking, reading and writing.
-- Prepare learners for B1-format assessment and graduate-level communication needs.
-
-**Key outcomes**
-
-- Present personal information, participate in discussions and handle common speaking situations.
-- Write emails, messages and structured letters.
-- Read and understand B1-equivalent material using contextual and vocabulary strategies.
-
----
-
-### Advanced Database — `6001111`
+## Advanced Database
 
 **Purpose**
 
@@ -127,7 +26,7 @@ Study advanced relational database topics and how database systems behave under 
 
 ---
 
-### Computational Statistics — `6001114`
+## Computational Statistics
 
 **Purpose**
 
@@ -151,9 +50,7 @@ Provide statistical foundations for data analysis and data science.
 
 ---
 
-### Advanced Artificial Intelligence — `6001115`
-
-**Prerequisite:** Artificial Intelligence.
+## Advanced Artificial Intelligence
 
 **Purpose**
 
@@ -169,7 +66,7 @@ Develop deeper AI knowledge and use modern tools/libraries to build intelligent 
 
 ---
 
-### Advanced Algorithms — `6001127`
+## Advanced Algorithms
 
 **Purpose**
 
@@ -193,9 +90,9 @@ Develop advanced algorithm-design and analysis skills, especially for difficult 
 
 ---
 
-### Advanced Data Mining — `6001130`
+## Advanced Data Mining
 
-**Prerequisites:** Advanced Artificial Intelligence; Advanced Database.
+**Readiness to check:** data preparation, statistical/machine-learning foundations and database storage/query reasoning relevant to the selected mining task.
 
 **Purpose**
 
@@ -222,9 +119,9 @@ Study the knowledge-discovery process and advanced techniques for extracting use
 
 ---
 
-### Natural Language Processing — `6001122`
+## Natural Language Processing
 
-**Prerequisites:** Artificial Intelligence, Machine Learning, Deep Learning.
+**Readiness to check:** text representation, probability and model evaluation; neural-network training when selecting a learned approach, not for every NLP task.
 
 **Purpose**
 
@@ -246,7 +143,7 @@ Understand NLP fundamentals and apply NLP/deep-learning methods to real-world la
 
 ---
 
-### Information Security & Safe — `6001121`
+## Information Security
 
 **Purpose**
 
@@ -270,7 +167,7 @@ Build foundational knowledge of information-system security and practical protec
 
 ---
 
-### Parallel Computing — `6001124`
+## Parallel Computing
 
 **Purpose**
 
@@ -292,7 +189,7 @@ Develop understanding of parallel architectures, programming techniques, paralle
 
 ---
 
-### Text and Web Analytics — `6001129`
+## Text and Web Analytics
 
 **Purpose**
 
@@ -315,71 +212,9 @@ Apply data-mining concepts to text and web data.
 
 ---
 
-### Leadership Development — `6001210`
+## Digital Image Processing
 
-**Purpose**
-
-Develop personal leadership capacity and practical skills for leading people and teams.
-
-**Core content**
-
-- Personal leadership philosophy.
-- High-performance leadership and management.
-- Employee evaluation, feedback and advising.
-- Relationship building and influence.
-- Conflict management.
-- Working with different personalities.
-- Goal management and creative problem solving.
-
-**Key outcomes**
-
-- Organize effective working relationships.
-- Apply techniques for influencing others.
-
----
-
-### Risk Analysis — `6001219`
-
-**Purpose**
-
-Understand organizational risk, expected risk levels, controls and management structures.
-
-**Core content**
-
-- Identification of risk components.
-- Quantitative reasoning about risk.
-- Risk-management structures and controls.
-- Balancing risk and reward.
-- Enterprise-wide decision and action considerations.
-
-**Key outcomes**
-
-- Identify organizational risk components.
-- Measure expected risk levels.
-- Explain how organizations structure controls to limit risk.
-
----
-
-### Special Topic — `6001132`
-
-**Purpose**
-
-Train independent research skills through reading and analysis of scientific articles while preparing for thesis work.
-
-**Core content / outcomes**
-
-- Read and analyze scientific papers.
-- Evaluate advanced or innovative methods, techniques and tools.
-- Identify recent directions in Computer Science.
-- Propose recommendations or research directions based on evidence.
-- Consider ethical, industrial, economic and social context.
-- Plan research work and thesis-related activities.
-
----
-
-### Digital Image Processing — `6001131`
-
-**Prerequisites:** Calculus 2, Programming Techniques, Data Structures and Algorithms.
+**Readiness to check:** programming, array/image representation and algorithm reasoning; calculus when the selected transform needs it. Readiness requires relevant observed evidence.
 
 **Purpose**
 
@@ -402,35 +237,38 @@ Build the mathematical and algorithmic foundation for digital image processing.
 
 ---
 
-### Deep Learning — `6001223`
+## Deep Learning
 
-**Prerequisite:** Artificial Intelligence.  
-**Co-requisite in the source:** Machine Learning.
+**Readiness to check:** machine-learning training/evaluation, gradients and optimization; diagnose what the selected objective actually needs rather than infer readiness from a topic name.
 
 **Purpose**
 
-Understand deep-learning approaches, applications and limitations and apply them to real problems.
+Understand deep-learning approaches, applications and limitations from foundations through research; apply and justify a model choice for a bounded Computer Vision, NLP or time-series problem.
 
 **Core content**
 
-- Machine-learning and deep-learning foundations.
-- Neural networks.
-- Convolutional Neural Networks (CNNs).
-- Recurrent Neural Networks (RNNs).
-- Reinforcement learning.
-- Applications to Computer Vision, NLP and time-series forecasting.
+- Machine-learning and deep-learning foundations; neural networks, overfitting/underfitting.
+- Data preprocessing, feature engineering and feature learning.
+- Optimization techniques and regularization.
+- Convolution, pooling, CNN variants and efficient convolution algorithms.
+- CNN applications in Computer Vision; AlexNet, VGG16, ResNet and InceptionV3 as historical architecture examples, not default current recommendations.
+- Recurrent/recursive networks and computational graphs; bidirectional RNNs, LSTM, GRU, Bi-LSTM and deep recurrent networks.
+- Encoder-decoder / sequence-to-sequence architectures and NLP applications.
+- Reinforcement learning, Deep Q-Learning, GANs and deep generative models.
+- Applications to vision, language and time series; select one task and evaluate against an appropriate baseline.
 
 **Key outcomes**
 
 - Analyze deep-learning problem-solving principles.
-- Analyze major neural-network families and learning approaches.
-- Apply and justify deep-learning models for vision, language and time-series problems.
+- Explain and compare neural-network, CNN, RNN and reinforcement-learning approaches.
+- Implement and justify a model for vision, language or time series, stating assumptions and limits.
+- Choose a bounded research question and design an ablation or baseline comparison to test one claim.
 
 ---
 
-### Pattern Recognition and Analysis — `6001212`
+## Pattern Recognition and Analysis
 
-**Prerequisites:** Statistics Computing and Applications; Advanced Artificial Intelligence.
+**Readiness to check:** probability, estimation, Bayesian reasoning and model evaluation; diagnose against the selected recognition task.
 
 **Purpose**
 
@@ -455,11 +293,11 @@ Study the design of pattern-recognition systems and major statistical/syntactic 
 
 ---
 
-### Scientific Research Methodology — `6013400`
+## Scientific Research Methodology
 
 **Purpose**
 
-Provide foundations of scientific research and develop skills required for thesis work.
+Provide foundations of scientific research and develop skills for technical research reports.
 
 **Core content**
 
@@ -470,18 +308,18 @@ Provide foundations of scientific research and develop skills required for thesi
 - Data collection and processing.
 - Critical and logical thinking.
 - Ethical, legal, commercial, industrial, economic and social context.
-- Research planning for a Master's thesis.
+- Planning a bounded reproducible research investigation.
 
 **Key outcomes**
 
 - Analyze and synthesize research-methodology knowledge for a concrete project.
 - Read research papers effectively.
 - Judge contextual and ethical constraints.
-- Develop a research outline for a Master's thesis.
+- Develop a research question, evidence plan and reproducible report outline.
 
 ---
 
-### Information Theory — `6001218`
+## Information Theory
 
 **Purpose**
 
@@ -504,10 +342,9 @@ Study the fundamental limits of representing and transmitting information.
 
 ---
 
-### Internet Technology of Modern Things — `6001220`
+## Internet Technology of Modern Things
 
-**Prerequisite:** Artificial Intelligence.  
-**Co-requisite in the source:** Deep Learning.
+**Readiness to check:** embedded/network reasoning and device-resource constraints; model training/evaluation when the objective is AI deployment.
 
 **Purpose**
 
@@ -519,17 +356,17 @@ Apply AI techniques in IoT and automation systems across machine learning, robot
 - AI/deep-learning deployment on IoT, smart robots, cloud and mobile systems.
 - Smart thermostat, autonomous-vehicle, intelligent-robot and Industrial IoT examples.
 - Automation software systems.
-- Startup/project planning around a deployed IoT system.
+- Bounded IoT deployment project planning, resource constraints and verification criteria.
 
 **Key outcomes**
 
 - Analyze AI deployment issues in IoT-like environments.
 - Deploy deep-learning models on connected/edge/cloud systems.
-- Build a startup/project plan around an IoT solution.
+- Build a bounded deployment and evaluation plan for an IoT solution.
 
 ---
 
-### Data Processing on Cloud Computing — `6001222`
+## Data Processing on Cloud Computing
 
 **Purpose**
 
@@ -551,7 +388,7 @@ Understand cloud-computing foundations with emphasis on data storage, processing
 
 ---
 
-### Big Data Analytics — `6001221`
+## Big Data Analytics
 
 **Purpose**
 
@@ -565,6 +402,7 @@ Understand Big Data architecture and use data-processing tools to build and opti
 - Spark SQL.
 - Performance optimization with these tools.
 - Design and implementation of a simple Big Data processing/analysis component.
+- System examples and research/project reporting around a data-processing system.
 
 **Key outcomes**
 
@@ -574,7 +412,7 @@ Understand Big Data architecture and use data-processing tools to build and opti
 
 ---
 
-### Data Analysis Applications — `6001126`
+## Data Analysis Applications
 
 **Purpose**
 
@@ -597,7 +435,7 @@ Apply analytical techniques, models and data-driven reasoning to decision-making
 
 ---
 
-### Data Visualization — `6001225`
+## Data Visualization
 
 **Purpose**
 
@@ -620,52 +458,187 @@ Transform computational information into effective visual forms for human percep
 
 ---
 
-### Master Thesis — `6001229`
-
-**Credits:** 15.
+## Modern Networking and Communication Technologies
 
 **Purpose**
 
-Complete a scientific research project that demonstrates meaningful theoretical, experimental or practical contribution.
+Strengthen networking foundations and analyze modern networking/communication trends with a research orientation.
 
-**Core activities**
+**Core content**
 
-- Analyze a complex Computer Science problem and formulate a research direction.
-- Review and critically synthesize prior work.
-- Propose and implement a solution.
-- Design and conduct experiments/evaluation.
-- Interpret research results.
-- Write the thesis and scientific-paper-style material.
+- Computer-network fundamentals.
+- Internet architecture.
+- Next-generation networks.
+- Communication technologies and wireless networks.
+- Wireless sensor networks and design issues.
+- IoT architecture.
+- Cloud computing.
+- Intelligent/smart networking and independent research reporting.
 
 **Key outcomes**
 
-- Present advanced Computer Science issues at depth.
-- Apply computing and mathematical knowledge to a research problem.
-- Produce meaningful scientific/practical contributions.
-- Design, reason and experiment systematically.
-- Demonstrate independent research and creativity.
-- Communicate scientific work in a foreign language.
-- Practice professional ethics, responsibility and collaboration.
-- Develop a lifelong-learning plan related to the research direction.
+- Explain modern networking and communication technologies.
+- Analyze technology trends.
+- Read literature and communicate research findings independently.
 
 ---
 
-## Curriculum relationships useful for the learning agent
+## Advanced Computer Vision
 
-These relationships come directly from prerequisite/co-requisite information and the curriculum layout:
+**Readiness to check:** image representation/processing and geometry; model evaluation/neural-network training when the objective uses a learned approach.
 
-- **Advanced AI → Advanced Data Mining**.
-- **Advanced Database → Advanced Data Mining**.
-- **AI / Machine Learning / Deep Learning → NLP**.
-- **Statistics + Advanced AI → Pattern Recognition**.
-- **AI + Deep Learning → IoT/modern connected-system applications**.
-- **Scientific Research Methodology + Special Topic → Master Thesis preparation**.
+**Purpose**
 
-## Source inconsistencies retained as notes
+Study advanced Computer Vision techniques and apply them to image/video problems involving motion, human activities and multi-camera settings.
 
-The official PDF contains a few code inconsistencies. This Markdown uses the program contents/curriculum diagram as the canonical identifier while preserving the discrepancies here:
+**Core content**
 
-- **Big Data Analytics** is listed as `6001221` in the curriculum contents/diagram, while the detailed course page displays `6201109`.
-- **Master Thesis** is listed as `6001229` in the curriculum contents/diagram, while the detailed course page visually displays `66001229`.
+1. Image formation: geometry, photometry and segmentation.
+2. Multi-view geometry.
+3. Traditional object-recognition methods.
+4. Deep-learning object recognition.
+5. Face detection, face analysis and feature detection.
+6. Image tracking, single/multiple cameras and feature correspondence.
+7. Motion analysis and activity recognition.
+8. Video processing.
 
-These appear to be document inconsistencies; this repository does not silently rewrite the source history.
+**Key outcomes**
+
+- Explain advanced image/video analysis techniques.
+- Compare traditional and deep-learning Computer Vision approaches.
+- Apply methods to face analysis, tracking, feature analysis and activity recognition.
+- Solve practical advanced vision problems using image/video sequences.
+
+---
+
+## Modern Information Systems Security
+
+**Purpose**
+
+Develop advanced Information Security analysis skills for identifying risks, assessing an organization's current security posture and proposing policy/technical improvements.
+
+**Core content**
+
+- Information-security environment and principles.
+- Web and network fundamentals.
+- Cryptography.
+- Hacking techniques.
+- Packet analysis and penetration testing.
+- Social engineering.
+- Cyber countermeasures.
+- Incident response and mitigation.
+- Digital forensics.
+- Special topics including counter-surveillance and IoT security.
+
+**Key outcomes**
+
+- Analyze factors affecting system security.
+- Analyze strengths and weaknesses of an information system.
+- Propose improvements to system security.
+
+---
+
+## High Performance Computing
+
+**Purpose**
+
+Develop theoretical and practical understanding of high-performance/parallel computing, algorithm design and programming environments.
+
+**Core content**
+
+1. Parallel-processing overview and parallel computer architectures.
+2. Parallel computation models and levels of parallelism.
+3. Problem decomposition and mapping onto parallel architectures.
+4. Parallel-performance analysis and **Amdahl's Law**.
+5. Synchronization and critical sections.
+6. Shared-memory programming and **OpenMP**.
+7. Message-passing programming and **MPI**.
+8. Parallel algorithms: matrix algorithms, embarrassingly parallel workloads, partitioning, divide-and-conquer.
+9. **OpenCL** and **CUDA** programming.
+10. Clusters and grid computing.
+11. Large-scale graph analysis.
+12. Computational aspects of neural networks / deep learning.
+
+**Key outcomes**
+
+- Explain parallel architectures and computation models.
+- Analyze complexity/performance in parallel processing.
+- Design and implement scientific applications with parallel programming environments.
+- Understand current HPC application/technology trends.
+
+---
+
+## Parallel Programming for Multicore Systems
+
+**Purpose**
+
+Develop parallel-programming skills for contemporary multicore architectures.
+
+**Core content**
+
+- Parallel-programming fundamentals.
+- Shared-memory programming with OpenMP.
+- Distributed-memory programming with MPI.
+- Hybrid computing and advanced OpenMP.
+- CUDA parallel programming on multicore/GPU systems.
+- Multithreading, shared memory, data parallelism and higher-level parallel-programming models.
+
+**Key outcomes**
+
+- Explain the structure and use of parallel computers.
+- Measure performance of parallel algorithms/computers.
+- Develop programs for different parallel-computing models.
+
+---
+
+## Modeling and Simulation Techniques
+
+**Purpose**
+
+Model complex systems mathematically and simulate real-system behavior from those models.
+
+**Core content**
+
+1. System models and system simulation.
+2. Model verification and validation.
+3. Differential equations in simulation.
+4. Discrete-system simulation, including queueing systems.
+5. Continuous simulation.
+6. Simulation languages, including SIMULA as a historical example.
+7. Use of databases and AI in modeling and simulation.
+
+**Key outcomes**
+
+- Explain system modeling and model verification/validation.
+- Apply discrete and continuous simulation techniques.
+- Use modeling/simulation techniques on real systems, including database/AI-supported approaches.
+
+---
+
+# Research methods
+
+---
+
+## Literature Review
+
+A literature review connects a bounded question to evidence, assumptions, disagreements and gaps rather than summarize papers individually. Use it for one deep-reading day or extend it into a technical report; it has no degree-program requirements.
+
+**Report content**
+
+- Introduce the problem and an answerable research question.
+- Analyze and evaluate related work using explicit relevance, evidence and access-limit criteria.
+- Define scope, hypotheses or claims to test, and a proposed contribution where justified.
+- Plan tasks, baselines, data, measurements and result-evaluation criteria.
+- Compare candidate methods with their assumptions, trade-offs and applicable conditions.
+- Connect preliminary results to examined evidence; record unverified claims and the next investigation.
+
+**Key outcomes**
+
+- Discover and analyze a specific research problem.
+- Propose supported solution ideas, distinguishing evidenced novelty from expectations.
+- Design a reproducible experiment and evaluate a solution against the original question.
+- Write a cited report with results, uncertainty and limitations; consider publication only when the contribution supports it.
+
+---
+
+[Topic map](topic-map.md) · [Content sources and attribution](../research/content-provenance.md)

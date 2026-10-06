@@ -1,28 +1,44 @@
 # Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#
 
-**90 minutes · Optional 180+ minute deep track · Updated 5 October 2026**
+**One full day: 420 minutes · 360 minutes of study + 60 minutes of breaks · Updated 6 October 2026**
 
-[Tiếng Việt](../../vi/lessons/2026-10-05-cost-model/lesson.md) · [C# lab guide](../../labs/cost-model/dotnet/README.md) · [Download complete lab ZIP](https://nguyenan97.github.io/computer-science-learning-agent/labs/cost-model/dotnet-lab.zip) · [Complete worked code](../../labs/cost-model/dotnet/Core/Deduplication.cs)
+[Tiếng Việt](../../vi/lessons/2026-10-05-cost-model/lesson.md) · [Download the C# lab](https://nguyenan97.github.io/computer-science-learning-agent/labs/cost-model/dotnet-lab.zip)
 
-**Today's idea:** the data structure determines the search cost inside a loop. Replacing `List.Contains` with `HashSet.Add` can reduce CPU work substantially, provided you preserve the business contract and examine memory costs.
+A loop can look simple and still perform billions of comparisons. This lesson shows where that work comes from, how a different data structure changes it, and what you give up in memory. Everything needed to understand the algorithm, its complete implementation and the worked exercises is on this page. The downloadable lab and official sources add executable experiments and deeper reading.
 
-This lesson is for an experienced C#/.NET, API and database engineer strengthening CS foundations. Loop syntax and REST basics are prior context. The mathematical analysis is explained from the beginning; programming experience alone does not establish Big-O proficiency.
+**Your goal:** implement batch deduplication that keeps the first occurrence of each ID, then justify scan versus hashing for a changed input distribution using correctness, operation counts and CPU/allocation measurements. You need basic C# loops and collections; the complexity analysis starts from a concrete trace.
 
-This is a tutor-selected foundation for **IUH Advanced Algorithms `6001127`**: complexity analysis, practical performance and algorithm selection, with a connection to Advanced Database `6001111`. It is not an official IUH lesson plan. Topic: `advanced-algorithms.cost-model-membership.l1`.
+## A full-day route
 
-Three outcomes to check: explain the comparison count; choose stable deduplication; interpret CPU/allocation benchmarks with appropriate limits. **Every exercise, lab and submission is optional, with accessible solutions.** Reading only is a valid path; it is not evidence of independent proficiency.
+| Elapsed minutes | Activity | Hands-on minutes |
+|---|---|---:|
+| 0–20 | Quick self-check: identify what you can explain and what needs revisiting | 10 |
+| 20–70 | Contract, mental model and worked trace (§§1–4); reconstruct a trace and cost count | 20 |
+| 70–80 | Break away from the screen | 0 |
+| 80–125 | Read selected sources (§6 and Read further); answer the four research questions | 10 |
+| 125–170 | Trace the implementation (§6): one miss, hit and collision | 40 |
+| 170–200 | Lunch and rest | 0 |
+| 200–275 | Guided practice (§5): implement, test and debug | 70 |
+| 275–285 | Break | 0 |
+| 285–330 | Controlled experiment (§6): predict, measure and compare | 40 |
+| 330–340 | Break | 0 |
+| 340–375 | Changed-context challenge (§7): duplicate counts | 35 |
+| 375–420 | Explain the decision, correct mistakes and choose a review question (§8) | 10 |
 
-## A 90-minute path
+The route reserves 235 of 360 study minutes for coding, tracing, test design, debugging and experiments. Setup and waiting for a benchmark are not practice. Adjust the blocks to your tools and energy; if setup takes too long, use the inline traces and existing example report. Finish with one clear decision and one open question rather than extending the day to get a tidy benchmark.
 
-| Time | Study | Reading-only alternative |
-|---|---|---|
-| 0–15 | Problem, contract and trace | Follow the small example without installing anything |
-| 15–40 | Count work and understand Big-O | Follow the derivation step by step |
-| 40–60 | HashSet, correctness and memory | Read the code and invariant |
-| 60–80 | Optional C# lab | Inspect verified output |
-| 80–90 | Variation and recap | Read the task followed by its solution |
+## Quick self-check
 
-The budget applies to **one language version**. Benchmarking and runtime reading belong to the 180+ minute track; finishing them is not required for the next lesson. No actual learner work has been assessed and no review is due.
+Try these without notes, or read the answers first and return to them later:
+
+1. For `B2,A1,B2,C3,A1`, what is the stable output? How does sorting change it?
+2. How many equality checks does a sequential scan make for `A,B,C,D`?
+3. Do equal hashes imply equal IDs? Can a set in one process prevent duplicates in another?
+4. Does “allocated per operation” mean peak memory?
+
+**Answers:** (1) `B2,A1,C3`; sorting gives `A1,B2,C3` and breaks the order requirement. (2) `0+1+2+3=6`. (3) No: equality still distinguishes collisions, and two processes have separate sets. (4) No: allocation is the amount newly allocated during the measured operation, not the maximum live memory.
+
+If sequential search is unfamiliar, draw `[B2,A1]`. Searching for B2 stops after one comparison; searching for C3 checks both entries before concluding absence. For `[X,Y,X]`, the stable output is `[X,Y]` and the scan makes `0+1+1=2` comparisons. If these traces are easy, spend more time on the measurement and changed-context challenge.
 
 ## 1. Start with a small production requirement
 
@@ -41,7 +57,7 @@ Set three requirements before optimizing:
 
 This is deduplication **within one batch**, not exactly-once message processing.
 
-**Optional self-check:** how many elements and distinct IDs are there? With partial output `[B2,A1]`, how do you determine whether C3 has appeared?
+**Think it through:** how many elements and distinct IDs are there? With partial output `[B2,A1]`, how do you determine whether C3 has appeared?
 
 **Solution:** `n=5` elements and `u=3` distinct IDs. A sequential search for C3 must check both B2 and A1. If “check every element before concluding absence” is unclear, follow the next trace slowly; that is the central prerequisite.
 
@@ -101,7 +117,7 @@ For distinct IDs, n(n−1)/2 has a quadratic leading term. The sequential model 
 
 With u distinct IDs, the accumulated list is at most u long. The entire scan approach is bounded by `O(n(1+u))`. A small u may make it adequate; when u grows with n, the worst case becomes quadratic.
 
-**Optional self-check:** can a single foreach prove O(n)?
+**Think it through:** can a single foreach prove O(n)?
 
 **Solution:** no. Sum the body cost over the iterations. Contains, database queries and service calls each have their own costs; source-code line counts are insufficient.
 
@@ -152,120 +168,219 @@ HashSet stores additional bucket/entry arrays; List stores string references. Th
 
 `new HashSet<string>(n, ...)` or `new List<string>(n)` can reduce resizing with an appropriate known capacity, but large n/small u can overallocate. Preallocating n makes that storage O(n), not O(u) when u is independently small. This optimization is outside the main lesson.
 
-## 5. Optional C# lab: check reasoning before measuring speed
+## 5. Guided C# practice: a complete implementation
 
-The [full guide](../../labs/cost-model/dotnet/README.md) provides the ZIP, setup, benchmark and troubleshooting. The core lab needs the .NET SDK, with no SQL Server, Docker, Python or third-party package. Verified environment: **SDK 10.0.401, runtime 10.0.12, Linux x64**; target net10.0. You need not retarget a production application.
+Here is the full method, including its null policy. Put it inside a class if you run it locally; the logic does not require a database or a framework.
 
-From an updated repository clone's root:
-
-```bash
-cd labs/cost-model/dotnet
-dotnet --version
-dotnet run -c Release --project LessonLab
-dotnet run -c Release --project LessonLab -- --check
+```csharp
+public static List<string> StableUnique(IReadOnlyList<string> values)
+{
+    ArgumentNullException.ThrowIfNull(values);
+    var seen = new HashSet<string>(StringComparer.Ordinal);
+    var result = new List<string>();
+    foreach (string id in values)
+    {
+        if (id is null)
+            throw new ArgumentException("Order IDs must not be null.");
+        if (seen.Add(id))
+            result.Add(id);
+    }
+    return result;
+}
 ```
 
-**Step 1 — contract.** Predict the five-ID output, then read/run the lab. Checkpoint: `B2, A1, C3`; scan comparisons = 6. Solution: existing IDs are not appended; input and first-occurrence order are preserved.
+`seen` and `result` start empty for each batch. Every ID reaches Add exactly once. A new ID enters the set and is appended to the list; an existing one changes neither. The method reads the input without changing it. The list references the same string objects rather than cloning them.
 
-**Step 2 — formula.** Predict n=128/256/512, then compare:
+Example call:
+
+```csharp
+string[] input = ["B2", "A1", "B2", "C3", "A1"];
+var unique = StableUnique(input);
+Console.WriteLine(string.Join(", ", unique)); // B2, A1, C3
+```
+
+### Work through the 75-minute practice block
+
+1. **Reconstruct the method (20 minutes).** Close the example, write it again and explain the prefix invariant from §4. If you get stuck, use the complete method above.
+2. **Predict edge cases (15 minutes).** Write expected results before tracing or running:
+
+   | Input | Expected result |
+   |---|---|
+   | `[]` | `[]` |
+   | `a,A,a` | `a,A` |
+   | `A,A,A` | `A` |
+   | `"",B2,""` | `"",B2` |
+   | null input | `ArgumentNullException` |
+   | a null ID | `ArgumentException` |
+
+3. **Test and debug (15 minutes).** Compare the output with these expectations and check that input is unchanged. For a mismatch, trace the smallest failing batch instead of rewriting the whole method.
+4. **Deliberately break one rule (10 minutes).** Append every ID, sort the result, or use `OrdinalIgnoreCase`. Appending all IDs retains duplicates; sorting breaks first-occurrence order; case-insensitive equality merges `a` and `A`. Restore the intended contract before measuring.
+5. **Explore collisions (10 minutes).** Suppose a comparer returns hash 1 for every ID but still compares IDs ordinally. The result stays correct, but an absent ID may inspect every entry in that bucket. With 128 distinct IDs, a chain-based implementation makes `128×127/2=8,128` equality checks. Equal keys must have equal hashes, and equality/hash behavior must remain stable while keys are stored.
+6. **Wrap up (5 minutes).** Explain one bug you prevented and one assumption your implementation relies on.
+
+**Common debugging clues:** duplicates remain → append only when Add returns true; order changes → retain the explicit output list; `a/A` merge → inspect the comparer; unexpectedly slow hashing → look for a hidden List.Contains; null behavior changes → keep validation explicit.
+
+### An inline Python comparison
+
+The same separation of membership and output order can be written with a Python set:
+
+```python
+def stable_unique(values):
+    seen = set()
+    result = []
+    for value in values:
+        if value not in seen:
+            seen.add(value)
+            result.append(value)
+    return result
+
+assert stable_unique(["B2", "A1", "B2", "C3", "A1"]) == ["B2", "A1", "C3"]
+```
+
+This version requires hashable keys and uses Python equality; it does not adopt the C# method's null policy. It performs a membership test and then an insertion for a new key, whereas C# Add handles both in one call. The same high-level cost reasoning applies under suitable hashing assumptions; constants and collision behavior depend on the implementation.
+
+## 6. Research, implementation inspection and a controlled experiment
+
+### Connect the model to real collection code
+
+List.Contains calls IndexOf, which ultimately searches the array. The .NET runtime can specialize this search for particular types, improving constants without removing the need to examine preceding candidates on a miss.
+
+HashSet.Add follows a different path:
 
 ```text
-n,scan_equality_comparisons,hash_add_calls (not hash-table work)
-128,8128,128
-256,32640,256
-512,130816,512
-128 identical IDs: 127 scan comparisons
+ID → calculate hash → select bucket → inspect entries in that bucket
+   → matching hash AND equal ID? return false
+   → otherwise follow the next entry
+   → no equal entry? allocate a slot (resize if needed), insert, return true
 ```
 
-Solution: distinct scan input matches n(n−1)/2; repeated input needs only n−1 comparisons. The Add column counts calls and does not prove every runtime operation is O(1).
+A **bucket** is an entry point into a group of candidates. A **collision chain** links entries that land in the same bucket. The stored hash helps reject candidates cheaply; equality decides identity. Resizing creates larger storage and redistributes entries, so an individual Add can be expensive even when a long sequence has good amortized cost.
 
-**Step 3 — behavior.** Run `--check`; expect **8 checks passed**. Cases include empty/singleton input, ordinal equality, input preservation, null policy, duplicate counting and a comparer forcing identical hashes. Collision solution: equality preserves correctness, but comparison counts become triangular. Reference-code tests do not establish that you completed the lesson.
+Trace these cases: an empty set receiving B2; B2 appearing again; a new A1 with the same hash as B2. Answers: insert B2 and return true; find equal B2 and return false; compare A1 with B2, see they differ, insert A1 and return true. Stable output order comes from the separate list in all three cases.
 
-Without an SDK, read the checkpoints and [complete code](../../labs/cost-model/dotnet/Core/Deduplication.cs). Writing code is not required to read solutions or request the next lesson.
+For deeper inspection, the official [List.cs](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs#L336) and [HashSet.cs](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs#L1411) are pinned to a reproducible .NET 10 implementation. Locate bucket selection, equality, the false return and resizing. You do not need to build the runtime to understand these paths.
 
-## 6. The 180+ minute track: measure CPU/allocation and read implementation
+### Four research questions
 
-Allow about 30 additional minutes for setup/benchmarking, 30 for interpreting reports and 30 for runtime reading. BenchmarkDotNet **0.15.8** needs NuGet/network for its first restore. Run Release without a debugger:
+| Question | Answer to look for |
+|---|---|
+| What work does List.Contains hide? | Sequential search; early exit on a hit, full scan on a miss. |
+| Why can one Add be O(u) while the sequence is expected O(n)? | Resizing costs accumulate geometrically; expected lookup additionally needs suitable hashing and bounded key cost. |
+| Why do collisions preserve correctness but threaten performance? | Correct equality separates distinct keys; a long chain adds comparisons. |
+| What can a synthetic benchmark tell us about a service? | It compares the measured workload and allocation scope; production distributions, peak memory and service p99 need separate measurements. |
 
-```bash
-# Still in labs/cost-model/dotnet
-dotnet run -c Release --project Benchmarks -- --filter '*DedupeBenchmarks*' --job short
-```
+### Make the comparison fair
 
-Input is created in GlobalSetup outside measurement. Each invocation creates fresh output; both methods have the same equality/output contract. The matrix is n=128/512/2048 with nominal 10%/100% distinct IDs of fixed width. **Optional prediction:** which allocates more? Does hashing retain as large an advantage when u is small?
+Measure scan and hash with the same input, equality and output-order contract. Construct input before measurement, and make each measured call produce a fresh result. Otherwise one path may receive warmed state or skip allocation while the other cannot.
 
-**Solution:** Hash keeps an extra table and usually allocates more. Small u shortens the List, potentially reducing the time advantage. Measure actual time; do not infer a speed ratio from Big-O.
+The downloadable lab uses BenchmarkDotNet 0.15.8, N=128/512/2048 and nominal distinct ratios 10%/100%, with fixed-width IDs. For N=128 and 10%, actual distinct count is `floor(128×0.10)=12`. Predict before running: as u decreases, the list scan becomes shorter; the extra hash table often allocates more. Big-O alone cannot tell you a speed ratio.
 
-The agent ran all **12 ShortRun cases**, with three warmup and three measurement iterations per case. Example: n=512, all distinct:
+Run benchmarks in Release without a debugger. Read Mean, Error and Allocated together. In BenchmarkDotNet, Error here is half the 99.9% confidence interval, not a guaranteed maximum error. Allocated includes fresh output/table storage and excludes prebuilt input; it does not measure peak working set, surviving heap or service p99.
 
-| Approach | Mean | Error, half of 99.9% CI | Allocated per operation |
+A reference ShortRun from 5 October 2026, with n=512 and all IDs distinct:
+
+| Approach | Mean | Error | Allocated per operation |
 |---|---:|---:|---:|
 | Scan | 922.355 µs | 2,261.779 µs | 8,384 B |
 | Hash | 22.218 µs | 19.147 µs | 42,896 B |
 
-Cloud Debian 13, Intel Xeon Platinum 8573C, .NET 10.0.12. The environment denied elevated process priority; wide intervals and a short run make timings **illustrative for this workload**, not production promises. The [full report](benchmark-report.md) and [execution log](benchmark-run.txt) preserve environment and limitations. Allocated excludes prebuilt input; it is not peak memory or service p99. The timing benchmark does not use CountScan's counters.
+The run used Debian 13, Intel Xeon Platinum 8573C and .NET 10.0.12, with three warmup and three measurement iterations per case. The intervals are very wide: treat the time values as illustrative, not as a dependable service speedup. The extra allocated bytes show a trade-off, not total application memory. [The complete report](benchmark-report.md) includes the workload matrix.
 
-### Read a runtime slice without building all of .NET
+### Your experiment notebook
 
-Official repository `dotnet/runtime`, release v10.0.12 pinned at commit `4271d88e0aebf3d04f188f1334c2220d80555ef6`:
+Use the 45-minute block to change one factor—n, distinct ratio, key length or initial capacity—and preserve the output contract. Correctness comes before timing. Do not benchmark a comparison-counting method against an uninstrumented one: the counters alter the work.
 
-- [List.Contains](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs#L336): predict which call does the searching; follow IndexOf.
-- [HashSet.AddIfNotPresent](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs#L1411): locate hashing, buckets, equality, false return and resizing.
-- [Upstream capacity test](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Collections/tests/Generic/HashSet/HashSet.Generic.Tests.cs#L552): identify the behavior tested upstream.
+| Write before running | Write after running |
+|---|---|
+| Input size, actual u, key width/distribution | Actual parameters and environment |
+| Prediction and its mechanism | Mean, interval and allocation |
+| One factor being changed | Whether the prediction held |
+| Expected correctness result | Any failure or surprising observation |
+| What would make the result inconclusive? | Supported decision and remaining limits |
 
-**Worked answer:** List.Contains calls IndexOf → Array.IndexOf. HashSet selects a bucket by hash and follows an entry chain; equality distinguishes colliding IDs. Existing IDs return false, and full storage can resize. The capacity test exercises growing element counts, not a universal O(1) proof. The agent read these sections and ran the local equivalent; **the upstream build/test suite was not executed**.
+If you do not run a benchmark, use the reference report to practise interpretation and leave your own measurement blank. If results are missing or too noisy, the conclusion is “insufficient measurement for a speed claim.” Check input construction, comparer, build mode and intervals before inventing an explanation for a surprising ratio. A harness Dry run checks execution, not performance.
 
-## 7. Transfer: count repeated IDs and retain first-occurrence order
+## 7. Changed-context challenge: report duplicate counts
 
-**Optional exercise:** for `B2,A1,B2,C3,A1`, return `[(B2,2),(A1,2)]`, omitting IDs appearing once. Empty input returns `[]`; `A,A,A` returns `[(A,3)]`.
+A support report now needs counts instead of unique IDs. For `B2,A1,B2,C3,A1`, return `[(B2,2),(A1,2)]`, omitting IDs that appear only once. Keep ordinal identity, first-occurrence order, unchanged input and the same null policy.
 
-**Solution:** use a Dictionary for counts and a separate List for new-ID order. After reading the input, traverse the order List and emit only counts greater than one. Do not depend on Dictionary enumeration order.
+Try designing the solution before reading on. You need counts for lookup and a separate list for order. Increment the count on every occurrence; append to the order list only the first time an ID appears.
 
 ```csharp
-var counts = new Dictionary<string, int>(StringComparer.Ordinal);
-var order = new List<string>();
-foreach (string id in values)
+public sealed record OrderCount(string Id, int Count);
+
+public static List<OrderCount> DuplicateSummary(IReadOnlyList<string> values)
 {
-    if (counts.TryGetValue(id, out int count)) counts[id] = count + 1;
-    else { counts.Add(id, 1); order.Add(id); }
+    ArgumentNullException.ThrowIfNull(values);
+    var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+    var order = new List<string>();
+    foreach (string id in values)
+    {
+        if (id is null)
+            throw new ArgumentException("Order IDs must not be null.");
+        if (counts.TryGetValue(id, out int count))
+            counts[id] = count + 1;
+        else
+        {
+            counts.Add(id, 1);
+            order.Add(id);
+        }
+    }
+    var result = new List<OrderCount>();
+    foreach (string id in order)
+        if (counts[id] > 1)
+            result.Add(new OrderCount(id, counts[id]));
+    return result;
 }
-var duplicates = new List<(string Id, int Count)>();
-foreach (string id in order)
-    if (counts[id] > 1) duplicates.Add((id, counts[id]));
 ```
 
-Invariant: counts equals occurrences in the processed prefix; order preserves first occurrences. Expected O(n+u)=O(n), auxiliary O(u), under hashing/key assumptions. The [runnable validated solution](../../labs/cost-model/dotnet/Core/Deduplication.cs) uses an OrderCount record rather than a tuple; behavior is equivalent.
+The invariant has two parts: counts equals the number of occurrences in the processed prefix, and order contains each encountered ID once in first-occurrence order. A second pass over order filters counts greater than one. Expected work is O(n+u)=O(n), with O(u) extra storage under the same hashing/key assumptions. We do not depend on Dictionary enumeration order.
 
-### Production bridge: batch deduplication and idempotency
+| Input | Worked result |
+|---|---|
+| `A,B,B,A,C` | `[(A,2),(B,2)]` |
+| `a,A,a` | `[(a,2)]` |
+| `[]` or `X,Y` | `[]` |
+| `A,A,A` | `[(A,3)]` |
 
-**Optional scenario:** two instances process message ID B2 concurrently with separate HashSets. Does this prevent system-wide duplicate processing?
+If you sort by count, you change the report's ordering. If you increment only new IDs, `A,A,A` exposes the bug. Trace `A,B,B,A,C`: order stays `A,B,C`, counts becomes A=2/B=2/C=1, and the final pass returns A then B.
 
-**Solution:** no. Both sets start empty and both insert successfully. Enforce storage identity using a unique constraint/index on the appropriate business key, such as tenant + event ID, with transaction/conflict handling. A separate SELECT-before-INSERT still races. SQL Server collation must match identity rules; C# Ordinal does not automatically make database equality identical.
+### Production connection: batch deduplication and idempotency
 
-If a side effect is outside the database transaction, a unique key alone does not guarantee exactly-once execution of that side effect; an appropriate idempotency/transaction protocol is needed. Today's lesson establishes this boundary without requiring a distributed-system implementation.
+Two service instances can both accept B2 because their sets start empty. A batch HashSet therefore cannot enforce system-wide identity. Use an appropriate storage key, such as tenant + event ID, with a unique constraint/index and transaction/conflict handling. A separate SELECT-before-INSERT still races.
 
-## 8. Recap and continuation
+Storage equality must match your intended identity: SQL Server collation may treat strings differently from C# Ordinal. If a side effect occurs outside the database transaction, a unique key alone does not guarantee exactly-once execution of that side effect. That requires a suitable idempotency/transaction protocol.
 
-**Three optional checks with answers:**
+## 8. Explain your decision and revisit it
 
-1. Why can one foreach be Θ(n²)? **Answer:** its body searches a growing List, summing 0+1+…+n−1.
-2. Why both HashSet and List? **Answer:** membership and output ordering are separate responsibilities; the table costs additional memory.
-3. Can hashing always be faster, or an API singleton set prevent every duplicate? **Answer:** no. Small workloads, key/comparer costs and allocations matter; local sets do not solve retries/multiple instances, and unbounded shared sets introduce memory/concurrency concerns.
+Close the examples and explain:
 
-For feedback you may send an explanation, code or report and state whether you read the solution. Rubric: contract/edge cases; reasoning with assumptions; operation counts versus measurements; production limits. Responses after solution exposure are assisted; a fresh task is needed for an independent assessment.
+1. Why can one foreach be Θ(n²)? **Answer:** its body searches a growing list, summing `0+1+…+n−1` on distinct input.
+2. Why use both HashSet and List? **Answer:** membership and stable output order are separate jobs; the hash table costs extra storage.
+3. Can hashing always be faster? **Answer:** no; small batches, low u, key costs, allocations and cache behavior matter.
+4. For `A,B,A,B`, how many scan comparisons occur? **Answer:** `0+1+1+2=4`, versus six for four distinct IDs.
 
-Suggested 1/3/7-day review hooks: reconstruct comparison counts, explain expected/amortized costs, transfer to duplicate counts or tenant-scoped identity. Core answers are in sections 2/4/7. These are study suggestions, not recorded reviews or confirmed progress schedules.
+A useful final explanation states the contract, expected workload, chosen structure, supporting reasoning and one limit. Example: “For many distinct bounded-length IDs, I would use HashSet plus List. The invariant preserves stable order, while the scan count grows quadratically. Hashing has expected linear work under suitable assumptions and uses extra storage. The example benchmark illustrates that trade-off with substantial timing uncertainty. I would measure real key distributions and memory before promising production latency.”
 
-Next invocation: **“Dùng master-iuh-daily-learning, viết bài hôm nay cho tôi.”** No submission required. Publication/reference execution does not record learner completion or mastery.
+When reviewing your own solution, check four things: edge cases and invariant; n/u/key-cost assumptions; fair measurement and its limits; and whether the duplicate-count variation still preserves order. If one explanation is unclear, revisit its small counterexample and try new IDs. After a delay, reconstruct the count or implement the variation without notes. Review sooner after a mistake and increase the gap when recall becomes reliable; 1/3/7-day gaps are adjustable starting suggestions.
 
-## Sources and verification limits
+Open questions for later: What changes with long identifiers? How much memory can the batch use? How should tenant identity match storage equality? Choose one rather than expanding today's scope indefinitely.
 
-Checked **5 October 2026**. The [source dossier](sources.json) records pins, metadata and reading scope.
+## Read further
 
-- **Curriculum:** [IUH Master condensed curriculum](../../curricula/iuh/master/curriculum.md), course 6001127 outcomes. Current institutional PDFs/regulations were not reverified.
-- **Theory:** [MIT 6.006 Hashing II, pages 1–3](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/160b3b5f9da2e03815ca1e6ee0dba62a_MIT6_006F11_lec09.pdf): hashing assumptions, resizing and amortization; not a .NET benchmark.
-- **API/implementation:** [List.Contains](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.contains?view=net-10.0), [HashSet.Add](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1.add?view=net-10.0) and pinned runtime above. API documentation describes ordinary O(1) lookup; this lesson additionally states collision/key assumptions.
-- **Measurement:** [BenchmarkDotNet getting started](https://benchmarkdotnet.org/articles/guides/getting-started.html), [good practices](https://benchmarkdotnet.org/articles/guides/good-practices.html); reports are actual agent execution, not learning evidence.
-- **Database:** [SQL Server unique indexes](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/create-unique-indexes?view=sql-server-ver17); the production bridge is instructor synthesis. No SQL Server lab or production workload was run.
+- [Microsoft: List.Contains](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.contains?view=net-10.0) and [HashSet.Add](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1.add?view=net-10.0): confirm equality, return values and resizing behavior.
+- [MIT OCW: Hashing II, pages 1–3](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/160b3b5f9da2e03815ca1e6ee0dba62a_MIT6_006F11_lec09.pdf): derive load-factor assumptions and amortized table growth.
+- [BenchmarkDotNet good practices](https://benchmarkdotnet.org/articles/guides/good-practices.html): prepare a fair Release benchmark and avoid extrapolating one environment's result.
+- [SQL Server unique indexes](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/create-unique-indexes?view=sql-server-ver17): extend the batch example to storage-enforced uniqueness.
+- [C# lab guide](../../labs/cost-model/dotnet/README.md): optional setup, benchmark commands and troubleshooting when you want to run the experiments.
 
-Local lab/reference checks and a benchmark were executed. No learner study establishing the educational effectiveness of this lesson has been performed.
+<!-- LESSON_NAVIGATION_START -->
+## Related reading
+
+- [Topic map](../../references/topic-map.md) — Choose the foundations or deeper topic to study next.
+- [C# lab guide](../../labs/cost-model/dotnet/README.md) — SDK setup, copyable commands and benchmark troubleshooting.
+
+---
+
+[All lessons](../../README.md) · [Next: Lesson 02 — Boundary search and time windows →](../boundary-search/lesson.md)
+<!-- LESSON_NAVIGATION_END -->

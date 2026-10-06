@@ -4,21 +4,13 @@
       "id": "2026-10-05-cost-model",
       "date": "2026-10-05",
       "title": {
-        "vi": "Bài 01 — Big-O và khử trùng bằng C#",
-        "en": "Lesson 01 — Big-O and stable deduplication in C#"
+        "en": "Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#",
+        "vi": "Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#"
       },
       "files": [
         "lessons/2026-10-05-cost-model/lesson.md",
         "vi/lessons/2026-10-05-cost-model/lesson.md",
-        "labs/cost-model/lab.py",
-        "labs/cost-model/solution.py",
-        "labs/cost-model/starter.py",
-        "labs/cost-model/check.py",
-        "lessons/2026-10-05-cost-model/sources.json",
-        "lessons/2026-10-05-cost-model/agent-observations.txt",
-        "lessons/2026-10-05-cost-model/agent-checks.txt",
         "lessons/2026-10-05-cost-model/benchmark-report.md",
-        "lessons/2026-10-05-cost-model/benchmark-run.txt",
         "labs/cost-model/dotnet/global.json",
         "labs/cost-model/dotnet/README.md",
         "labs/cost-model/dotnet/README.vi.md",
@@ -55,7 +47,81 @@
             "description": "Cài SDK, lệnh chạy và cách xử lý lỗi benchmark."
           }
         ]
-      }
+      },
+      "labs": [
+        {
+          "language": "csharp",
+          "directory": "labs/cost-model/dotnet",
+          "check": [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--project",
+            "LessonLab",
+            "--",
+            "--check"
+          ],
+          "archive": "labs/cost-model/dotnet-lab.zip",
+          "benchmark": [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--project",
+            "Benchmarks",
+            "--",
+            "--filter",
+            "*DedupeBenchmarks*",
+            "--job",
+            "dry"
+          ]
+        }
+      ],
+      "summary": {
+        "en": "Derive scan and hashing costs, preserve order and equality, and test performance claims.",
+        "vi": "Suy ra chi phí quét và hashing, giữ thứ tự và quy tắc bằng nhau, rồi kiểm tra nhận định về hiệu năng."
+      },
+      "recall": [
+        {
+          "id": "hidden-scan",
+          "question": {
+            "en": "Why can a single loop that calls List.Contains take quadratic time?",
+            "vi": "Vì sao một vòng lặp gọi List.Contains vẫn có thể mất thời gian bậc hai?"
+          },
+          "answer": {
+            "en": "On all-distinct input the result grows from 0 to n-1 elements. Each miss scans the entire current result, so the total comparisons are 0+1+...+(n-1)=n(n-1)/2. Counting loops alone hides the work inside Contains.",
+            "vi": "Khi mọi phần tử khác nhau, kết quả tăng từ 0 đến n-1 phần tử. Mỗi lần không tìm thấy phải quét toàn bộ kết quả hiện tại, nên tổng so sánh là 0+1+...+(n-1)=n(n-1)/2. Chỉ đếm số vòng lặp sẽ bỏ sót công việc trong Contains."
+          }
+        },
+        {
+          "id": "stable-hash",
+          "question": {
+            "en": "How do HashSet and List preserve the first occurrence order, and what equality rule must they share?",
+            "vi": "HashSet và List giữ thứ tự xuất hiện đầu tiên ra sao, và phải dùng chung quy tắc bằng nhau nào?"
+          },
+          "answer": {
+            "en": "Scan input in order; append to the List only when HashSet.Add returns true. The set answers membership and the list carries output order. Use a comparer consistent with the required key equality; changing case sensitivity changes the contract.",
+            "vi": "Quét input theo thứ tự; chỉ thêm vào List khi HashSet.Add trả true. Set trả lời câu hỏi tồn tại, còn list giữ thứ tự output. Comparer phải phù hợp quy tắc bằng nhau của key; đổi phân biệt hoa thường sẽ đổi contract."
+          }
+        },
+        {
+          "id": "hash-limits",
+          "question": {
+            "en": "Which assumptions support expected linear deduplication, and why does a benchmark not prove service p99?",
+            "vi": "Giả định nào giúp khử trùng có thời gian tuyến tính kỳ vọng, và vì sao benchmark không chứng minh p99 của dịch vụ?"
+          },
+          "answer": {
+            "en": "Bounded key hash/equality cost, adequate hash distribution and amortized resizing support expected O(n); adversarial collisions can increase comparisons. A synthetic benchmark measures its chosen workload and environment, not production queues, key distributions, peak memory or request latency.",
+            "vi": "Chi phí hash/so sánh key có giới hạn, phân bố hash phù hợp và resize phân tích khấu hao hỗ trợ O(n) kỳ vọng; collision bất lợi có thể tăng số so sánh. Benchmark tổng hợp đo workload và môi trường đã chọn, không đo hàng đợi production, phân bố key, bộ nhớ đỉnh hay độ trễ request."
+          }
+        }
+      ],
+      "topic_ids": [
+        "foundations.program-reasoning",
+        "advanced-algorithms.cost-model-membership.l1"
+      ],
+      "day_type": "build"
     },
     {
       "id": "boundary-search",
@@ -67,7 +133,7 @@
       "related": {
         "en": [
           {
-            "title": "Lesson 01 — Cost models and stable deduplication",
+            "title": "Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#",
             "path": "lessons/2026-10-05-cost-model/lesson.md",
             "description": "Review how hidden work inside a loop determines its cost."
           },
@@ -79,7 +145,7 @@
         ],
         "vi": [
           {
-            "title": "Bài 01 — Mô hình chi phí và khử trùng giữ thứ tự",
+            "title": "Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#",
             "path": "vi/lessons/2026-10-05-cost-model/lesson.md",
             "description": "Ôn cách công việc bên trong vòng lặp quyết định chi phí."
           },
@@ -93,14 +159,91 @@
       "files": [
         "lessons/boundary-search/lesson.md",
         "vi/lessons/boundary-search/lesson.md",
-        "lessons/boundary-search/record.json",
-        "lessons/boundary-search/repository-evidence.json",
         "labs/boundary-search/starter.py",
         "labs/boundary-search/check.py",
         "labs/boundary-search/observe.py",
         "labs/boundary-search/mentor/solution.py",
-        "labs/boundary-search/mentor/hints.md"
-      ]
+        "labs/boundary-search/mentor/hints.md",
+        "labs/boundary-search/dotnet/global.json",
+        "labs/boundary-search/dotnet/README.md",
+        "labs/boundary-search/dotnet/README.vi.md",
+        "labs/boundary-search/dotnet/LessonLab/LessonLab.csproj",
+        "labs/boundary-search/dotnet/LessonLab/Program.cs",
+        "labs/boundary-search/dotnet/LessonLab/BoundarySearch.cs",
+        "labs/boundary-search/dotnet/LessonLab/Checks.cs"
+      ],
+      "labs": [
+        {
+          "language": "python",
+          "directory": "labs/boundary-search",
+          "check": [
+            "python",
+            "check.py",
+            "--module",
+            "mentor/solution.py",
+            "--stage",
+            "all"
+          ]
+        },
+        {
+          "language": "csharp",
+          "directory": "labs/boundary-search/dotnet",
+          "check": [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--project",
+            "LessonLab",
+            "--",
+            "--check"
+          ],
+          "archive": "labs/boundary-search/dotnet-lab.zip"
+        }
+      ],
+      "summary": {
+        "en": "Prove the partition invariant and count half-open time windows with duplicate endpoints in Python, C# and T-SQL.",
+        "vi": "Chứng minh bất biến phân hoạch và đếm cửa sổ thời gian nửa mở có biên trùng bằng Python, C# và T-SQL."
+      },
+      "recall": [
+        {
+          "id": "partition",
+          "question": {
+            "en": "State the lower_bound invariant and explain why returning lo is correct.",
+            "vi": "Nêu bất biến của lower_bound và giải thích vì sao trả lo là đúng."
+          },
+          "answer": {
+            "en": "For sorted data, every index below lo contains a value < target, and every index at or above hi contains a value >= target. Unknown positions lie in [lo,hi). Each branch preserves that partition and shrinks it; when lo==hi, this is the first index with value >= target, or n if absent.",
+            "vi": "Với dữ liệu đã sắp xếp, mọi vị trí trước lo có giá trị < target, mọi vị trí từ hi trở đi có giá trị >= target. Vùng chưa biết là [lo,hi). Mỗi nhánh giữ phân hoạch và thu nhỏ vùng này; khi lo==hi, đây là vị trí đầu tiên có giá trị >= target, hoặc n nếu không có."
+          }
+        },
+        {
+          "id": "window-duplicates",
+          "question": {
+            "en": "For [2,2,4,7,7], how many events lie in [2,7), and why are two lower bounds sufficient?",
+            "vi": "Với [2,2,4,7,7], có bao nhiêu sự kiện trong [2,7), và vì sao hai lower bound là đủ?"
+          },
+          "answer": {
+            "en": "Three. lower_bound(2)=0 and lower_bound(7)=3, so the count is 3-0. The start includes every duplicate 2; the end excludes every duplicate 7. Adjacent half-open windows assign each event to exactly one window.",
+            "vi": "Ba. lower_bound(2)=0 và lower_bound(7)=3, nên số lượng là 3-0. Biên đầu chứa mọi giá trị 2 trùng; biên cuối loại mọi giá trị 7 trùng. Các cửa sổ nửa mở liền nhau gán mỗi sự kiện vào đúng một cửa sổ."
+          }
+        },
+        {
+          "id": "dotnet-binary-search",
+          "question": {
+            "en": "How do you decode a negative .NET BinarySearch result, and can a successful result replace lower_bound when duplicates exist?",
+            "vi": "Giải mã kết quả BinarySearch âm của .NET ra sao, và kết quả tìm thấy có thay lower_bound khi có giá trị trùng không?"
+          },
+          "answer": {
+            "en": "If r<0, the insertion index is ~r, not -r. On a hit, Array.BinarySearch/List<T>.BinarySearch may return any matching index, so use an explicit lower_bound for the first duplicate or for exact [start,end) counting. The input must be sorted by the same comparer.",
+            "vi": "Nếu r<0, vị trí chèn là ~r, không phải -r. Khi tìm thấy, Array.BinarySearch/List<T>.BinarySearch có thể trả bất kỳ vị trí khớp nào, nên dùng lower_bound rõ ràng để lấy phần tử trùng đầu tiên hoặc đếm chính xác [start,end). Input phải được sắp theo cùng comparer."
+          }
+        }
+      ],
+      "topic_ids": [
+        "advanced-algorithms.boundary-search.l1"
+      ],
+      "day_type": "build"
     }
   ]
 }

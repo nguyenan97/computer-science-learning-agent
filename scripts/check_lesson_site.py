@@ -32,12 +32,21 @@ def fetch(url):
         return response.status, dict(response.headers), response.read()
 
 
-async def check(base, chromium, document_delay_ms=0):
+async def check(base, chromium, document_delay_ms=0, local_site=False):
     async with async_playwright() as p:
         options={'headless':True,'args':['--no-sandbox']}
         if chromium: options['executable_path']=chromium
         browser=await p.chromium.launch(**options)
         page=await browser.new_page()
+        origin=(urlsplit(base).scheme,urlsplit(base).netloc)
+        third_party_requests=[]
+        def outside_origin(url):
+            parts=urlsplit(url)
+            return parts.scheme in ('http','https') and (parts.scheme,parts.netloc)!=origin
+        def record_request(request):
+            if outside_origin(request.url) and request.url not in third_party_requests:
+                third_party_requests.append(request.url)
+        page.on('request',record_request)
         # Hash navigation can finish before Docsify replaces the old document.
         # Its doneEach hook identifies the route whose content is actually ready.
         await page.add_init_script("""
@@ -59,12 +68,20 @@ async def check(base, chromium, document_delay_ms=0):
             status,headers,body=await asyncio.to_thread(fetch,route.request.url)
             headers={k:v for k,v in headers.items() if k.lower() not in ('content-encoding','transfer-encoding','content-length')}
             await route.fulfill(status=status,headers=headers,body=body)
-        await page.route('https://**/*',verified_https)
+        if local_site:
+            async def local_requests(route):
+                if outside_origin(route.request.url):
+                    await route.abort('blockedbyclient')
+                else:
+                    await route.fallback()
+            await page.route('**/*',local_requests)
+        else:
+            await page.route('https://**/*',verified_https)
         if document_delay_ms:
             async def delayed_document(route):
                 await asyncio.sleep(document_delay_ms / 1000)
                 await route.fallback()
-            await page.route('**/labs/cost-model/dotnet/README*.md', delayed_document)
+            await page.route('**/labs/**/README*.md', delayed_document)
 
         assets=set(); documents=set(); language_switches=0; neighbor_links=0
         runtime_errors=[]
@@ -133,12 +150,18 @@ async def check(base, chromium, document_delay_ms=0):
             status,_,body=await asyncio.to_thread(fetch,href)
             assert status==200 and body, (href,status)
             assert not body.lstrip().startswith(b'<!DOCTYPE html>'), href
-        assert any(href.endswith('dotnet-lab.zip') for href in assets)
-        assert any(href.endswith('Deduplication.cs') for href in assets)
+        for entry in LESSONS:
+            for lab in entry.get('labs', []):
+                if lab.get('archive'):
+                    archive_url = base + lab['archive']
+                    assert archive_url in assets, f'lesson must link its downloadable lab: {archive_url}'
         assert not runtime_errors, runtime_errors
+        if local_site:
+            assert not third_party_requests, third_party_requests
         print(json.dumps({'lesson_pages':len(ROUTES),'language_switches':language_switches,
                           'previous_next_clicks':neighbor_links,'runtime_errors':runtime_errors,
                           'internal_document_links':len(documents),'asset_links':len(assets),
+                          'third_party_requests':third_party_requests,
                           'tls_verification':True,'document_delay_ms':document_delay_ms,'base':base}))
         await browser.close()
 
@@ -164,7 +187,7 @@ def main():
     server=ThreadingHTTPServer(('127.0.0.1',0),partial(QuietHandler,directory=str(site.parent)))
     worker=threading.Thread(target=server.serve_forever,daemon=True);worker.start()
     try:
-        asyncio.run(check(f'http://127.0.0.1:{server.server_port}/{site.name}/',args.chromium_path,args.document_delay_ms))
+        asyncio.run(check(f'http://127.0.0.1:{server.server_port}/{site.name}/',args.chromium_path,args.document_delay_ms,local_site=True))
     finally:
         server.shutdown();server.server_close();worker.join()
 

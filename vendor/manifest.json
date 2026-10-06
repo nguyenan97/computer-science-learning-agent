@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "packages": [
+    {
+      "name": "docsify",
+      "version": "4.13.1",
+      "license": "MIT",
+      "license_file": "vendor/docsify-4.13.1/LICENSE"
+    },
+    {
+      "name": "prismjs",
+      "version": "1.30.0",
+      "license": "MIT",
+      "license_file": "vendor/prismjs-1.30.0/LICENSE"
+    }
+  ],
+  "assets": [
+    {
+      "path": "vendor/docsify-4.13.1/vue.css",
+      "source": "https://cdn.jsdelivr.net/npm/docsify@4.13.1/lib/themes/vue.css",
+      "sha256": "153f8a221cba65ab9c4bcfabe97f692e7539c54572d8b75262e924bee7ab6feb",
+      "upstream_sha256": "1f8ddcde10fe1d9f3ab60de8469ed26f9b09716fb882b225d666d4f62838de2e",
+      "modification": "Removed Google Fonts @import; existing system font fallbacks are used."
+    },
+    {
+      "path": "vendor/docsify-4.13.1/docsify.min.js",
+      "source": "https://cdn.jsdelivr.net/npm/docsify@4.13.1/lib/docsify.min.js",
+      "sha256": "9123f808d3f6ad736b4a8f99944a611f87c5d4f9328030080a5c029ed5f450a5"
+    },
+    {
+      "path": "vendor/docsify-4.13.1/search.min.js",
+      "source": "https://cdn.jsdelivr.net/npm/docsify@4.13.1/lib/plugins/search.min.js",
+      "sha256": "ab20792dc69dfd9cdb19479f716f69a619e577dec452739196770134dd71f297"
+    },
+    {
+      "path": "vendor/docsify-4.13.1/LICENSE",
+      "source": "https://cdn.jsdelivr.net/npm/docsify@4.13.1/LICENSE",
+      "sha256": "65a671d4b5bda281aac624bc6901d8a8c494c15dc3e329760e8652aa0d76519a"
+    },
+    {
+      "path": "vendor/prismjs-1.30.0/prism-csharp.min.js",
+      "source": "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-csharp.min.js",
+      "sha256": "f4eca14394e584a4a3a747fe6dc0a93ddbc657880f7dbac3f8d119ccb206107e"
+    },
+    {
+      "path": "vendor/prismjs-1.30.0/prism-python.min.js",
+      "source": "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-python.min.js",
+      "sha256": "ed4385685bcf2d4935c8dbbab4bde16603da1329e092d2bf36c3dadd67e9a85c"
+    },
+    {
+      "path": "vendor/prismjs-1.30.0/prism-typescript.min.js",
+      "source": "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-typescript.min.js",
+      "sha256": "852f5513bb9ca9db247f86ecfce74acc91c541749d34929157240518fef8152a"
+    },
+    {
+      "path": "vendor/prismjs-1.30.0/prism-sql.min.js",
+      "source": "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-sql.min.js",
+      "sha256": "3fc5f8ce69950ec73adc972f061df42aaea78faa4864709134ea2adc083f3a33"
+    },
+    {
+      "path": "vendor/prismjs-1.30.0/LICENSE",
+      "source": "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/LICENSE",
+      "sha256": "2b947f0901a7ffcf08a89957da9783c0e9c6e72cb6ce8e959f501ab5409e4d2b"
+    }
+  ]
+}

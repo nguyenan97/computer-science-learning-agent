@@ -1,9 +1,0 @@
-Stable result: B2, A1, C3
-Example scan comparisons: 6
-n,scan_equality_comparisons,hash_add_calls (not hash-table work)
-128,8128,128
-256,32640,256
-512,130816,512
-128 identical IDs: 127 scan comparisons
-Duplicates: B2=2, A1=2
-Agent/reference execution is not learner evidence.

@@ -6,20 +6,26 @@ Hiểu cách chương trình hoạt động, chọn thuật toán phù hợp và
 
 ## Bắt đầu học
 
-1. **[Bài 01 — Big-O và khử trùng giữ thứ tự bằng C#](lessons/2026-10-05-cost-model/lesson.md).** Đi từ tình huống xử lý đơn hàng, trace đến mô hình chi phí, rồi so scan với hashing. Hiểu vì sao một vòng lặp vẫn có thể làm lượng công việc bậc hai, cách giữ đúng thứ tự và quy tắc bằng nhau, cách đọc số đo CPU/bộ nhớ mà không kết luận quá mức.
-2. **[Bài 02 — Tìm biên và cửa sổ thời gian](lessons/boundary-search/lesson.md).** Tìm vị trí đầu tiên thỏa một điều kiện trong dữ liệu có thứ tự. Suy ra bất biến vòng lặp, xử lý giá trị lặp đúng và dùng hai biên để đếm sự kiện trong một khoảng thời gian.
+<!-- LESSON_LIST_START -->
+1. **[Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#](lessons/2026-10-05-cost-model/lesson.md)** — Suy ra chi phí quét và hashing, giữ thứ tự và quy tắc bằng nhau, rồi kiểm tra nhận định về hiệu năng.
+2. **[Bài 02 — Tìm biên và cửa sổ thời gian](lessons/boundary-search/lesson.md)** — Chứng minh bất biến phân hoạch và đếm cửa sổ thời gian nửa mở có biên trùng bằng Python, C# và T-SQL.
+<!-- LESSON_LIST_END -->
 
 Bắt đầu với Bài 01 nếu bạn muốn xây nền tảng phân tích chi phí. Bạn cũng có thể mở chủ đề trả lời câu hỏi hiện tại. Cuối mỗi trang có nội dung liên quan và link tới bài trước hoặc bài sau đã có.
 
 ## Sắp xếp một ngày học thực hành
 
-Nếu học cả ngày, dành khoảng bảy giờ tính cả nghỉ. Xen kẽ giải thích ngắn và worked trace với đọc nguồn, implement, debug, thí nghiệm có kiểm soát và bài áp dụng sang ngữ cảnh khác. Lịch gợi ý dùng để định hướng: dành thêm thời gian cho nền tảng chưa rõ, rút gọn phần quen thuộc và dừng thí nghiệm khi đã đủ evidence để giải thích giới hạn.
+[Profile học](../references/study-profile.json) chia một ngày bảy giờ tính cả nghỉ thành build day hoặc paper day. Đọc paper tạo chú thích, bảng nhận định, một kết quả reproduce và bài phản biện. Nếu học cả ngày, tập trung nghiên cứu một mục tiêu: xen kẽ giải thích và trace với đọc nguồn, implement, debug, thí nghiệm có kiểm soát và bài áp dụng sang ngữ cảnh khác. Mỗi bài chia thành các block linh hoạt, có đầu ra cụ thể và điều kiện dừng. Dành thêm thời gian cho nền tảng chưa rõ, rút gọn phần quen thuộc và chừa thời gian nghỉ.
 
-Thử dự đoán output trước khi xem đáp án. Khi kết quả khác dự đoán, tìm phản ví dụ nhỏ nhất và giải thích mô hình trước đó đã bỏ sót gì. Vài ngày sau, tự dựng lại ý tưởng mà không nhìn ghi chú. Lời giải luôn có sẵn; bạn không cần nộp bài để đọc bài tiếp theo.
+Mở đầu bài mới bằng một vài câu ôn lại, chọn từ các bài trước theo ngày xuất bản. Thử tự dựng lại ý tưởng hoặc dự đoán output trước khi mở đáp án. Khi kết quả khác dự đoán, tìm phản ví dụ nhỏ nhất và giải thích mô hình trước đó đã bỏ sót gì. Lời giải luôn có sẵn; bạn không cần nộp bài hay lưu tiến độ để đọc bài tiếp theo.
 
 ## Khám phá chủ đề
 
 - **[Bản đồ chủ đề](references/topic-map.md):** tìm objective thực tế và những nền tảng giúp bạn tiếp cận.
-- **[Ghi chú theo chủ đề kỹ thuật](references/topic-notes.md):** khám phá thuật toán, database, thống kê, machine learning, hệ thống song song, bảo mật và phương pháp nghiên cứu.
+- **[Danh sách học phần IUH](references/topic-notes.md):** tên/mã học phần kèm câu hỏi tự học viết mới.
 
-Để nhờ agent soạn bài tiếp theo, dùng **“Dùng $cs-daily-deep-study để viết bài hôm nay.”** Thêm chủ đề, công cụ đang có hoặc thời lượng ngắn hơn nếu cần. Mỗi bài có tiếng Việt và tiếng Anh, dùng cùng ví dụ và code chạy được.
+Trong Codex, nhắn **“Bài hôm nay”** hoặc **“Dùng $cs-daily-deep-study để viết bài hôm nay.”** Bạn tự yêu cầu khi sẵn sàng, vào buổi tối hoặc sáng hôm sau; không có lịch chạy tự động. Thêm chủ đề, công cụ đang có hoặc thời lượng ngắn hơn nếu cần. Planner chọn mục tiêu thạc sĩ IUH chưa phủ và đủ prerequisite trước phần tiến sĩ; nếu cùng ngày đã có bài thì dùng lại. Agent soạn bài tiếng Việt và tiếng Anh đầy đủ với lab C# hoặc T-SQL, chạy kiểm tra rồi mở PR để bạn xem. Bạn thường tự merge PR trên GitHub; yêu cầu rõ ràng có thể cho phép agent merge phần việc hiện tại.
+
+Chuỗi bài bám danh sách tên học phần IUH thạc sĩ (2020) và tiến sĩ (2022), với mục tiêu và prerequisite viết mới. Bản đồ hiển thị độ phủ bài đã xuất bản theo bậc và nhóm, không phải mức nắm vững. Đây là tài liệu tự học; hai ngôn ngữ dùng cùng ví dụ và code chạy được. Bài học và lab lưu công khai trên GitHub; không ghi nhận câu trả lời hay tiến độ cá nhân. Cách thiết lập repo và kiểm tra bài nằm trong [hướng dẫn bảo trì](https://github.com/nguyenan97/computer-science-learning-agent/blob/main/docs/maintaining.md).
+
+Văn bản gốc: **CC BY 4.0**. Code gốc: **MIT**. Xem [giấy phép và ghi nhận nguồn](docs/licensing.md).

@@ -6,8 +6,8 @@ Bài học full-day dùng lab này để implement C# có hướng dẫn, debug 
 CPU/allocation. Lời giải đầy đủ ở [Core/Deduplication.cs](Core/Deduplication.cs).
 Giữ attempt và ghi chú thí nghiệm trong bản riêng tư; lệnh chưa sửa chạy code mẫu,
 chưa chứng minh người học làm độc lập. Thực hành/nộp bài đều tùy chọn, không nộp
-vẫn được học ngày sau. File Python ở thư mục cha hỗ trợ fallback offline và đối chiếu
-nhỏ giữa ngôn ngữ; counter và set internals không thay thế tương đương cho lab C#.
+vẫn được học ngày sau. Bài học có phần đối chiếu Python ngay trên trang và trace
+giải thích để đọc offline; Python set internals không thay thế tương đương cho lab C#.
 
 ## Chạy lab nhỏ
 

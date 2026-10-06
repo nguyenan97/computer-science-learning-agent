@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "relationship_basis": "project instructional design; verify readiness from learner evidence",
+  "version": 2,
+  "relationship_basis": "Self-study units mapped to historical IUH course names; dependencies and objectives are original project design. Coverage means published lesson artifacts, never proficiency.",
   "topics": [
     {
       "id": "foundations.program-reasoning",
@@ -16,7 +16,11 @@
       "practice": {
         "en": "Build a small table-driven checker with empty, duplicate and boundary inputs.",
         "vi": "Viết checker theo bảng cho dữ liệu rỗng, trùng lặp và ở biên."
-      }
+      },
+      "level": "master",
+      "area": "algorithms",
+      "course_ids": [],
+      "day_type": "build"
     },
     {
       "id": "advanced-algorithms.cost-model-membership.l1",
@@ -34,7 +38,13 @@
       "practice": {
         "en": "Implement, test collisions and benchmark scan versus HashSet on controlled datasets.",
         "vi": "Implement, kiểm tra collision và benchmark scan với HashSet trên dữ liệu có kiểm soát."
-      }
+      },
+      "level": "master",
+      "area": "algorithms",
+      "course_ids": [
+        "master-6001127"
+      ],
+      "day_type": "build"
     },
     {
       "id": "advanced-algorithms.boundary-search.l1",
@@ -52,7 +62,13 @@
       "practice": {
         "en": "Use pinned bisect source, trace duplicates, test access budget and transfer to timestamp windows.",
         "vi": "Đọc bisect ở pin, trace dữ liệu trùng, kiểm tra số truy cập và áp dụng cho cửa sổ timestamp."
-      }
+      },
+      "level": "master",
+      "area": "algorithms",
+      "course_ids": [
+        "master-6001127"
+      ],
+      "day_type": "build"
     },
     {
       "id": "algorithms.graphs",
@@ -70,7 +86,13 @@
       "practice": {
         "en": "Build a route solver and compare visited nodes and path correctness.",
         "vi": "Viết bộ tìm đường, so sánh node đã thăm và tính đúng đường đi."
-      }
+      },
+      "level": "master",
+      "area": "algorithms",
+      "course_ids": [
+        "master-6001127"
+      ],
+      "day_type": "build"
     },
     {
       "id": "algorithms.optimization",
@@ -88,7 +110,13 @@
       "practice": {
         "en": "Implement a small exact oracle and compare candidate heuristics on generated instances.",
         "vi": "Viết oracle chính xác nhỏ và so heuristic trên dữ liệu sinh."
-      }
+      },
+      "level": "master",
+      "area": "algorithms",
+      "course_ids": [
+        "master-6001127"
+      ],
+      "day_type": "build"
     },
     {
       "id": "data.indexes",
@@ -106,7 +134,13 @@
       "practice": {
         "en": "Populate a local database, inspect plans and measure indexed and unindexed workloads.",
         "vi": "Nạp database cục bộ, đọc plan và đo workload có/không có index."
-      }
+      },
+      "level": "master",
+      "area": "data",
+      "course_ids": [
+        "master-6001111"
+      ],
+      "day_type": "build"
     },
     {
       "id": "data.transactions",
@@ -124,7 +158,13 @@
       "practice": {
         "en": "Run two concurrent clients with a logged schedule and crash/recovery trace.",
         "vi": "Chạy hai client đồng thời với lịch thực thi ghi lại và trace crash/recovery."
-      }
+      },
+      "level": "master",
+      "area": "data",
+      "course_ids": [
+        "master-6001111"
+      ],
+      "day_type": "build"
     },
     {
       "id": "statistics.uncertainty",
@@ -140,7 +180,13 @@
       "practice": {
         "en": "Simulate samples, plot distributions and test assumptions on a reproducible seed.",
         "vi": "Mô phỏng mẫu, vẽ phân phối và kiểm tra giả thiết với seed tái lập."
-      }
+      },
+      "level": "master",
+      "area": "statistics",
+      "course_ids": [
+        "master-6001114"
+      ],
+      "day_type": "build"
     },
     {
       "id": "statistics.experiments",
@@ -158,7 +204,13 @@
       "practice": {
         "en": "Run baseline/treatment comparisons with confound checks and a reproducible notebook.",
         "vi": "So baseline/treatment, kiểm tra confound trong notebook tái lập."
-      }
+      },
+      "level": "master",
+      "area": "statistics",
+      "course_ids": [
+        "master-6001114"
+      ],
+      "day_type": "build"
     },
     {
       "id": "ml.evaluation",
@@ -176,7 +228,13 @@
       "practice": {
         "en": "Fit a small model, inspect errors and compare against a simple rule baseline.",
         "vi": "Fit mô hình nhỏ, đọc lỗi và so với baseline quy tắc đơn giản."
-      }
+      },
+      "level": "master",
+      "area": "ai",
+      "course_ids": [
+        "master-6001130"
+      ],
+      "day_type": "build"
     },
     {
       "id": "ml.neural-networks",
@@ -194,7 +252,13 @@
       "practice": {
         "en": "Implement a small network, verify gradients and run a targeted ablation.",
         "vi": "Implement mạng nhỏ, kiểm tra gradient và làm ablation có mục tiêu."
-      }
+      },
+      "level": "master",
+      "area": "ai",
+      "course_ids": [
+        "master-6001223"
+      ],
+      "day_type": "build"
     },
     {
       "id": "ml.language",
@@ -212,7 +276,13 @@
       "practice": {
         "en": "Compare lexical and embedding retrieval and inspect failed queries.",
         "vi": "So truy hồi lexical với embedding và phân tích query thất bại."
-      }
+      },
+      "level": "master",
+      "area": "ai",
+      "course_ids": [
+        "master-6001122"
+      ],
+      "day_type": "build"
     },
     {
       "id": "ml.vision",
@@ -230,7 +300,13 @@
       "practice": {
         "en": "Compare a classical transform and a learned baseline under controlled perturbations.",
         "vi": "So biến đổi cổ điển với baseline học khi perturb có kiểm soát."
-      }
+      },
+      "level": "master",
+      "area": "ai",
+      "course_ids": [
+        "master-6001131"
+      ],
+      "day_type": "build"
     },
     {
       "id": "systems.parallel",
@@ -248,7 +324,13 @@
       "practice": {
         "en": "Compare serial and parallel implementations with correctness and contention checks.",
         "vi": "So implement tuần tự/song song, kiểm tra đúng và contention."
-      }
+      },
+      "level": "master",
+      "area": "systems",
+      "course_ids": [
+        "master-6001124"
+      ],
+      "day_type": "build"
     },
     {
       "id": "systems.distributed",
@@ -267,7 +349,13 @@
       "practice": {
         "en": "Inject duplicate delivery and process failure into a small local pipeline.",
         "vi": "Chèn giao nhận lặp và process failure vào pipeline cục bộ nhỏ."
-      }
+      },
+      "level": "master",
+      "area": "systems",
+      "course_ids": [
+        "master-6001221"
+      ],
+      "day_type": "build"
     },
     {
       "id": "systems.networks",
@@ -285,7 +373,13 @@
       "practice": {
         "en": "Measure a local client/server and inspect retries, timeouts and congestion assumptions.",
         "vi": "Đo client/server cục bộ, kiểm tra retry, timeout và giả thiết congestion."
-      }
+      },
+      "level": "master",
+      "area": "systems",
+      "course_ids": [
+        "master-6001220"
+      ],
+      "day_type": "build"
     },
     {
       "id": "security.threat-models",
@@ -303,7 +397,13 @@
       "practice": {
         "en": "Build an isolated test harness for authorization, input handling or cryptographic misuse.",
         "vi": "Viết harness cô lập cho authorization, xử lý input hoặc sử dụng crypto sai."
-      }
+      },
+      "level": "master",
+      "area": "security",
+      "course_ids": [
+        "master-6001121"
+      ],
+      "day_type": "build"
     },
     {
       "id": "systems.cloud-data",
@@ -321,7 +421,13 @@
       "practice": {
         "en": "Prototype locally first, inject faults and record latency/cost assumptions before optional cloud work.",
         "vi": "Prototype cục bộ trước, chèn fault và ghi giả thiết latency/chi phí trước cloud tùy chọn."
-      }
+      },
+      "level": "master",
+      "area": "systems",
+      "course_ids": [
+        "master-6001222"
+      ],
+      "day_type": "build"
     },
     {
       "id": "information.models",
@@ -339,7 +445,13 @@
       "practice": {
         "en": "Simulate a channel or queue, compare predicted and observed distributions.",
         "vi": "Mô phỏng kênh hoặc queue, so phân phối dự đoán với quan sát."
-      }
+      },
+      "level": "master",
+      "area": "information",
+      "course_ids": [
+        "master-6001218"
+      ],
+      "day_type": "paper"
     },
     {
       "id": "research.reproduction",
@@ -357,7 +469,13 @@
       "practice": {
         "en": "Inspect methods/code, run a minimal reproduction and write a claim–evidence–limitation log.",
         "vi": "Đọc methods/code, chạy tái lập nhỏ và viết log claim–evidence–giới hạn."
-      }
+      },
+      "level": "master",
+      "area": "research",
+      "course_ids": [
+        "master-6013400"
+      ],
+      "day_type": "paper"
     },
     {
       "id": "data.visualization",
@@ -375,7 +493,1275 @@
       "practice": {
         "en": "Build EDA plots with missingness/outlier checks and explain one decision from the data.",
         "vi": "Vẽ EDA, kiểm tra missing/outlier và giải thích một quyết định dựa trên dữ liệu."
+      },
+      "level": "master",
+      "area": "visualization",
+      "course_ids": [
+        "master-6001225"
+      ],
+      "day_type": "build"
+    },
+    {
+      "id": "master.6012401",
+      "title": {
+        "en": "Philosophy",
+        "vi": "Triết học"
+      },
+      "level": "master",
+      "area": "general-studies",
+      "course_ids": [
+        "master-6012401"
+      ],
+      "day_type": "paper",
+      "prerequisites": [],
+      "objective": {
+        "en": "What assumptions make a scientific claim testable, and what would count against it?",
+        "vi": "Giả định nào khiến một nhận định khoa học kiểm chứng được, và bằng chứng nào bác bỏ nó?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
       }
+    },
+    {
+      "id": "master.6011401",
+      "title": {
+        "en": "English",
+        "vi": "Tiếng Anh"
+      },
+      "level": "master",
+      "area": "communication",
+      "course_ids": [
+        "master-6011401"
+      ],
+      "day_type": "paper",
+      "prerequisites": [],
+      "objective": {
+        "en": "How can you rewrite a technical claim in English without overstating the evidence?",
+        "vi": "Viết lại một nhận định kỹ thuật bằng tiếng Anh thế nào để không nói quá bằng chứng?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "master.6001115",
+      "title": {
+        "en": "Advanced Artificial Intelligence",
+        "vi": "Trí tuệ nhân tạo nâng cao"
+      },
+      "level": "master",
+      "area": "ai",
+      "course_ids": [
+        "master-6001115"
+      ],
+      "day_type": "build",
+      "prerequisites": [
+        "statistics.uncertainty"
+      ],
+      "objective": {
+        "en": "When does evidence change a probabilistic prediction, and how can you check the update?",
+        "vi": "Khi nào bằng chứng đổi dự đoán xác suất, và kiểm tra phép cập nhật ra sao?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "master.6001129",
+      "title": {
+        "en": "Text and Web Analytics",
+        "vi": "Phân tích văn bản và web"
+      },
+      "level": "master",
+      "area": "ai",
+      "course_ids": [
+        "master-6001129"
+      ],
+      "day_type": "build",
+      "prerequisites": [
+        "ml.language"
+      ],
+      "objective": {
+        "en": "How do duplicate documents and collection bias distort a retrieval experiment?",
+        "vi": "Tài liệu trùng và thiên lệch thu thập làm lệch thí nghiệm truy xuất ra sao?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "master.6001210",
+      "title": {
+        "en": "Leadership Development",
+        "vi": "Phát triển năng lực lãnh đạo"
+      },
+      "level": "master",
+      "area": "management",
+      "course_ids": [
+        "master-6001210"
+      ],
+      "day_type": "paper",
+      "prerequisites": [],
+      "objective": {
+        "en": "How can a team make a technical decision while preserving dissent and accountability?",
+        "vi": "Nhóm quyết định kỹ thuật thế nào để giữ ý kiến khác biệt và trách nhiệm?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "master.6001219",
+      "title": {
+        "en": "Risk Analysis",
+        "vi": "Phân tích rủi ro"
+      },
+      "level": "master",
+      "area": "management",
+      "course_ids": [
+        "master-6001219"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "statistics.uncertainty"
+      ],
+      "objective": {
+        "en": "Which decision changes when both the likelihood and cost of failure are uncertain?",
+        "vi": "Quyết định nào thay đổi khi xác suất và thiệt hại của lỗi đều bất định?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "master.6001132",
+      "title": {
+        "en": "Special Topic",
+        "vi": "Chuyên đề"
+      },
+      "level": "master",
+      "area": "research",
+      "course_ids": [
+        "master-6001132"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "research.reproduction"
+      ],
+      "objective": {
+        "en": "Can you bound a new technical question tightly enough to reproduce one relevant result?",
+        "vi": "Giới hạn một câu hỏi kỹ thuật mới ra sao để reproduce được một kết quả liên quan?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "master.6001212",
+      "title": {
+        "en": "Pattern Recognition and Analysis",
+        "vi": "Nhận dạng và phân tích mẫu"
+      },
+      "level": "master",
+      "area": "ai",
+      "course_ids": [
+        "master-6001212"
+      ],
+      "day_type": "build",
+      "prerequisites": [
+        "ml.evaluation"
+      ],
+      "objective": {
+        "en": "What changes when the cost of a false positive differs from that of a false negative?",
+        "vi": "Điều gì đổi khi chi phí false positive khác false negative?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "master.6001126",
+      "title": {
+        "en": "Data Analysis Applications",
+        "vi": "Ứng dụng phân tích dữ liệu"
+      },
+      "level": "master",
+      "area": "data",
+      "course_ids": [
+        "master-6001126"
+      ],
+      "day_type": "build",
+      "prerequisites": [
+        "statistics.experiments"
+      ],
+      "objective": {
+        "en": "Can a reproducible analysis separate data cleaning decisions from the final claim?",
+        "vi": "Phân tích tái lập có tách được quyết định làm sạch dữ liệu khỏi kết luận cuối không?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "master.6001229",
+      "title": {
+        "en": "Master Thesis",
+        "vi": "Luận văn thạc sĩ"
+      },
+      "level": "master",
+      "area": "research",
+      "course_ids": [
+        "master-6001229"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "research.reproduction"
+      ],
+      "objective": {
+        "en": "Can you specify a feasible research question, baseline and evaluation protocol in a proposal?",
+        "vi": "Có thể nêu câu hỏi nghiên cứu khả thi, baseline và quy trình đánh giá trong đề xuất không?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201100",
+      "title": {
+        "en": "Deep Learning",
+        "vi": "Học sâu"
+      },
+      "level": "doctoral",
+      "area": "ai",
+      "course_ids": [
+        "doctoral-6201100"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "ml.neural-networks"
+      ],
+      "objective": {
+        "en": "Which ablation would challenge the claimed mechanism of a deep-learning paper?",
+        "vi": "Ablation nào thách thức cơ chế mà paper học sâu tuyên bố?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201109",
+      "title": {
+        "en": "Big Data Analytics",
+        "vi": "Phân tích dữ liệu lớn"
+      },
+      "level": "doctoral",
+      "area": "systems",
+      "course_ids": [
+        "doctoral-6201109"
+      ],
+      "day_type": "build",
+      "prerequisites": [
+        "systems.distributed"
+      ],
+      "objective": {
+        "en": "Can a distributed result be reproduced across workload sizes and failure conditions?",
+        "vi": "Kết quả phân tán có tái lập được khi đổi cỡ workload và điều kiện lỗi không?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201101",
+      "title": {
+        "en": "Modern Networking and Communication Technologies",
+        "vi": "Công nghệ mạng và truyền thông hiện đại"
+      },
+      "level": "doctoral",
+      "area": "systems",
+      "course_ids": [
+        "doctoral-6201101"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "systems.networks"
+      ],
+      "objective": {
+        "en": "Which workload and latency assumptions limit a networking research claim?",
+        "vi": "Giả định về workload và độ trễ nào giới hạn nhận định nghiên cứu mạng?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201102",
+      "title": {
+        "en": "Advanced Computer Vision",
+        "vi": "Thị giác máy tính nâng cao"
+      },
+      "level": "doctoral",
+      "area": "ai",
+      "course_ids": [
+        "doctoral-6201102"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "ml.vision",
+        "doctoral.6201100"
+      ],
+      "objective": {
+        "en": "Does a vision result survive a change of scene, camera or evaluation distribution?",
+        "vi": "Kết quả thị giác có đứng vững khi đổi cảnh, camera hoặc phân bố đánh giá không?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201103",
+      "title": {
+        "en": "Modern Information Systems Security",
+        "vi": "An toàn hệ thống thông tin hiện đại"
+      },
+      "level": "doctoral",
+      "area": "security",
+      "course_ids": [
+        "doctoral-6201103"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "security.threat-models"
+      ],
+      "objective": {
+        "en": "What threat-model change invalidates a security paper’s comparison?",
+        "vi": "Thay đổi threat model nào làm mất hiệu lực phép so sánh của paper bảo mật?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201104",
+      "title": {
+        "en": "High Performance Computing",
+        "vi": "Tính toán hiệu năng cao"
+      },
+      "level": "doctoral",
+      "area": "systems",
+      "course_ids": [
+        "doctoral-6201104"
+      ],
+      "day_type": "build",
+      "prerequisites": [
+        "systems.parallel"
+      ],
+      "objective": {
+        "en": "Which hardware bottleneck explains scaling, and how can you separate it from measurement noise?",
+        "vi": "Nút thắt phần cứng nào giải thích khả năng mở rộng, và tách nó khỏi nhiễu đo ra sao?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201105",
+      "title": {
+        "en": "Parallel Programming for Multicore Systems",
+        "vi": "Lập trình song song cho hệ đa lõi"
+      },
+      "level": "doctoral",
+      "area": "systems",
+      "course_ids": [
+        "doctoral-6201105"
+      ],
+      "day_type": "build",
+      "prerequisites": [
+        "systems.parallel",
+        "doctoral.6201104"
+      ],
+      "objective": {
+        "en": "Can a synchronization design retain correctness while reducing contention under a changed schedule?",
+        "vi": "Thiết kế đồng bộ có giữ tính đúng và giảm tranh chấp khi đổi lịch chạy không?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201106",
+      "title": {
+        "en": "Modeling and Simulation Techniques",
+        "vi": "Kỹ thuật mô hình hóa và mô phỏng"
+      },
+      "level": "doctoral",
+      "area": "information",
+      "course_ids": [
+        "doctoral-6201106"
+      ],
+      "day_type": "build",
+      "prerequisites": [
+        "information.models"
+      ],
+      "objective": {
+        "en": "Which observations validate a simulator, and which predictions remain outside its calibrated domain?",
+        "vi": "Quan sát nào xác thực bộ mô phỏng, và dự đoán nào nằm ngoài miền đã hiệu chỉnh?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201301",
+      "title": {
+        "en": "Literature Review",
+        "vi": "Tổng quan tài liệu"
+      },
+      "level": "doctoral",
+      "area": "research",
+      "course_ids": [
+        "doctoral-6201301"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "research.reproduction"
+      ],
+      "objective": {
+        "en": "Can you organize conflicting papers by assumptions and evidence instead of publication order?",
+        "vi": "Tổ chức các paper mâu thuẫn theo giả định và bằng chứng thay vì ngày xuất bản ra sao?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201200",
+      "title": {
+        "en": "Research Topic 1",
+        "vi": "Chuyên đề nghiên cứu 1"
+      },
+      "level": "doctoral",
+      "area": "research",
+      "course_ids": [
+        "doctoral-6201200"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "doctoral.6201301"
+      ],
+      "objective": {
+        "en": "Can you reproduce a baseline closely enough to identify a specific unresolved question?",
+        "vi": "Reproduce baseline đủ sát để xác định một câu hỏi chưa giải quyết ra sao?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201201",
+      "title": {
+        "en": "Research Topic 2",
+        "vi": "Chuyên đề nghiên cứu 2"
+      },
+      "level": "doctoral",
+      "area": "research",
+      "course_ids": [
+        "doctoral-6201201"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "doctoral.6201200"
+      ],
+      "objective": {
+        "en": "What experiment could refute your proposed improvement, including an unchanged or negative result?",
+        "vi": "Thí nghiệm nào có thể bác bỏ cải tiến đề xuất, kể cả kết quả không đổi hoặc âm?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    },
+    {
+      "id": "doctoral.6201999",
+      "title": {
+        "en": "PhD Thesis",
+        "vi": "Luận án tiến sĩ"
+      },
+      "level": "doctoral",
+      "area": "research",
+      "course_ids": [
+        "doctoral-6201999"
+      ],
+      "day_type": "paper",
+      "prerequisites": [
+        "doctoral.6201201"
+      ],
+      "objective": {
+        "en": "Which contribution remains defensible after comparison, replication and explicit limitations?",
+        "vi": "Đóng góp nào còn đứng vững sau so sánh, tái lập và nêu rõ giới hạn?"
+      },
+      "practice": {
+        "en": "Develop one worked case, compare it with a counterexample and write the limits of the resulting argument.",
+        "vi": "Dựng một trường hợp có lời giải, đối chiếu với phản ví dụ và viết giới hạn của lập luận thu được."
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "iuh-master-2020",
+      "level": "master",
+      "title": "IUH Outline of Master Program in Computer Science (2020)",
+      "inventory_basis": "Historical condensed course table, not independently reverified original PDF",
+      "snapshot": "fe7458371a480a7ac24b0537dded59367087a7ec",
+      "path": "curricula/iuh/master/curriculum.md"
+    },
+    {
+      "id": "iuh-doctoral-2022",
+      "level": "doctoral",
+      "title": "IUH PhD Program in Computer Science (October 2022)",
+      "inventory_basis": "Historical condensed course table, not independently reverified original PDF",
+      "snapshot": "fe7458371a480a7ac24b0537dded59367087a7ec",
+      "path": "curricula/iuh/phd/curriculum.md"
+    }
+  ],
+  "areas": {
+    "algorithms": {
+      "en": "Algorithms",
+      "vi": "Thuật toán"
+    },
+    "data": {
+      "en": "Data and databases",
+      "vi": "Dữ liệu và cơ sở dữ liệu"
+    },
+    "statistics": {
+      "en": "Statistics",
+      "vi": "Thống kê"
+    },
+    "ai": {
+      "en": "AI and learning",
+      "vi": "AI và học máy"
+    },
+    "systems": {
+      "en": "Systems",
+      "vi": "Hệ thống"
+    },
+    "security": {
+      "en": "Security",
+      "vi": "Bảo mật"
+    },
+    "research": {
+      "en": "Research methods",
+      "vi": "Phương pháp nghiên cứu"
+    },
+    "information": {
+      "en": "Information and modeling",
+      "vi": "Thông tin và mô hình"
+    },
+    "visualization": {
+      "en": "Visualization",
+      "vi": "Trực quan hóa"
+    },
+    "communication": {
+      "en": "Academic communication",
+      "vi": "Giao tiếp học thuật"
+    },
+    "management": {
+      "en": "Leadership and risk",
+      "vi": "Lãnh đạo và rủi ro"
+    },
+    "general-studies": {
+      "en": "General studies",
+      "vi": "Kiến thức chung"
+    }
+  },
+  "courses": [
+    {
+      "id": "master-6012401",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6012401"
+      ],
+      "title": {
+        "en": "Philosophy",
+        "vi": "Triết học"
+      },
+      "area": "general-studies",
+      "question": {
+        "en": "What assumptions make a scientific claim testable, and what would count against it?",
+        "vi": "Giả định nào khiến một nhận định khoa học kiểm chứng được, và bằng chứng nào bác bỏ nó?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "master-6011401",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6011401"
+      ],
+      "title": {
+        "en": "English",
+        "vi": "Tiếng Anh"
+      },
+      "area": "communication",
+      "question": {
+        "en": "How can you rewrite a technical claim in English without overstating the evidence?",
+        "vi": "Viết lại một nhận định kỹ thuật bằng tiếng Anh thế nào để không nói quá bằng chứng?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "master-6001111",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001111"
+      ],
+      "title": {
+        "en": "Advanced Database",
+        "vi": "Cơ sở dữ liệu nâng cao"
+      },
+      "area": "data",
+      "question": {
+        "en": "How do an index and transaction isolation change the cost and correctness of the same query?",
+        "vi": "Index và mức cô lập transaction thay đổi chi phí và tính đúng của cùng truy vấn ra sao?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001114",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001114"
+      ],
+      "title": {
+        "en": "Computational Statistics",
+        "vi": "Thống kê tính toán"
+      },
+      "area": "statistics",
+      "question": {
+        "en": "Which uncertainty estimate remains defensible when your observations are dependent?",
+        "vi": "Ước lượng độ bất định nào còn hợp lý khi các quan sát phụ thuộc nhau?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001115",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001115"
+      ],
+      "title": {
+        "en": "Advanced Artificial Intelligence",
+        "vi": "Trí tuệ nhân tạo nâng cao"
+      },
+      "area": "ai",
+      "question": {
+        "en": "When does evidence change a probabilistic prediction, and how can you check the update?",
+        "vi": "Khi nào bằng chứng đổi dự đoán xác suất, và kiểm tra phép cập nhật ra sao?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001127",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001127"
+      ],
+      "title": {
+        "en": "Advanced Algorithms",
+        "vi": "Giải thuật nâng cao"
+      },
+      "area": "algorithms",
+      "question": {
+        "en": "Which invariant proves the algorithm, and which input exposes its expensive operation?",
+        "vi": "Bất biến nào chứng minh thuật toán, và input nào làm lộ thao tác tốn kém của nó?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001130",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001130"
+      ],
+      "title": {
+        "en": "Advanced Data Mining",
+        "vi": "Khai phá dữ liệu nâng cao"
+      },
+      "area": "ai",
+      "question": {
+        "en": "Can a mining result survive an independent validation set and a simple baseline?",
+        "vi": "Kết quả khai phá có đứng vững trên tập kiểm tra độc lập và baseline đơn giản không?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001122",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001122"
+      ],
+      "title": {
+        "en": "Natural Language Processing",
+        "vi": "Xử lý ngôn ngữ tự nhiên"
+      },
+      "area": "ai",
+      "question": {
+        "en": "Which text representation changes the error pattern rather than only the aggregate score?",
+        "vi": "Biểu diễn văn bản nào đổi kiểu lỗi thay vì chỉ đổi điểm tổng hợp?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001121",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001121"
+      ],
+      "title": {
+        "en": "Information Security & Safe",
+        "vi": "An toàn thông tin"
+      },
+      "area": "security",
+      "question": {
+        "en": "Which attacker capability breaks the design, and what small test demonstrates that boundary?",
+        "vi": "Năng lực nào của kẻ tấn công phá thiết kế, và test nhỏ nào chứng minh giới hạn đó?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001124",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001124"
+      ],
+      "title": {
+        "en": "Parallel Computing",
+        "vi": "Tính toán song song"
+      },
+      "area": "systems",
+      "question": {
+        "en": "Which shared-memory schedule produces a race, and which synchronization preserves the contract?",
+        "vi": "Lịch truy cập bộ nhớ chung nào gây race, và cơ chế đồng bộ nào giữ contract?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001129",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001129"
+      ],
+      "title": {
+        "en": "Text and Web Analytics",
+        "vi": "Phân tích văn bản và web"
+      },
+      "area": "ai",
+      "question": {
+        "en": "How do duplicate documents and collection bias distort a retrieval experiment?",
+        "vi": "Tài liệu trùng và thiên lệch thu thập làm lệch thí nghiệm truy xuất ra sao?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001210",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001210"
+      ],
+      "title": {
+        "en": "Leadership Development",
+        "vi": "Phát triển năng lực lãnh đạo"
+      },
+      "area": "management",
+      "question": {
+        "en": "How can a team make a technical decision while preserving dissent and accountability?",
+        "vi": "Nhóm quyết định kỹ thuật thế nào để giữ ý kiến khác biệt và trách nhiệm?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "master-6001219",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001219"
+      ],
+      "title": {
+        "en": "Risk Analysis",
+        "vi": "Phân tích rủi ro"
+      },
+      "area": "management",
+      "question": {
+        "en": "Which decision changes when both the likelihood and cost of failure are uncertain?",
+        "vi": "Quyết định nào thay đổi khi xác suất và thiệt hại của lỗi đều bất định?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "master-6001132",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001132"
+      ],
+      "title": {
+        "en": "Special Topic",
+        "vi": "Chuyên đề"
+      },
+      "area": "research",
+      "question": {
+        "en": "Can you bound a new technical question tightly enough to reproduce one relevant result?",
+        "vi": "Giới hạn một câu hỏi kỹ thuật mới ra sao để reproduce được một kết quả liên quan?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "master-6001131",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001131"
+      ],
+      "title": {
+        "en": "Digital Image Processing",
+        "vi": "Xử lý ảnh số"
+      },
+      "area": "ai",
+      "question": {
+        "en": "Which transformation preserves the signal needed by your downstream task?",
+        "vi": "Phép biến đổi nào giữ tín hiệu cần cho tác vụ phía sau?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001223",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001223"
+      ],
+      "title": {
+        "en": "Deep Learning",
+        "vi": "Học sâu"
+      },
+      "area": "ai",
+      "question": {
+        "en": "Can you explain a training failure using gradients, data splits and a controlled ablation?",
+        "vi": "Giải thích lỗi huấn luyện bằng gradient, cách chia dữ liệu và ablation có kiểm soát ra sao?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001212",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001212"
+      ],
+      "title": {
+        "en": "Pattern Recognition and Analysis",
+        "vi": "Nhận dạng và phân tích mẫu"
+      },
+      "area": "ai",
+      "question": {
+        "en": "What changes when the cost of a false positive differs from that of a false negative?",
+        "vi": "Điều gì đổi khi chi phí false positive khác false negative?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6013400",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6013400"
+      ],
+      "title": {
+        "en": "Scientific Research Methodology",
+        "vi": "Phương pháp nghiên cứu khoa học"
+      },
+      "area": "research",
+      "question": {
+        "en": "What evidence would distinguish your hypothesis from a plausible alternative explanation?",
+        "vi": "Bằng chứng nào phân biệt giả thuyết của bạn với giải thích thay thế hợp lý?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "master-6001218",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001218"
+      ],
+      "title": {
+        "en": "Information Theory",
+        "vi": "Lý thuyết thông tin"
+      },
+      "area": "information",
+      "question": {
+        "en": "What does an entropy estimate measure, and which assumptions make it comparable across datasets?",
+        "vi": "Ước lượng entropy đo gì, và giả định nào cho phép so sánh giữa các dataset?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "master-6001220",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001220"
+      ],
+      "title": {
+        "en": "Internet Technology of Modern Things",
+        "vi": "Công nghệ Internet vạn vật hiện đại"
+      },
+      "area": "systems",
+      "question": {
+        "en": "How does a device behave when delivery is delayed, duplicated or disconnected?",
+        "vi": "Thiết bị xử lý thế nào khi thông điệp trễ, trùng hoặc mất kết nối?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001222",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001222"
+      ],
+      "title": {
+        "en": "Data Processing on Cloud Computing",
+        "vi": "Xử lý dữ liệu trên điện toán đám mây"
+      },
+      "area": "systems",
+      "question": {
+        "en": "Can retries preserve the output contract of a data pipeline?",
+        "vi": "Retry có giữ được contract output của pipeline dữ liệu không?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001221",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001221"
+      ],
+      "title": {
+        "en": "Big Data Analytics",
+        "vi": "Phân tích dữ liệu lớn"
+      },
+      "area": "systems",
+      "question": {
+        "en": "How do partition skew and partial failure change a distributed aggregate?",
+        "vi": "Lệch phân vùng và lỗi từng phần thay đổi phép tổng hợp phân tán ra sao?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001126",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001126"
+      ],
+      "title": {
+        "en": "Data Analysis Applications",
+        "vi": "Ứng dụng phân tích dữ liệu"
+      },
+      "area": "data",
+      "question": {
+        "en": "Can a reproducible analysis separate data cleaning decisions from the final claim?",
+        "vi": "Phân tích tái lập có tách được quyết định làm sạch dữ liệu khỏi kết luận cuối không?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001225",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001225"
+      ],
+      "title": {
+        "en": "Data Visualization",
+        "vi": "Trực quan hóa dữ liệu"
+      },
+      "area": "visualization",
+      "question": {
+        "en": "Which chart exposes uncertainty instead of hiding it behind an average?",
+        "vi": "Biểu đồ nào làm rõ độ bất định thay vì giấu nó sau giá trị trung bình?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "master-6001229",
+      "level": "master",
+      "source_id": "iuh-master-2020",
+      "source_codes": [
+        "6001229"
+      ],
+      "title": {
+        "en": "Master Thesis",
+        "vi": "Luận văn thạc sĩ"
+      },
+      "area": "research",
+      "question": {
+        "en": "Can you specify a feasible research question, baseline and evaluation protocol in a proposal?",
+        "vi": "Có thể nêu câu hỏi nghiên cứu khả thi, baseline và quy trình đánh giá trong đề xuất không?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "doctoral-6201100",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201100"
+      ],
+      "title": {
+        "en": "Deep Learning",
+        "vi": "Học sâu"
+      },
+      "area": "ai",
+      "question": {
+        "en": "Which ablation would challenge the claimed mechanism of a deep-learning paper?",
+        "vi": "Ablation nào thách thức cơ chế mà paper học sâu tuyên bố?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "doctoral-6201109",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201109"
+      ],
+      "title": {
+        "en": "Big Data Analytics",
+        "vi": "Phân tích dữ liệu lớn"
+      },
+      "area": "systems",
+      "question": {
+        "en": "Can a distributed result be reproduced across workload sizes and failure conditions?",
+        "vi": "Kết quả phân tán có tái lập được khi đổi cỡ workload và điều kiện lỗi không?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "doctoral-6201101",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201101"
+      ],
+      "title": {
+        "en": "Modern Networking and Communication Technologies",
+        "vi": "Công nghệ mạng và truyền thông hiện đại"
+      },
+      "area": "systems",
+      "question": {
+        "en": "Which workload and latency assumptions limit a networking research claim?",
+        "vi": "Giả định về workload và độ trễ nào giới hạn nhận định nghiên cứu mạng?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "doctoral-6201102",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201102"
+      ],
+      "title": {
+        "en": "Advanced Computer Vision",
+        "vi": "Thị giác máy tính nâng cao"
+      },
+      "area": "ai",
+      "question": {
+        "en": "Does a vision result survive a change of scene, camera or evaluation distribution?",
+        "vi": "Kết quả thị giác có đứng vững khi đổi cảnh, camera hoặc phân bố đánh giá không?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "doctoral-6201103",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201103"
+      ],
+      "title": {
+        "en": "Modern Information Systems Security",
+        "vi": "An toàn hệ thống thông tin hiện đại"
+      },
+      "area": "security",
+      "question": {
+        "en": "What threat-model change invalidates a security paper’s comparison?",
+        "vi": "Thay đổi threat model nào làm mất hiệu lực phép so sánh của paper bảo mật?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "doctoral-6201104",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201104"
+      ],
+      "title": {
+        "en": "High Performance Computing",
+        "vi": "Tính toán hiệu năng cao"
+      },
+      "area": "systems",
+      "question": {
+        "en": "Which hardware bottleneck explains scaling, and how can you separate it from measurement noise?",
+        "vi": "Nút thắt phần cứng nào giải thích khả năng mở rộng, và tách nó khỏi nhiễu đo ra sao?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "doctoral-6201105",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201105"
+      ],
+      "title": {
+        "en": "Parallel Programming for Multicore Systems",
+        "vi": "Lập trình song song cho hệ đa lõi"
+      },
+      "area": "systems",
+      "question": {
+        "en": "Can a synchronization design retain correctness while reducing contention under a changed schedule?",
+        "vi": "Thiết kế đồng bộ có giữ tính đúng và giảm tranh chấp khi đổi lịch chạy không?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "doctoral-6201106",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201106"
+      ],
+      "title": {
+        "en": "Modeling and Simulation Techniques",
+        "vi": "Kỹ thuật mô hình hóa và mô phỏng"
+      },
+      "area": "information",
+      "question": {
+        "en": "Which observations validate a simulator, and which predictions remain outside its calibrated domain?",
+        "vi": "Quan sát nào xác thực bộ mô phỏng, và dự đoán nào nằm ngoài miền đã hiệu chỉnh?"
+      },
+      "day_type": "build"
+    },
+    {
+      "id": "doctoral-6201301",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201301",
+        "6201302"
+      ],
+      "title": {
+        "en": "Literature Review",
+        "vi": "Tổng quan tài liệu"
+      },
+      "area": "research",
+      "question": {
+        "en": "Can you organize conflicting papers by assumptions and evidence instead of publication order?",
+        "vi": "Tổ chức các paper mâu thuẫn theo giả định và bằng chứng thay vì ngày xuất bản ra sao?"
+      },
+      "day_type": "paper",
+      "source_note": "The historical condensed table gives two literature-review codes; no current official resolution is claimed."
+    },
+    {
+      "id": "doctoral-6201200",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201200"
+      ],
+      "title": {
+        "en": "Research Topic 1",
+        "vi": "Chuyên đề nghiên cứu 1"
+      },
+      "area": "research",
+      "question": {
+        "en": "Can you reproduce a baseline closely enough to identify a specific unresolved question?",
+        "vi": "Reproduce baseline đủ sát để xác định một câu hỏi chưa giải quyết ra sao?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "doctoral-6201201",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201201"
+      ],
+      "title": {
+        "en": "Research Topic 2",
+        "vi": "Chuyên đề nghiên cứu 2"
+      },
+      "area": "research",
+      "question": {
+        "en": "What experiment could refute your proposed improvement, including an unchanged or negative result?",
+        "vi": "Thí nghiệm nào có thể bác bỏ cải tiến đề xuất, kể cả kết quả không đổi hoặc âm?"
+      },
+      "day_type": "paper"
+    },
+    {
+      "id": "doctoral-6201999",
+      "level": "doctoral",
+      "source_id": "iuh-doctoral-2022",
+      "source_codes": [
+        "6201999"
+      ],
+      "title": {
+        "en": "PhD Thesis",
+        "vi": "Luận án tiến sĩ"
+      },
+      "area": "research",
+      "question": {
+        "en": "Which contribution remains defensible after comparison, replication and explicit limitations?",
+        "vi": "Đóng góp nào còn đứng vững sau so sánh, tái lập và nêu rõ giới hạn?"
+      },
+      "day_type": "paper"
     }
   ]
 }

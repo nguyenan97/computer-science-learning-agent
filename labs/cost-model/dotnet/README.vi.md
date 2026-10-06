@@ -1,13 +1,13 @@
-# Lab Bài 01 — C# / .NET
+# Lab Bài 01 - C# / .NET
 
 [English](README.md) · [Bài tiếng Việt](../../../vi/lessons/2026-10-05-cost-model/lesson.md)
 
-Bài học full-day dùng lab này để implement C# có hướng dẫn, debug và thí nghiệm
+Bài học dùng lab này để implement C# có hướng dẫn, debug và thí nghiệm
 CPU/allocation. Lời giải đầy đủ ở [Core/Deduplication.cs](Core/Deduplication.cs).
 Giữ attempt và ghi chú thí nghiệm trong bản riêng tư; lệnh chưa sửa chạy code mẫu,
 chưa chứng minh người học làm độc lập. Thực hành/nộp bài đều tùy chọn, không nộp
-vẫn được học ngày sau. Bài học có phần đối chiếu Python ngay trên trang và trace
-giải thích để đọc offline; Python set internals không thay thế tương đương cho lab C#.
+vẫn được học ngày sau. Bài học có implementation C# đầy đủ, trace được giải thích
+và đáp án thu gọn để đọc offline.
 
 ## Chạy lab nhỏ
 

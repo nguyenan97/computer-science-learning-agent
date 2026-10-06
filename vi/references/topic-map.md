@@ -35,7 +35,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 - **Mục tiêu:** Trace vòng lặp, nêu bất biến và dựng phản ví dụ cho quy tắc biên sai.
 - **Thực hành:** Viết checker theo bảng cho dữ liệu rỗng, trùng lặp và ở biên.
 
-## Khử trùng giữ thứ tự và mô hình chi phí
+## Dedupe giữ thứ tự và mô hình chi phí
 
 - **Đã có bài** · Thạc sĩ · Thuật toán · `build`
 - **Nền tảng:** Hợp đồng chương trình và bất biến

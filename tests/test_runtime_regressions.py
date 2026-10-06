@@ -43,24 +43,4 @@ class PublicSiteTests(unittest.TestCase):
             (source/'lessons/catalog.json').write_text(json.dumps(catalog))
             with self.assertRaises(ValueError):builder.catalog_files(source)
 
-
-class LabRegressionTests(unittest.TestCase):
-    def test_linear_or_mutating_window_submission_fails_checks(self):
-        spec=importlib.util.spec_from_file_location('checks',ROOT/'labs/boundary-search/check.py')
-        checks=importlib.util.module_from_spec(spec);spec.loader.exec_module(checks)
-        class Linear:
-            @staticmethod
-            def count_window(data,start,end): return sum(start<=x<end for x in data)
-        checks.MODULE=Linear
-        result=unittest.TestResult();checks.TransferChecks('test_window_access_budget_and_no_copy').run(result)
-        self.assertTrue(result.failures or result.errors)
-        class Mutating:
-            @staticmethod
-            def count_window(data,start,end):
-                if end<start:raise ValueError()
-                value=sum(start<=x<end for x in data);data.reverse();return value
-        checks.MODULE=Mutating
-        result=unittest.TestResult();checks.TransferChecks('test_half_open_time_window').run(result)
-        self.assertTrue(result.failures or result.errors)
-
 if __name__=='__main__':unittest.main()

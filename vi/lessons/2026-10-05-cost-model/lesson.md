@@ -1,69 +1,101 @@
-# Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#
-
-**Một ngày đầy đủ: 420 phút · 360 phút học + 60 phút nghỉ · Cập nhật 06/10/2026**
+# Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#
 
 [English](../../../lessons/2026-10-05-cost-model/lesson.md) · [Tải lab C#](https://nguyenan97.github.io/computer-science-learning-agent/labs/cost-model/dotnet-lab.zip)
 
-Một vòng lặp trông đơn giản vẫn có thể thực hiện hàng tỷ phép so sánh. Bài này giải thích công việc đó từ đâu ra, cấu trúc dữ liệu khác thay đổi chi phí thế nào và đánh đổi bộ nhớ ra sao. Nội dung cần để hiểu thuật toán, implementation đầy đủ và bài tập có lời giải nằm ngay trên trang này. Lab tải về và nguồn chính thức bổ sung khả năng chạy thí nghiệm, đọc sâu.
+Một vòng lặp trông đơn giản vẫn có thể làm hàng tỷ phép so sánh. Bài này chỉ ra công việc ẩn đó đến từ đâu, một cấu trúc dữ liệu khác loại bỏ nó thế nào, phải trả giá gì về memory, và quyết định này xuất hiện ở đâu trong code thật (change tracker của EF Core, Azure Service Bus, unique index của SQL Server). Mọi thứ cần để hiểu thuật toán, implementation đầy đủ và đáp án bài tập đều nằm trên trang này. ZIP lab và nguồn chính thức chỉ là phần thêm để chạy thí nghiệm và đọc sâu hơn.
 
-**Mục tiêu:** implement khử trùng batch giữ lần xuất hiện đầu của mỗi ID, rồi giải thích lựa chọn scan hay hashing với phân bố input thay đổi bằng correctness, số đếm và số đo CPU/allocation. Bạn cần vòng lặp và collection C# cơ bản; phân tích độ phức tạp bắt đầu từ trace cụ thể.
+**Mục tiêu:** viết hàm dedupe một batch, giữ lần xuất hiện đầu tiên của mỗi order ID, rồi giải thích khi nào dùng scan và khi nào dùng hashing, dựa trên correctness, số phép đếm và số đo CPU/allocation. Bạn chỉ cần biết vòng lặp và collection cơ bản của C#. Mỗi mục cho biết bạn làm gì và trong bao lâu.
 
-## Lộ trình một ngày
+## Khái niệm cần biết (giải thích ngắn)
 
-| Phút tính từ đầu | Hoạt động | Phút thực hành chủ động |
-|---|---|---:|
-| 0–20 | Self-check nhanh: phần giải thích được và phần cần xem lại | 10 |
-| 20–70 | Contract, mental model, worked trace (§§1–4); tự dựng trace và số đếm | 20 |
-| 70–80 | Nghỉ, rời màn hình | 0 |
-| 80–125 | Đọc nguồn chọn lọc (§6 và Đọc thêm); trả lời bốn câu hỏi research | 10 |
-| 125–170 | Trace implementation (§6): miss, hit và collision | 40 |
-| 170–200 | Ăn trưa, nghỉ | 0 |
-| 200–275 | Thực hành hướng dẫn (§5): implement, test, debug | 70 |
-| 275–285 | Nghỉ | 0 |
-| 285–330 | Thí nghiệm có kiểm soát (§6): dự đoán, đo, đối chiếu | 40 |
-| 330–340 | Nghỉ | 0 |
-| 340–375 | Challenge đổi yêu cầu (§7): đếm duplicate | 35 |
-| 375–420 | Giải thích quyết định, sửa lỗi và chọn câu ôn (§8) | 10 |
+Đọc phần này trước. Mỗi ý cố tình viết ngắn. Mục 4 mới đưa định nghĩa chính thức, sau khi bạn đã thấy số liệu.
 
-Lộ trình dành 235/360 phút học cho code, trace, thiết kế test, debug và thí nghiệm. Setup/chờ benchmark chưa phải thực hành. Điều chỉnh block theo công cụ và sức tập trung; nếu setup quá lâu, dùng trace trên trang và report mẫu. Kết thúc bằng một quyết định rõ và một câu hỏi mở, không kéo dài cả ngày để có benchmark đẹp.
+- **Duplicate và dedupe.** Duplicate (trùng lặp) là giá trị xuất hiện nhiều hơn một lần, ví dụ order ID `B2` trong `B2, A1, B2`. Dedupe (deduplicate, loại bỏ trùng lặp) là giữ lại đúng một bản cho mỗi giá trị.
+- **n và u.** `n` là số phần tử bạn đọc. `u` là số phần tử *khác nhau*. Với `B2, A1, B2, C3, A1`: n = 5, u = 3.
+- **Cost model (mô hình chi phí).** Trước khi so sánh hai cách làm, bạn chọn đếm cái gì. Ở đây ta đếm số lần so sánh bằng nhau giữa hai ID. Nhờ vậy so sánh được thuật toán mà không cần đồng hồ bấm giờ. Đây là bản đơn giản hóa, không phải công việc thật của CPU.
+- **Big-O và Θ.** Big-O mô tả giới hạn mức tăng của công việc khi input đủ lớn, bỏ qua hệ số hằng: O(n) tăng không nhanh hơn tuyến tính, còn O(n²) cho phép tăng bậc hai. Nó không cam kết một tỷ lệ chính xác hay số giây; ví dụ công việc hằng số cũng là O(n). Với công thức cụ thể `T(n) = 3n`, n gấp đôi thì công việc gấp đôi; với `T(n) = n²`, công việc gấp bốn. Θ (theta) mô tả mức tăng chặt: cả hai giới hạn đều cùng bậc.
+- **Worst case, expected case, amortized.** Worst case (trường hợp tệ nhất) là input tốn nhiều công việc nhất trong các input cùng kích thước. Expected case (kỳ vọng) là trung bình dưới các giả định xác suất đã nêu (với hashing: key phân bố tốt). Amortized là chi phí trung bình trên cả chuỗi thao tác, kể cả khi một thao tác (như resize) tốn kém.
+- **Hash table, bucket, collision.** Hash function biến một key thành một số, số đó chọn một nhóm nhỏ các slot gọi là bucket. Bạn chỉ tìm trong bucket đó thay vì kiểm tra tất cả. Collision là khi hai key khác nhau rơi vào cùng bucket. Kết quả vẫn đúng vì equality vẫn được kiểm tra.
+- **Invariant.** Một câu luôn đúng sau mỗi bước của vòng lặp. Nếu nó đúng lúc đầu, giữ đúng sau mỗi bước, và đến cuối suy ra được yêu cầu bài toán, thì code đúng.
+- **Trace, prefix, edge case.** Trace là lần lượt chạy tay từng bước; prefix là phần input đã đọc. Sau hai bước với `B2, A1, B2`, prefix là `B2, A1`. Edge case là trường hợp ở biên của yêu cầu, như input rỗng hoặc ID null.
+- **Load factor và resize.** Load factor là số entry đang lưu chia cho số bucket: 8 entry và 16 bucket cho ra 0,5. Resize tạo storage lớn hơn để chứa thêm key mà số entry trung bình trong mỗi bucket không tăng quá nhiều.
+- **Allocation, GC và peak memory.** Allocation là lượng memory mới mà một thao tác xin cấp; GC (garbage collection) thu hồi managed object không còn được tham chiếu tới. Peak live memory là lượng memory đang sống nhiều nhất cùng lúc; peak working set tính memory của process đang nằm trong RAM. Cấp hai array lần lượt không có nghĩa cả hai sẽ sống mãi.
+- **Benchmark, latency và p99.** Benchmark đo một workload đã chọn; latency là thời gian một request hoàn thành. Nếu p99 latency là 100 ms, khoảng 99% request đã đo hoàn thành trong 100 ms. Thời gian trung bình của một batch không chứng minh được p99 của service.
+- **Identity, idempotency và transaction.** Identity xác định key nào được coi là cùng một giá trị: `a` và `A` khác nhau với Ordinal equality. Idempotency nghĩa là xử lý lại cùng event không tạo thêm tác động nghiệp vụ. Transaction database commit các lần ghi cùng nhau hoặc rollback cùng nhau; ghi marker của event và cập nhật đơn hàng trong một transaction giúp retry không bỏ qua cập nhật chưa hoàn thành.
 
-## Self-check nhanh
+## 1. Self-check nhanh
 
-Thử không nhìn ghi chú, hoặc đọc đáp án trước rồi quay lại sau:
+**Block recall · khoảng 20 phút · Việc cần làm:** trả lời theo trí nhớ nếu được, rồi mở từng đáp án. Chưa có bài trước để nhớ lại, nên phần này kiểm tra các kiến thức nền cho hôm nay. **Dừng khi:** bạn biết mình muốn đọc lại câu nào trong bốn câu.
 
-1. Với `B2,A1,B2,C3,A1`, output giữ thứ tự đầu là gì? Sort làm đổi nó thế nào?
-2. Scan tuần tự có bao nhiêu equality check với `A,B,C,D`?
-3. Hash bằng nhau có suy ra ID bằng nhau không? Set ở một process có ngăn duplicate ở process khác không?
-4. “Allocated mỗi operation” có phải peak memory không?
+1. Với `B2,A1,B2,C3,A1`, output giữ thứ tự xuất hiện đầu là gì? Sort làm nó đổi thế nào?
 
-**Đáp án:** (1) `B2,A1,C3`; sort thành `A1,B2,C3`, sai yêu cầu thứ tự. (2) `0+1+2+3=6`. (3) Không: equality vẫn phân biệt collision; hai process có set riêng. (4) Không: allocation là lượng mới cấp phát trong operation được đo, chưa phải lượng memory sống lớn nhất.
+<details>
+<summary>Đáp án</summary>
 
-Nếu chưa quen tìm tuần tự, vẽ `[B2,A1]`. Tìm B2 dừng sau một so sánh; tìm C3 phải kiểm tra cả hai trước khi kết luận không có. Với `[X,Y,X]`, output là `[X,Y]`, scan có `0+1+1=2` so sánh. Nếu trace này dễ, dành thêm thời gian cho số đo và challenge đổi yêu cầu.
+`B2,A1,C3`. Sort cho ra `A1,B2,C3`, sai yêu cầu "giữ thứ tự xuất hiện đầu".
 
-## 1. Bắt đầu bằng một yêu cầu production nhỏ
+</details>
 
-Một job logistics nhận danh sách mã đơn từ log hoặc message batch. Một mã có thể xuất hiện nhiều lần. Trả về mỗi mã **một lần, theo thứ tự nó xuất hiện lần đầu**.
+2. Scan tuần tự thực hiện bao nhiêu phép so sánh equality với `A,B,C,D`?
+
+<details>
+<summary>Đáp án</summary>
+
+`0+1+2+3 = 6`. Phần tử đầu không so với ai, phần tử thứ hai so với một phần tử, và cứ thế.
+
+</details>
+
+3. Hash bằng nhau có nghĩa là ID bằng nhau không? Set ở một process có chặn được duplicate ở process khác không?
+
+<details>
+<summary>Đáp án</summary>
+
+Cả hai đều không. Hash bằng nhau vẫn có thể là hai key khác nhau nên phải kiểm tra equality. Hai process mỗi bên có một set rỗng riêng.
+
+</details>
+
+4. "Allocated mỗi operation" có phải là peak memory không?
+
+<details>
+<summary>Đáp án</summary>
+
+Không. Allocation là memory mới được xin cấp trong operation đang đo. Peak memory là lượng memory sống nhiều nhất cùng lúc.
+
+</details>
+
+Chưa quen tìm kiếm tuần tự? Vẽ `[B2, A1]`. Tìm `B2` dừng sau một lần so sánh. Tìm `C3` phải so với cả hai phần tử rồi mới kết luận "không có". Với `[X, Y, X]` output là `[X, Y]` và scan làm `0+1+1 = 2` phép so sánh. Nếu thấy dễ, hãy dành thời gian tiết kiệm được cho phần thí nghiệm và phần đổi yêu cầu phía sau.
+
+## 2. Một yêu cầu production nhỏ
+
+**Block foundation · khoảng 50 phút cho mục 2 đến 5 · Việc cần làm:** đọc từng trace và tự dựng lại bằng tay trước khi nhìn bảng kế tiếp. **Dừng khi:** bạn nói lại được invariant ở mục 5 mà không nhìn.
+
+Một job logistics nhận order ID từ log hoặc từ một message batch. Một ID có thể xuất hiện nhiều lần. Trả về mỗi ID **một lần, theo thứ tự nó xuất hiện lần đầu**.
 
 ```text
 Input : B2, A1, B2, C3, A1
 Output: B2, A1, C3
 ```
 
-Ba điều phải chốt trước khi tối ưu:
+Chốt ba điều trước khi tối ưu:
 
-- So sánh chính xác bằng `StringComparer.Ordinal`: `a` khác `A`; không tự trim/lowercase.
-- Giữ thứ tự xuất hiện đầu; sort thành `A1,B2,C3` là sai yêu cầu.
-- Không sửa input. Input không null, mỗi ID không null; code lab từ chối null. Chuỗi rỗng vẫn là một giá trị hợp lệ trong ví dụ này.
+- So sánh chính xác bằng `StringComparer.Ordinal`: `a` khác `A`. Không tự trim hay lowercase.
+- Giữ thứ tự xuất hiện đầu. Sort thành `A1,B2,C3` là sai yêu cầu.
+- Không sửa input. Input list và từng ID đều không null; code lab từ chối null. Chuỗi rỗng vẫn là giá trị hợp lệ trong ví dụ này.
 
-Đây là khử trùng **trong một batch**, chưa phải xử lý message exactly-once.
+Đây là dedupe **trong một batch**. Nó không phải xử lý message exactly-once; mục 10 giải thích sự khác biệt.
 
-**Thử suy nghĩ:** có bao nhiêu phần tử, bao nhiêu mã khác nhau? Với output tạm `[B2,A1]`, muốn biết `C3` đã xuất hiện chưa cần làm gì?
+**Thử suy nghĩ:** ví dụ trên có bao nhiêu phần tử và bao nhiêu ID khác nhau? Với output tạm `[B2, A1]`, muốn biết `C3` đã thấy chưa thì phải làm gì?
 
-**Lời giải:** có `n=5` phần tử và `u=3` mã khác nhau. Tìm `C3` bằng quét tuần tự phải kiểm tra cả `B2` lẫn `A1`. Nếu ý “phải tìm hết mới kết luận không có” chưa rõ, đọc trace dưới đây chậm một lượt; đó là prerequisite quan trọng của bài.
+<details>
+<summary>Đáp án</summary>
 
-## 2. Một vòng lặp vẫn có thể làm rất nhiều việc
+n = 5 phần tử và u = 3 ID khác nhau. Để kiểm tra `C3` với `[B2, A1]` bằng tìm kiếm tuần tự, bạn so với `B2` rồi `A1`, và chỉ khi đó mới biết nó là ID mới. Nếu ý "phải kiểm tra hết mới được nói không có" chưa rõ, hãy đọc lại trace ở mục 3 thật chậm; phần còn lại của bài dựa vào ý này.
 
-Cách quen thuộc:
+</details>
+
+## 3. Một vòng lặp, rất nhiều công việc ẩn
+
+Cách viết quen thuộc:
 
 ```csharp
 var result = new List<string>();
@@ -74,27 +106,27 @@ foreach (string id in values)
 }
 ```
 
-`Contains` của List tìm trong các phần tử đã có, dừng khi thấy mã bằng nhau. Khi không thấy, nó phải tìm hết. Một lời gọi API có thể chứa nhiều công việc mà code bên ngoài không hiện ra.
+`List.Contains` tìm trong các phần tử đã có trong `result` và dừng khi thấy một ID bằng nhau. Nếu không có, nó phải tìm hết. Một lời gọi API có thể giấu rất nhiều công việc.
 
-| ID đang đọc | `result` trước bước | Các so sánh tuần tự | `result` sau bước |
+| ID đang đọc | `result` trước bước | So sánh tuần tự | `result` sau bước |
 |---|---|---|---|
 | B2 | [] | 0 | [B2] |
 | A1 | [B2] | A1 với B2: 1 | [B2,A1] |
 | B2 | [B2,A1] | B2 với B2: 1, dừng | [B2,A1] |
 | C3 | [B2,A1] | C3 với B2 và A1: 2 | [B2,A1,C3] |
-| A1 | [B2,A1,C3] | A1 với B2 rồi A1: 2, dừng | [B2,A1,C3] |
+| A1 | [B2,A1,C3] | A1 với B2, rồi A1: 2, dừng | [B2,A1,C3] |
 
-Tổng là **6 phép so sánh** trong mô hình quét này, dù chỉ có 5 lần đi qua `foreach`. Đây là mô hình thuật toán, chưa phải đo số lệnh CPU của runtime .NET.
+Tổng là **6 phép so sánh** trong mô hình này, dù `foreach` chỉ chạy 5 lần. Đây là mô hình đếm, không phải số đo lệnh CPU của runtime .NET.
 
-### Trường hợp mọi mã khác nhau
+### Trường hợp mọi ID đều khác nhau
 
-Với `A,B,C,D`, số so sánh là `0,1,2,3`. Mã thứ k phải kiểm tra k−1 mã trước nó. Với n mã:
+Với `A,B,C,D`, số so sánh là `0,1,2,3`. ID thứ k phải so với k-1 ID đứng trước. Với n ID khác nhau:
 
 ```text
-C(n) = 0 + 1 + 2 + ... + (n−1) = n(n−1)/2
+C(n) = 0 + 1 + 2 + ... + (n-1) = n(n-1)/2
 ```
 
-Có thể thấy công thức bằng cách viết tổng xuôi và ngược: mỗi cặp cùng vị trí cộng thành n−1; có n cặp. Hai tổng bằng `n(n−1)`, nên một tổng bằng một nửa.
+Để thấy công thức, viết tổng xuôi rồi viết ngược. Mỗi cặp cùng vị trí cộng lại bằng n-1, có n cặp, nên hai bản tổng bằng `n(n-1)`. Một bản bằng một nửa.
 
 | n, tất cả khác nhau | Số so sánh trong mô hình |
 |---:|---:|
@@ -103,74 +135,300 @@ Có thể thấy công thức bằng cách viết tổng xuôi và ngược: m�
 | 512 | 130.816 |
 | 100.000 | 4.999.950.000 |
 
-Đầu vào tăng gấp đôi, công việc gần gấp bốn. Chưa thể đổi những con số này thành milliseconds: CPU, runtime và dữ liệu đều ảnh hưởng thời gian thật.
+Input gấp đôi thì công việc tăng gần gấp bốn. Chưa thể đổi những con số này ra milliseconds: CPU, runtime và dữ liệu đều ảnh hưởng thời gian thật.
 
-## 3. Big-O trả lời câu hỏi nào?
+## 4. Big-O nói gì và không nói gì
 
-**Mô hình chi phí (cost model)** nói rõ ta đang đếm gì. Ở đây, tạm coi một lần so sánh/hash một ID có chi phí bị chặn bởi hằng số; n là số phần tử. Đó là giả định để phân tích, không phải định luật về mọi chuỗi.
+**Cost model** nói rõ ta đang đếm gì. Ở đây ta coi việc so sánh hoặc hash một ID có chi phí là hằng số, và n là số phần tử. Đây là giả định để phân tích được, không phải định luật cho mọi chuỗi.
 
-Big-O là **chặn trên của tốc độ tăng chi phí**: `T(n)` là `O(n²)` nếu tồn tại hằng số C và n₀ sao cho `T(n) ≤ Cn²` với mọi `n ≥ n₀`. Không có nghĩa “chạy n² giây”.
+**Định nghĩa chính thức.** `T(n)` là `O(n²)` nếu tồn tại hằng số C và n₀ sao cho `T(n) ≤ C·n²` với mọi `n ≥ n₀`. Nghĩa là "tăng không nhanh hơn n²", không phải "chạy n² giây".
 
-Với mọi ID khác nhau, `n(n−1)/2` có số hạng chủ đạo n², nên mô hình quét có **Θ(n²)**: cả chặn trên và dưới cùng bậc. Nói O(n²) đúng nhưng kém chặt hơn. Một thuật toán O(n) cũng thỏa chặn O(n²); vì vậy nên dùng bậc chặt khi giải thích.
+Với các ID đều khác nhau, `n(n-1)/2` bị số hạng n² chi phối, nên mô hình scan là **Θ(n²)**: giới hạn trên và dưới cùng bậc. Nói O(n²) vẫn đúng nhưng ít chính xác hơn. Một thuật toán O(n) cũng thỏa O(n²), nên khi giải thích hãy dùng bậc chặt.
 
-**Nếu mọi ID đều là A?** Sau ID đầu, mỗi lần `Contains` tìm thấy ngay: chỉ n−1 so sánh, tức Θ(n). Độ phức tạp trường hợp xấu không nói mọi input đều chậm như nhau.
+**Nếu mọi ID đều là `A` thì sao?** Sau ID đầu, mỗi `Contains` thấy ngay: chỉ n-1 phép so sánh, tức Θ(n). Worst case không có nghĩa mọi input đều chậm.
 
-Với u mã khác nhau, List dài tối đa u; toàn bộ cách quét có chặn `O(n(1+u))`. Khi u nhỏ, nó có thể đủ tốt. Khi u tăng cùng n, trường hợp xấu trở thành bậc hai.
+Với u ID khác nhau, list dài tối đa u phần tử, nên scan bị chặn bởi `O(n(1+u))`. Khi u nhỏ, cách này có thể đủ tốt. Khi u tăng cùng n, worst case thành bậc hai.
 
-**Thử suy nghĩ:** chỉ thấy một `foreach`, có thể kết luận O(n) không?
+**Thử suy nghĩ:** bạn chỉ thấy một `foreach` duyệt n phần tử. Có kết luận được là O(n) không?
 
-**Lời giải:** chưa. Phải tính tổng chi phí phần thân trên từng lần lặp. `Contains`, query database hoặc gọi service đều có chi phí riêng; đếm dòng code không đủ.
+<details>
+<summary>Đáp án</summary>
 
-## 4. Tách nhiệm vụ tìm kiếm khỏi nhiệm vụ giữ thứ tự
+Chưa. Phải cộng chi phí của thân vòng lặp ở từng lần lặp. `Contains`, một query database hay một lời gọi service đều có chi phí riêng. Đếm dòng code là không đủ.
 
-Ta cần hai việc khác nhau: “đã thấy ID này chưa?” và “output theo thứ tự nào?”. Dùng HashSet cho việc thứ nhất, List cho việc thứ hai.
+</details>
+
+## 5. Tách "đã thấy chưa?" khỏi "thứ tự output"
+
+Có hai việc khác nhau: "ID này đã thấy chưa?" và "output theo thứ tự nào?". Dùng `HashSet` cho việc đầu, `List` cho việc sau.
 
 ```csharp
 var seen = new HashSet<string>(StringComparer.Ordinal);
 var result = new List<string>();
 foreach (string id in values)
 {
-    if (seen.Add(id))   // true: vừa thêm; false: đã tồn tại
+    if (seen.Add(id))   // true: vừa thêm; false: đã có
         result.Add(id);
 }
 ```
 
-`Add` đã kiểm tra trùng nên không cần `Contains` rồi `Add` thêm một lượt tìm kiếm. Không dựa vào thứ tự enumerate của HashSet; chính `result.Add` theo thứ tự input bảo đảm thứ tự output.
+`Add` đã kiểm tra trùng, nên không cần `Contains` rồi `Add` (hai lần tìm). Đừng dựa vào thứ tự enumerate của `HashSet`; thứ tự output đến từ `result.Add` chạy theo input.
 
-### Vì sao hashing giúp được?
+### Vì sao hashing giúp được
 
-Hình dung bảng có nhiều bucket. Hash của ID giúp chọn bucket để tìm, thay vì quét từ đầu toàn bộ List. **Hash bằng nhau chưa chắc ID bằng nhau**: khi nhiều ID rơi vào cùng bucket, runtime vẫn phải so sánh equality để phân biệt.
+Hình dung một bảng có nhiều bucket. Hash của ID chọn bucket, nên bạn tìm ở đó thay vì quét cả list. **Hash bằng nhau chưa chắc ID bằng nhau**: khi nhiều ID rơi vào cùng bucket, runtime vẫn phải so sánh equality.
 
-Với hash phân bố đủ tốt, số phần tử mỗi bucket được kiểm soát và chi phí key bị chặn, công việc lookup trung bình theo mô hình hashing là hằng số. Tuy nhiên:
+Nếu hash phân bố tốt, mỗi bucket nhỏ, và chi phí xử lý một key bị chặn, thì một lần lookup làm lượng việc không đổi trên trung bình. Có ba từ hay bị lẫn, và mỗi từ là một cam kết khác nhau:
 
-- **Expected — kỳ vọng:** dựa vào giả định phân bố/randomness; không bảo đảm từng input.
-- **Amortized — khấu hao:** xét tổng chi phí của nhiều thao tác. Một lần resize có thể tốn O(u), nhưng tăng capacity theo cấp số nhân tránh phải copy cả bảng sau mỗi lần thêm. Tổng dạng `1+2+4+...` tăng O(u). Đây là giải thích nguyên lý, không khẳng định capacity .NET đúng các số đó.
-- **Worst case — trường hợp xấu:** comparer/hash bất lợi có thể tạo chuỗi collision dài, làm cả batch trở lại O(n²). .NET có bảo vệ riêng cho một số string comparer; không nên suy ra mọi custom comparer được bảo vệ như nhau.
+- **Expected (kỳ vọng)** nghĩa là "trung bình, dưới một giả định" về cách key phân bố. Nó không hứa gì cho một input cụ thể.
+- **Amortized** là tổng chi phí trên nhiều thao tác. Một lần resize có thể tốn O(u), nhưng mỗi lần tăng capacity theo hệ số nhân thì tổng `1+2+4+...` vẫn là O(u). Đây là giải thích nguyên lý, không khẳng định .NET dùng đúng các capacity đó.
+- **Worst case**: hash tệ hoặc comparer xui có thể tạo collision chain dài và kéo cả batch về O(n²). .NET có bảo vệ riêng cho một số string comparer. Đừng cho rằng mọi custom comparer đều được bảo vệ.
 
-Vì vậy, cách Hash có **expected O(n)** cho toàn bộ batch, đã tính tăng capacity theo khấu hao, dưới các giả định trên. Lab có n lần gọi `Add`; con số đó không phải tổng hash/equality/resize work.
+Vậy cách dùng hash là **expected O(n)** cho cả batch, đã tính amortized resize, dưới các giả định trên. Lab đếm n lần gọi `Add`; con số đó không phải tổng công việc hash, equality và resize.
 
-Nếu ID dài tối đa L ký tự, hash hoặc equality có thể phụ thuộc L. Khi L thay đổi theo input, cần đưa nó vào mô hình: chẳng hạn expected O(n(1+L)) cho cách hash dưới các giả định còn lại, tính cả chi phí key và xử lý mỗi phần tử. Không bỏ qua độ dài key chỉ vì dùng HashSet.
+Nếu ID dài tối đa L ký tự, hash và equality có thể tốn O(L). Khi L thay đổi theo input, hãy đưa nó vào mô hình: expected `O(n(1+L))`. Đừng bỏ qua độ dài key chỉ vì đã dùng `HashSet`.
 
-### Chứng minh kết quả vẫn đúng bằng invariant
+### Chứng minh bằng invariant
 
-Sau mỗi prefix đã đọc: `seen` chứa đúng các ID đã xuất hiện; `result` chứa mỗi ID một lần, theo thứ tự xuất hiện đầu.
+Sau khi đọc bất kỳ prefix nào của input: `seen` chứa đúng các ID đã đọc, và `result` chứa mỗi ID đó một lần, theo thứ tự xuất hiện đầu.
 
-Ban đầu cả hai rỗng. ID cũ khiến `Add` trả false: giữ nguyên. ID mới khiến `Add` trả true: thêm vào cuối output, nên giữ đúng thứ tự. Khi đọc hết input, invariant chính là yêu cầu đầu bài. Tối ưu chi phí mà vẫn bảo toàn hành vi.
+Ban đầu cả hai rỗng. ID cũ khiến `Add` trả false: không gì đổi. ID mới khiến `Add` trả true và được thêm vào cuối `result`, nên thứ tự vẫn đúng. Khi hết input, invariant chính là yêu cầu bài toán. Bạn đổi chi phí mà vẫn giữ nguyên behavior.
 
-### Bộ nhớ: cùng Big-O không có nghĩa cùng số byte
+### Memory: cùng Big-O không có nghĩa cùng số byte
 
-| Cách | Thời gian theo mô hình | Bộ nhớ phụ, không tính output | Output |
+| Cách | Thời gian theo mô hình | Memory phụ, không tính output | Output |
 |---|---|---|---|
-| Quét List | O(n(1+u)); Θ(n²) khi tất cả khác nhau | O(1) | O(u) |
+| Scan một List | O(n(1+u)); Θ(n²) khi tất cả khác nhau | O(1) | O(u) |
 | HashSet + List | Expected O(n), có giả định | O(u) | O(u) |
 
-HashSet giữ thêm bucket/entry array; List giữ reference tới chuỗi. Code này không clone các chuỗi input. Khi array tăng capacity, có allocation và copy; các array cũ có thể cần GC. **Allocation, bộ nhớ còn sống và peak working set là các số đo khác nhau.**
+`HashSet` giữ thêm các array bucket và entry. `List` giữ reference tới các string; code này không clone string của input. Khi một array tăng capacity sẽ có allocation và copy, và array cũ có thể chờ GC. **Allocation, memory đang sống và peak working set là ba số đo khác nhau.**
 
-`new HashSet<string>(n, ...)` hoặc `new List<string>(n)` có thể giảm resize khi biết kích thước phù hợp, nhưng n lớn/u nhỏ sẽ cấp dư. Khi preallocate n, không còn được gọi phần storage đó là O(u) nếu u nhỏ độc lập với n. Chưa cần thêm tối ưu này vào bài chính.
+`new HashSet<string>(n, ...)` hoặc `new List<string>(n)` có thể giảm resize khi bạn biết kích thước, nhưng với n lớn và u nhỏ thì bạn cấp dư. Nếu preallocate theo n, đừng gọi phần storage đó là O(u) khi u nhỏ và độc lập với n. Tạm thời chưa đưa tối ưu này vào bản chính.
 
-## 5. Thực hành C# hướng dẫn: implementation đầy đủ
+**Nghỉ 10 phút.** Rời màn hình.
 
-Method sau có cả null policy. Đặt trong một class nếu chạy local; logic không cần database hay framework.
+## 6. Nguồn và câu hỏi research
+
+**Block sources · khoảng 45 phút · Việc cần làm:** đọc các nguồn dưới đây và trả lời bốn câu hỏi bằng lời của bạn, mỗi câu gồm một nhận định và bằng chứng. **Dừng khi:** mỗi câu có nhận định, nguồn và giới hạn.
+
+Nguồn của bài:
+
+- [Microsoft: List.Contains](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.contains?view=net-10.0) và [HashSet.Add](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1.add?view=net-10.0): kiểm tra equality, giá trị trả về và resize.
+- [MIT OCW: Hashing II, trang 1-3](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/160b3b5f9da2e03815ca1e6ee0dba62a_MIT6_006F11_lec09.pdf): giả định load factor và việc tăng bảng theo amortized.
+- [BenchmarkDotNet good practices](https://benchmarkdotnet.org/articles/guides/good-practices.html): benchmark Release công bằng.
+
+Bốn câu hỏi:
+
+1. `List.Contains` giấu công việc gì?
+
+<details>
+<summary>Đáp án</summary>
+
+Tìm kiếm tuần tự. Hit thì dừng sớm; miss thì đọc hết các phần tử phía trước.
+
+</details>
+
+2. Vì sao một lần `Add` có thể tốn O(u) nhưng cả batch vẫn expected O(n)?
+
+<details>
+<summary>Đáp án</summary>
+
+Chi phí resize cộng dồn theo dạng `1+2+4+...` nên tổng là O(u). Việc lookup expected O(1) còn cần hash tốt và chi phí key bị chặn, đó là các giả định.
+
+</details>
+
+3. Vì sao collision giữ kết quả đúng nhưng đe dọa performance?
+
+<details>
+<summary>Đáp án</summary>
+
+Equality vẫn phân biệt được các key khác nhau nên kết quả đúng. Chain dài nghĩa là mỗi lookup phải so sánh nhiều hơn.
+
+</details>
+
+4. Benchmark tổng hợp nói được gì về một service thật?
+
+<details>
+<summary>Đáp án</summary>
+
+Chỉ nói được về workload và phạm vi bạn đã đo. Phân bố key, peak memory và p99 latency của production cần đo riêng.
+
+</details>
+
+## 7. Đọc code thật: collection và EF Core
+
+**Block implementation-reading · khoảng 45 phút · Việc cần làm:** trace đường đi của `HashSet.Add`, rồi đọc case study EF Core và ánh xạ nó vào bài học. **Dừng khi:** bạn giải thích được bằng lời của mình EF Core lưu gì trong dictionary và vì sao.
+
+### Source của collection
+
+`List.Contains` gọi `IndexOf`, cuối cùng tìm trong một array. Runtime .NET có thể specialize một số type và làm hằng số nhỏ đi, nhưng miss vẫn phải kiểm tra mọi candidate phía trước.
+
+`HashSet.Add` đi theo đường khác:
+
+```text
+ID -> tính hash -> chọn bucket -> xem các entry trong bucket
+   -> hash khớp VÀ ID bằng nhau? trả false
+   -> nếu chưa, sang entry kế tiếp
+   -> không có entry bằng? lấy một slot (resize khi cần), insert, trả true
+```
+
+**Bucket** là điểm vào một nhóm candidate. **Collision chain** nối các entry cùng bucket. Hash đã lưu giúp loại phần lớn candidate rất rẻ; equality quyết định identity. Resize tạo storage lớn hơn rồi chuyển entry sang, nên một lần `Add` có thể đắt dù chi phí amortized nhỏ.
+
+Hãy trace ba trường hợp: set rỗng nhận B2; B2 xuất hiện lại; A1 là ID mới và có cùng hash với B2.
+
+<details>
+<summary>Đáp án</summary>
+
+B2 được insert và `Add` trả true. B2 lần nữa được thấy bằng nhau và `Add` trả false. A1 được so với B2, thấy khác, rồi insert và `Add` trả true. `List` riêng giữ thứ tự output trong cả ba trường hợp.
+
+</details>
+
+Source cần đọc, đã pin vào một commit .NET 10: [List.cs](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs#L336) và [HashSet.cs](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs#L1411). Tìm chỗ chọn bucket, chỗ kiểm tra equality, chỗ trả false và chỗ resize. Bạn không cần build runtime.
+
+### Case study: EF Core dùng dictionary để load row không phải scan
+
+Nếu project của bạn dùng EF Core, đây là nơi quen thuộc để thấy cùng một quyết định trong sản phẩm thật. Project là [dotnet/efcore](https://github.com/dotnet/efcore), đọc ở commit `7adff35c6c583fa6f7aa3939389ab3314be330ab`.
+
+**Bài toán của sản phẩm.** Một tracking query phải trả về đúng một object cho mỗi key của row trong database. Nếu 100 post cùng trỏ tới một blog, bạn phải nhận một instance `Blog`, không phải 100 bản sao, nếu không EF không biết bản nào cần lưu. Docs của EF gọi đây là identity resolution. Mỗi lần một row được chuyển thành entity, EF phải trả lời đúng câu hỏi ở mục 2: "key này đã thấy chưa?"
+
+**Code làm gì** (đã xác minh trong source đã pin):
+
+- Ở [`IdentityMap.cs` dòng 18](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L18), tracker giữ `Dictionary<TKey, InternalEntityEntry> _identityMap`. Key là giá trị key của entity; value là entry đang được track.
+- Ở [dòng 36](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L36), dictionary được tạo với equality comparer của chính key lấy từ model. Đây là cùng quy tắc với `StringComparer.Ordinal` của bạn: equality dùng cho "đã thấy" phải khớp với identity bạn muốn.
+- Tracking query lookup theo key **trước khi tạo entity**. [`ShapedQueryCompilingExpressionVisitor` dòng 473-513](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/Query/ShapedQueryCompilingExpressionVisitor.cs#L473) sinh lời gọi `QueryContext.TryGetEntry(key, keyValues, ...)`, rồi đi qua state manager tới identity map. Hit thì query dùng lại `entry.Entity`; chỉ miss mới tạo entity mới. Lookup theo key trong identity map là một lần đọc dictionary ([dòng 105](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L105)).
+- Đăng ký entity mới từ query là bước riêng: [`QueryContext.StartTracking`](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/Query/QueryContext.cs#L148) gọi [`StateManager.StartTrackingFromQuery`](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/StateManager.cs#L324). `TryGetEntry(entity)` đầu method kiểm tra object reference, không phải key của row; sau đó method tạo entry và đăng ký qua `AddOrUpdate` ([dòng 347](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/StateManager.cs#L347)).
+- Attach một instance khác có key đã được track lại là luồng khác. `IdentityMap.Add` có thể ném identity conflict ([dòng 267-279](https://github.com/dotnet/efcore/blob/7adff35c6c583fa6f7aa3939389ab3314be330ab/src/EFCore/ChangeTracking/Internal/IdentityMap.cs#L267)); `AddOrUpdate` của query đặt `updateDuplicate: true` nên bỏ qua nhánh đó. Đừng nhầm conflict khi attach với identity resolution của query.
+
+**Docs chính thức bổ sung gì.** Docs EF về [efficient querying](https://learn.microsoft.com/ef/core/performance/efficient-querying#tracking,-no-tracking-and-identity-resolution) nói EF giữ một dictionary các instance đang track và kiểm tra nó theo key khi load dữ liệu mới, và việc lookup cùng duy trì dictionary này "take up some time". Docs cũng nói no-tracking query không làm identity resolution, nên cùng một blog sẽ bị tạo 100 lần. [Trang identity resolution](https://learn.microsoft.com/ef/core/change-tracking/identity-resolution#identity-resolution-and-queries) nêu lý do: identity resolution phải nhớ mọi instance đã trả về, và điều đó làm chậm việc stream số lượng lớn entity.
+
+**Ánh xạ vào bài học.**
+
+| Bài học này | EF Core |
+|---|---|
+| Set `seen` | Dictionary `_identityMap`, key là key của entity |
+| Chủ động chọn Ordinal equality | Key comparer lấy từ model |
+| O(u) memory phụ để khỏi scan lặp lại | Một entry cho mỗi entity đang được track; detach hoặc clear tracker sẽ xóa entry |
+| Bỏ set để tiết kiệm memory | `AsNoTracking`: không có dictionary, nhưng có duplicate |
+
+**Suy luận của người dạy, chưa xác minh trong code.** Nếu EF tìm trong một list entity đang track cho mỗi row, thì load n row có u entity khác nhau sẽ tốn O(n·u) phép so sánh key, cùng dạng với `List.Contains`. Bài này không khẳng định lịch sử của EF; đây chỉ là tình huống giả định để cho thấy vì sao dictionary là lựa chọn tự nhiên. Bài này không đo thời gian của EF.
+
+**Áp dụng vào project của bạn.**
+
+1. Danh sách lớn chỉ để đọc (grid hoặc export): dùng `AsNoTracking()`. Bạn bỏ được dictionary và snapshot. Đừng trông chờ "cùng một customer thì cùng một instance", vì parent sẽ bị lặp.
+2. Kết quả chỉ đọc nhưng parent dùng chung phải là cùng một object: dùng `AsNoTrackingWithIdentityResolution()`. Bạn trả giá bằng một dictionary tạm trong lúc chạy query.
+3. Code của bạn cần "key này đã thấy chưa?" trên hàng nghìn row (gộp kết quả API, dựng lookup cho một phép join): dùng `HashSet` hoặc `Dictionary` với comparer chỉ định rõ, như EF làm. Đừng gọi `list.Contains` hay `Any` trong vòng lặp.
+4. Nếu một `DbContext` sống lâu và load nhiều, identity map của nó lớn theo số entity khác nhau. Ưu tiên một context ngắn hạn cho mỗi unit of work.
+
+### Kiểm tra tùy chọn: quan sát identity resolution khi chạy query
+
+Dùng 15 phút trong block implementation-reading này cho phần kiểm tra, thay cho một phần đọc source. Ví dụ dùng .NET SDK 10.0.401, EF Core SQLite 10.0.12 và SQLite in-memory (database chỉ nằm trong RAM), nên không cần database server.
+
+Hai row `Post`, ID 1 và 2, cùng có `BlogId = 1`. Với mỗi query mode, hãy dự đoán `ReferenceEquals(posts[0].Blog, posts[1].Blog)` trả về true hay false và context còn track bao nhiêu entity. Vì sao mỗi query cần một `DbContext` mới? Chạy kiểm tra hoặc, nếu không restore được package, đọc code và trace kết quả trong đáp án.
+
+<details>
+<summary>Đáp án</summary>
+
+Từ thư mục gốc repo, tạo project tạm. Lần restore package đầu tiên cần internet:
+
+```bash
+mkdir -p work/ef-identity-demo
+cd work/ef-identity-demo
+dotnet new globaljson --sdk-version 10.0.401 --roll-forward latestPatch
+dotnet new console --framework net10.0
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version 10.0.12
+```
+
+Thay toàn bộ `Program.cs` bằng chương trình sau:
+
+```csharp
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+
+using var connection = new SqliteConnection("Data Source=:memory:");
+connection.Open();
+var options = new DbContextOptionsBuilder<BlogDb>()
+    .UseSqlite(connection).Options;
+using (var seed = new BlogDb(options))
+{
+    seed.Database.EnsureCreated();
+    var blog = new Blog { Id = 1 };
+    seed.Posts.AddRange(
+        new Post { Id = 1, Blog = blog },
+        new Post { Id = 2, Blog = blog });
+    seed.SaveChanges();
+}
+
+Check("Tracking", 0, expectedSame: true, expectedTracked: 3);
+Check("NoTracking", 1, expectedSame: false, expectedTracked: 0);
+Check("IdentityResolution", 2, expectedSame: true, expectedTracked: 0);
+Console.WriteLine("All checks passed.");
+
+void Check(string name, int mode, bool expectedSame, int expectedTracked)
+{
+    using var db = new BlogDb(options);
+    IQueryable<Post> query = db.Posts.Include(p => p.Blog).OrderBy(p => p.Id);
+    query = mode switch
+    {
+        1 => query.AsNoTracking(),
+        2 => query.AsNoTrackingWithIdentityResolution(),
+        _ => query
+    };
+    var posts = query.ToList();
+    if (posts.Count != 2 || posts.Any(p => p.Blog.Id != 1))
+        throw new InvalidOperationException("Expected two posts for Blog 1.");
+    bool same = ReferenceEquals(posts[0].Blog, posts[1].Blog);
+    int tracked = db.ChangeTracker.Entries().Count();
+    Console.WriteLine($"{name}: sameBlog={same}, tracked={tracked}");
+    if (same != expectedSame || tracked != expectedTracked)
+        throw new InvalidOperationException($"Unexpected result for {name}.");
+}
+
+sealed class BlogDb(DbContextOptions<BlogDb> options) : DbContext(options)
+{
+    public DbSet<Post> Posts => Set<Post>();
+}
+
+sealed class Blog
+{
+    public int Id { get; set; }
+}
+
+sealed class Post
+{
+    public int Id { get; set; }
+    public int BlogId { get; set; }
+    public Blog Blog { get; set; } = null!;
+}
+```
+
+Chạy trong thư mục project:
+
+```bash
+dotnet run
+```
+
+Kết quả dự kiến:
+
+```text
+Tracking: sameBlog=True, tracked=3
+NoTracking: sameBlog=False, tracked=0
+IdentityResolution: sameBlog=True, tracked=0
+All checks passed.
+```
+
+Tracking query dùng lại một object `Blog` và context giữ ba entity: hai post và một blog. `AsNoTracking()` tạo hai object `Blog` khác nhau có cùng key và context không giữ entity nào. `AsNoTrackingWithIdentityResolution()` dùng tracker tạm trong query để dùng lại một `Blog`, rồi cũng không giữ entity nào trong context. `ReferenceEquals` kiểm tra hai biến có trỏ tới cùng object hay không; cùng giá trị key chưa có nghĩa là cùng object.
+
+Context dùng để seed (tạo dữ liệu mẫu) được dispose trước khi query; mỗi mode dùng một context mới. Nếu dùng lại context cũ, các object đã được track có thể ảnh hưởng kết quả. Connection SQLite được giữ mở để database in-memory vẫn tồn tại giữa các context. Các assertion kiểm tra tính đúng của kết quả; đây không phải benchmark tốc độ query.
+
+</details>
+
+**Nghỉ 30 phút (ăn trưa).** Ăn và nghỉ.
+
+## 8. Thực hành C# có hướng dẫn
+
+**Block lab · khoảng 75 phút · Việc cần làm:** tự dựng method, dự đoán edge case, test, cố tình phá một rule rồi sửa. **Dừng khi:** các check pass và bạn giải thích được một bug đã tránh và một giả định code cần.
+
+Method dưới đây có cả null policy. Đặt trong một class nếu chạy local; logic không cần database hay framework.
 
 ```csharp
 public static List<string> StableUnique(IReadOnlyList<string> values)
@@ -189,7 +447,7 @@ public static List<string> StableUnique(IReadOnlyList<string> values)
 }
 ```
 
-`seen` và `result` bắt đầu rỗng ở mỗi batch. Mỗi ID gọi Add đúng một lần. ID mới vào set và append vào List; ID cũ không đổi cả hai. Method đọc input, không sửa input. List giữ reference đến cùng các string, không clone string.
+`seen` và `result` bắt đầu rỗng ở mỗi batch. Mỗi ID gọi `Add` đúng một lần. ID mới vào set và được thêm vào cuối list; ID cũ không đổi gì. Method chỉ đọc input, không sửa. List giữ reference tới cùng các string, không clone.
 
 Ví dụ gọi:
 
@@ -199,112 +457,114 @@ var unique = StableUnique(input);
 Console.WriteLine(string.Join(", ", unique)); // B2, A1, C3
 ```
 
-### Thực hiện block thực hành 75 phút
+Để chạy lab tải về, cài .NET SDK **10.0.401**, giải nén ZIP rồi mở terminal trong thư mục `dotnet`, cạnh `global.json`. Lab chính không cần database hay package bên thứ ba:
 
-1. **Tự dựng method (20 phút).** Đóng ví dụ, viết lại và giải thích prefix invariant ở §4. Khi vướng, xem method đầy đủ phía trên.
-2. **Dự đoán case biên (15 phút).** Viết kỳ vọng trước trace/chạy:
+```bash
+dotnet run -c Release --project LessonLab
+dotnet run -c Release --project LessonLab -- --check
+```
 
-   | Input | Kết quả kỳ vọng |
+Lần chạy mẫu in `Stable result: B2, A1, C3` và `Example scan comparisons: 6`; lệnh check báo tám kiểm tra pass. Các lệnh này chạy implementation có sẵn. Sau khi sửa bản local của bạn, chạy lại check để phát hiện thay đổi về equality, thứ tự và null handling. Nếu chưa cài được SDK, hãy trace cùng các case bằng tay.
+
+Các bước:
+
+1. **Tự dựng method (20 phút).** Đóng ví dụ, viết lại method và giải thích prefix invariant ở mục 5. Nếu bí, xem method đầy đủ ở trên.
+2. **Dự đoán edge case (15 phút).** Viết kết quả bạn kỳ vọng trước khi trace hoặc chạy:
+
+   | Input | Câu hỏi |
    |---|---|
-   | `[]` | `[]` |
-   | `a,A,a` | `a,A` |
-   | `A,A,A` | `A` |
-   | `"",B2,""` | `"",B2` |
-   | input null | `ArgumentNullException` |
-   | một ID null | `ArgumentException` |
+   | `[]` | Trả về gì? |
+   | `a,A,a` | `a` và `A` có bị gộp không? |
+   | `A,A,A` | Còn lại mấy phần tử? |
+   | `"",B2,""` | Chuỗi rỗng có hợp lệ không? |
+   | input là null | Exception nào? |
+   | một ID là null | Exception nào? |
 
-3. **Test/debug (15 phút).** So output với kỳ vọng, kiểm tra input không đổi. Khi lệch, trace batch fail nhỏ nhất thay vì viết lại cả method.
-4. **Cố tình phá một rule (10 phút).** Append mọi ID, sort result hoặc dùng `OrdinalIgnoreCase`. Append tất cả giữ duplicate; sort phá thứ tự đầu; equality không phân biệt hoa thường gộp `a` và `A`. Khôi phục contract trước khi đo.
-5. **Khảo sát collision (10 phút).** Giả sử comparer trả hash 1 cho mọi ID nhưng vẫn dùng ordinal equality. Kết quả vẫn đúng, nhưng ID chưa có có thể phải kiểm tra mọi entry trong bucket. Với 128 ID distinct, implementation dạng chain có `128×127/2=8.128` equality check. Key bằng nhau phải có hash bằng nhau; equality/hash phải ổn định khi key được lưu.
+<details>
+<summary>Kết quả kỳ vọng</summary>
+
+| Input | Kết quả kỳ vọng |
+|---|---|
+| `[]` | `[]` |
+| `a,A,a` | `a,A` |
+| `A,A,A` | `A` |
+| `"",B2,""` | `"",B2` |
+| input là null | `ArgumentNullException` |
+| một ID là null | `ArgumentException` |
+
+</details>
+
+3. **Test và debug (15 phút).** So output với kỳ vọng và kiểm tra input không đổi. Khi lệch, trace batch lỗi nhỏ nhất thay vì viết lại cả method.
+4. **Cố tình phá một rule (10 phút).** Append mọi ID, sort result, hoặc dùng `OrdinalIgnoreCase`. Append tất cả thì giữ duplicate; sort thì phá thứ tự xuất hiện đầu; comparer không phân biệt hoa thường gộp `a` và `A`. Khôi phục contract trước khi đo.
+5. **Khảo sát collision (10 phút).** Giả sử một comparer trả hash 1 cho mọi ID nhưng vẫn dùng ordinal equality. Kết quả vẫn đúng, nhưng một ID mới có thể phải so với mọi entry trong bucket. Với 128 ID khác nhau, implementation dạng chain làm `128×127/2 = 8.128` lần kiểm tra equality. Key bằng nhau phải có hash bằng nhau, và hash cùng equality phải ổn định trong lúc key được lưu.
 6. **Kết thúc (5 phút).** Giải thích một bug đã tránh và một giả định implementation cần.
 
-**Dấu hiệu debug:** còn duplicate → chỉ append khi Add true; thứ tự đổi → giữ List output riêng; gộp `a/A` → xem comparer; hashing chậm bất thường → tìm List.Contains bị giấu; null behavior đổi → giữ validation rõ ràng.
+**Gợi ý debug:** còn duplicate -> chỉ append khi `Add` trả true; thứ tự đổi -> giữ một output list riêng; `a` và `A` bị gộp -> xem comparer; hashing chậm bất thường -> tìm `List.Contains` bị giấu; null behavior đổi -> giữ các check tường minh.
 
-### Đối chiếu Python ngay trên trang
+**Nghỉ 10 phút.** Rời màn hình.
 
-Python set cũng tách membership khỏi output order:
+## 9. Thí nghiệm có kiểm soát
 
-```python
-def stable_unique(values):
-    seen = set()
-    result = []
-    for value in values:
-        if value not in seen:
-            seen.add(value)
-            result.append(value)
-    return result
+**Block experiment · khoảng 45 phút · Việc cần làm:** đổi một yếu tố, dự đoán, đo, rồi so với dự đoán. **Dừng khi:** bạn có một quyết định và một điều vẫn chưa thể kết luận.
 
-assert stable_unique(["B2", "A1", "B2", "C3", "A1"]) == ["B2", "A1", "C3"]
+**So sánh công bằng.** Đo scan và hash trên cùng input, cùng equality và cùng contract thứ tự. Tạo input trước phần đo, và mỗi lần gọi đo phải tạo result mới. Nếu không, một đường có thể dùng lại state đã nóng hoặc bỏ allocation trong khi đường kia vẫn phải cấp phát.
+
+Lab tải về dùng BenchmarkDotNet 0.15.8, N = 128, 512, 2048, tỷ lệ distinct danh nghĩa 10% và 100%, ID có độ dài cố định. Với N = 128 và 10%, số distinct thật là `floor(128×0.10) = 12`. Dự đoán trước khi chạy: ít ID distinct thì List scan ngắn hơn; hash table thường cấp phát nhiều hơn. Big-O không cho ra tỷ lệ tốc độ.
+
+Chạy bản Release, không gắn debugger. Đọc Mean, Error và Allocated cùng nhau. Ở đây Error là nửa khoảng tin cậy 99,9% của BenchmarkDotNet, không phải một chặn sai số được bảo đảm. Allocated gồm storage output và table mới nhưng không gồm input tạo sẵn; nó không đo peak working set, heap đang sống hay p99 của service.
+
+Từ thư mục `dotnet` của lab, chạy:
+
+```bash
+dotnet run -c Release --project Benchmarks -- --filter '*DedupeBenchmarks*' --job short
 ```
 
-Bản này cần key hashable, dùng Python equality, không áp null policy của method C#. Key mới có một membership test rồi insertion; C# Add xử lý cả hai trong một lời gọi. Lập luận chi phí tổng quát giống nhau khi hashing phù hợp; hằng số và collision tùy implementation.
+Project tùy chọn này cần restore NuGet và chạy 12 case workload. Xem report trong `BenchmarkDotNet.Artifacts/results`; nếu setup vượt thời gian của block, dùng report mẫu bên dưới.
 
-## 6. Research, đọc implementation và thí nghiệm có kiểm soát
-
-### Nối mô hình với code collection thật
-
-List.Contains gọi IndexOf, cuối cùng tìm trong array. Runtime .NET có thể specialization cho một số type, cải thiện hằng số nhưng miss vẫn phải xét các candidate trước đó.
-
-HashSet.Add đi theo đường khác:
-
-```text
-ID → tính hash → chọn bucket → xem entry trong bucket
-   → hash khớp VÀ ID bằng nhau? trả false
-   → nếu chưa khớp, đi đến entry tiếp
-   → không có entry bằng? cấp slot (resize khi cần), insert, trả true
-```
-
-**Bucket** là điểm vào nhóm candidate. **Collision chain** nối entry cùng bucket. Hash lưu sẵn giúp loại candidate nhanh; equality quyết định identity. Resize tạo storage lớn hơn, phân bố lại entry, nên một Add có thể đắt dù chuỗi dài có chi phí khấu hao tốt.
-
-Trace ba case: set rỗng nhận B2; B2 xuất hiện lại; A1 mới có cùng hash B2. Đáp án: insert B2, true; tìm B2 bằng, false; so A1 với B2 thấy khác, insert A1, true. List riêng giữ thứ tự output ở cả ba case.
-
-Đọc sâu tại [List.cs](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/List.cs#L336) và [HashSet.cs](https://github.com/dotnet/runtime/blob/4271d88e0aebf3d04f188f1334c2220d80555ef6/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/HashSet.cs#L1411) chính thức, ghim một implementation .NET 10 để đọc lại được. Tìm chọn bucket, equality, return false và resize. Không cần build runtime để hiểu đường đi.
-
-### Bốn câu hỏi research
-
-| Câu hỏi | Câu trả lời cần tìm |
-|---|---|
-| List.Contains giấu công việc gì? | Tìm tuần tự; hit dừng sớm, miss quét hết. |
-| Vì sao một Add O(u) nhưng cả chuỗi expected O(n)? | Chi phí resize cộng theo cấp số nhân; expected lookup còn cần hashing phù hợp, key cost bị chặn. |
-| Vì sao collision giữ correctness nhưng đe dọa performance? | Equality đúng phân biệt key; chain dài thêm so sánh. |
-| Benchmark giả lập nói gì về service? | So workload/scope allocation đã đo; phân bố production, peak memory, p99 cần đo riêng. |
-
-### So sánh công bằng
-
-Đo scan/hash trên cùng input, equality và contract thứ tự. Tạo input trước phần đo, mỗi lần gọi đo tạo result mới. Nếu không, một đường có thể nhận state đã làm nóng hay bỏ allocation trong khi đường kia vẫn phải cấp phát.
-
-Lab tải về dùng BenchmarkDotNet 0.15.8, N=128/512/2048, tỷ lệ distinct danh nghĩa 10%/100%, ID có độ dài cố định. Với N=128 và 10%, distinct thật là `floor(128×0.10)=12`. Dự đoán trước chạy: u giảm làm List scan ngắn hơn; hash table thường cấp phát nhiều hơn. Big-O chưa cho ratio tốc độ.
-
-Chạy Release, không debugger. Đọc Mean, Error, Allocated cùng nhau. Error của BenchmarkDotNet ở đây là nửa confidence interval 99,9%, chưa là chặn sai số được bảo đảm. Allocated gồm storage output/table mới, bỏ input tạo sẵn; không đo peak working set, heap sống hay p99 service.
-
-ShortRun mẫu ngày 05/10/2026, n=512 và mọi ID distinct:
+ShortRun mẫu ngày 05/10/2026, n = 512 và mọi ID distinct:
 
 | Cách | Mean | Error | Allocated mỗi operation |
 |---|---:|---:|---:|
 | Scan | 922,355 µs | 2.261,779 µs | 8.384 B |
 | Hash | 22,218 µs | 19,147 µs | 42.896 B |
 
-Lần chạy dùng Debian 13, Intel Xeon Platinum 8573C, .NET 10.0.12, ba warmup và ba measurement iteration mỗi case. Interval rất rộng: thời gian chỉ minh họa, chưa phải speedup service đáng tin. Byte cấp thêm thể hiện trade-off, chưa phải memory cả ứng dụng. [Report đầy đủ](../../../lessons/2026-10-05-cost-model/benchmark-report.md) có ma trận workload.
+Lần chạy dùng Debian 13, Intel Xeon Platinum 8573C, .NET 10.0.12, ba warmup và ba measurement iteration cho mỗi case. Khoảng sai số rất rộng, nên thời gian chỉ để minh họa, không phải mức tăng tốc đáng tin cho service. Số byte cấp thêm cho thấy trade-off, không phải memory của cả ứng dụng. [Report đầy đủ](../../../lessons/2026-10-05-cost-model/benchmark-report.md) có ma trận workload.
 
 ### Sổ thí nghiệm của bạn
 
-Dùng block 45 phút đổi một yếu tố—n, tỷ lệ distinct, key length hoặc initial capacity—và giữ contract output. Correctness trước timing. Không benchmark method có counter so sánh với method không instrument: counter đã thay đổi công việc.
+Đổi một yếu tố (n, tỷ lệ distinct, độ dài key hoặc initial capacity) và giữ nguyên output contract. Kiểm tra correctness trước khi đo thời gian. Đừng benchmark một method có counter so sánh với một method không có: counter đã làm thay đổi công việc.
 
-| Viết trước chạy | Viết sau chạy |
+| Viết trước khi chạy | Viết sau khi chạy |
 |---|---|
-| Input size, u thật, độ dài/phân bố key | Tham số và môi trường thật |
-| Dự đoán, cơ chế giải thích | Mean, interval, allocation |
-| Một yếu tố sẽ đổi | Dự đoán có khớp không |
-| Kết quả correctness kỳ vọng | Failure hay quan sát bất ngờ |
-| Điều gì khiến chưa thể kết luận? | Quyết định được hỗ trợ, giới hạn còn lại |
+| Kích thước input, u thật, độ dài và phân bố key | Tham số và môi trường thật |
+| Dự đoán và cơ chế giải thích | Mean, interval, allocation |
+| Một yếu tố sẽ đổi | Dự đoán có đúng không |
+| Kết quả correctness kỳ vọng | Lỗi hoặc điều bất ngờ |
+| Điều gì khiến bạn chưa thể kết luận? | Quyết định được hỗ trợ và giới hạn còn lại |
 
-Nếu không chạy benchmark, dùng report mẫu để luyện diễn giải, để số đo của bạn trống. Thiếu kết quả hay quá nhiễu → kết luận “chưa đủ số đo để khẳng định tốc độ”. Kiểm tra tạo input, comparer, build mode và interval trước khi bịa lý do cho ratio bất ngờ. Harness Dry chỉ check thực thi, chưa đo performance hữu ích.
+Nếu không chạy benchmark, dùng report mẫu để luyện cách diễn giải và để trống phần số đo của bạn. Nếu thiếu kết quả hoặc quá nhiễu, kết luận "chưa đủ số đo để khẳng định tăng tốc". Kiểm tra cách tạo input, comparer, build mode và interval trước khi bịa lý do cho một tỷ lệ bất ngờ. Harness Dry chỉ kiểm tra code chạy được; nó không phải số đo performance.
 
-## 7. Challenge đổi yêu cầu: báo cáo đếm duplicate
+**Nghỉ 10 phút.** Rời màn hình.
 
-Báo cáo support cần count thay cho ID unique. Với `B2,A1,B2,C3,A1`, trả `[(B2,2),(A1,2)]`, bỏ ID chỉ xuất hiện một lần. Giữ ordinal identity, thứ tự đầu, input không đổi và null policy như cũ.
+## 10. Đổi yêu cầu: báo cáo duplicate
 
-Thử thiết kế trước khi đọc tiếp. Cần counts để lookup và List riêng để giữ thứ tự. Mỗi lần xuất hiện tăng count; chỉ lần đầu thêm ID vào List.
+**Block transfer · khoảng 35 phút · Việc cần làm:** thiết kế trước, rồi đọc lời giải, rồi trace bảng. **Dừng khi:** bạn đã trace hoặc chạy lời giải với bốn input.
+
+Team support cần count thay cho danh sách ID unique. Với `B2,A1,B2,C3,A1` trả `[(B2,2),(A1,2)]` và bỏ các ID chỉ xuất hiện một lần. Giữ ordinal identity, thứ tự xuất hiện đầu, input không đổi và null policy như cũ.
+
+Hãy thiết kế method và dự đoán output cho các input sau trước khi mở đáp án. Kiểm tra thêm input rỗng và việc từ chối null.
+
+| Input để thử | Điều cần kiểm tra |
+|---|---|
+| `A,B,B,A,C` | Count và thứ tự xuất hiện đầu |
+| `a,A,a` | Ordinal equality |
+| `X,Y` | ID chỉ xuất hiện một lần |
+| `A,A,A` | Mỗi lần xuất hiện đều được tính |
+
+<details>
+<summary>Đáp án</summary>
+
+Bạn cần một lookup cho count và một list riêng để giữ thứ tự. Mỗi lần xuất hiện thì tăng count; chỉ lần đầu mới thêm ID vào list.
 
 ```csharp
 public sealed record OrderCount(string Id, int Count);
@@ -334,53 +594,110 @@ public static List<OrderCount> DuplicateSummary(IReadOnlyList<string> values)
 }
 ```
 
-Invariant gồm hai phần: counts bằng số lần xuất hiện trong prefix đã đọc; order chứa mỗi ID đã gặp một lần theo thứ tự đầu. Lượt duyệt order sau lọc count lớn hơn một. Expected O(n+u)=O(n), thêm O(u) storage theo giả định hashing/key cũ. Không dựa vào thứ tự enumerate của Dictionary.
+Invariant gồm hai phần: `counts` bằng số lần xuất hiện trong prefix đã đọc, và `order` chứa mỗi ID đã gặp một lần theo thứ tự xuất hiện đầu. Lượt duyệt `order` cuối cùng giữ các count lớn hơn một. Expected O(n+u) = O(n), thêm O(u) storage, dưới cùng các giả định về hashing và key. Đừng dựa vào thứ tự enumerate của `Dictionary`.
 
-| Input | Lời giải |
+| Input | Kết quả |
 |---|---|
 | `A,B,B,A,C` | `[(A,2),(B,2)]` |
 | `a,A,a` | `[(a,2)]` |
 | `[]` hoặc `X,Y` | `[]` |
 | `A,A,A` | `[(A,3)]` |
 
-Sort theo count làm đổi thứ tự báo cáo. Chỉ increment ID mới sẽ fail với `A,A,A`. Trace `A,B,B,A,C`: order vẫn `A,B,C`, counts thành A=2/B=2/C=1; lượt cuối trả A rồi B.
+Sort theo count sẽ đổi thứ tự báo cáo. Chỉ tăng count cho ID mới sẽ fail với `A,A,A`. Trace `A,B,B,A,C`: `order` vẫn là `A,B,C`, counts thành A=2, B=2, C=1, và lượt cuối trả A rồi B.
 
-### Nối với production: batch deduplication và idempotency
+</details>
 
-Hai service instance đều có thể nhận B2 vì set của mỗi instance bắt đầu rỗng. HashSet trong batch không thực thi identity toàn hệ thống. Dùng key storage phù hợp, ví dụ tenant + event ID, với unique constraint/index và transaction/xử lý conflict. SELECT-before-INSERT riêng lẻ vẫn race.
+### Production: dedupe một batch không phải là idempotency
 
-Equality storage phải khớp identity mong muốn: collation SQL Server có thể coi string khác C# Ordinal. Nếu side effect nằm ngoài transaction database, unique key chưa đủ bảo đảm exactly-once cho side effect. Cần protocol idempotency/transaction phù hợp.
+Hai service instance đều có thể nhận B2, vì set của mỗi instance bắt đầu rỗng. Một `HashSet` trong một batch không ngăn instance khác xử lý lại cùng event. Dùng key mà storage thực thi, ví dụ tenant + event ID, và **commit marker của event cùng cập nhật nghiệp vụ trong một transaction database**.
 
-## 8. Giải thích quyết định và xem lại
+```sql
+-- Chưa chạy trong session này; key là identity mà nghiệp vụ quan tâm.
+CREATE UNIQUE INDEX UX_OrderEvents_Tenant_Event
+    ON dbo.OrderEvents (TenantId, EventId);
 
-Đóng ví dụ rồi giải thích:
+-- Duplicate (TenantId, EventId) sẽ lỗi 2601
+-- (hoặc 2627 với unique constraint). Lỗi chỉ chứng minh key đã tồn tại.
+```
 
-1. Vì sao một foreach có thể Θ(n²)? **Đáp án:** thân tìm trong List dài dần, tổng `0+1+…+n−1` khi input distinct.
-2. Vì sao cần cả HashSet và List? **Đáp án:** membership và thứ tự output là hai việc; hash table tốn storage thêm.
-3. Hashing có luôn nhanh hơn không? **Đáp án:** không; batch nhỏ, u thấp, key cost, allocation và cache đều ảnh hưởng.
-4. Với `A,B,A,B`, scan có bao nhiêu so sánh? **Đáp án:** `0+1+1+2=4`, so với sáu khi bốn ID distinct.
+Consumer bắt đầu transaction, insert marker vào `OrderEvents`, cập nhật đơn hàng rồi commit. Chỉ acknowledge message sau commit. Nếu lỗi trước commit, cả hai lần ghi rollback và retry có thể xử lý lại. Nếu đã commit nhưng lỗi trước acknowledge, retry thấy marker và không cập nhật nghiệp vụ lần nữa.
 
-Giải thích cuối hữu ích nêu contract, workload kỳ vọng, cấu trúc chọn, lập luận hỗ trợ và một giới hạn. Ví dụ: “Với nhiều ID distinct có độ dài bị chặn, tôi chọn HashSet cùng List. Invariant giữ thứ tự đầu, số scan tăng bậc hai. Hashing expected tuyến tính theo giả định phù hợp và tốn thêm storage. Benchmark mẫu minh họa trade-off nhưng timing bất định lớn. Cần đo key distribution và memory thật trước khi hứa latency production.”
+Khi gặp duplicate-key error, rollback lần thử bị lỗi và xác nhận conflict nằm trên **đúng key của event này**, không phải unique index khác. Chỉ khi marker và cập nhật nghiệp vụ tuân theo transaction nguyên tử thì marker mới mang nghĩa "đã xử lý rồi". Các lỗi database khác vẫn cần xử lý hoặc retry. Nếu commit marker riêng rồi crash trước khi cập nhật đơn hàng, retry sẽ bỏ qua công việc chưa xong; [pattern Idempotent Consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer) giải thích vì sao phải ghi cả hai cùng nhau.
 
-Tự review bốn điểm: case biên/invariant; giả định n/u/key-cost; số đo công bằng/giới hạn; biến thể đếm duplicate có giữ order không. Nếu giải thích chưa rõ, quay lại counterexample nhỏ và thử ID mới. Sau một khoảng, tự dựng số đếm hoặc implement biến thể không ghi chú. Sai thì ôn sớm hơn, recall ổn thì tăng khoảng; 1/3/7 ngày là điểm bắt đầu điều chỉnh được.
+`SELECT` rồi mới `INSERT` vẫn có race condition: hai instance có thể cùng thấy "chưa có" trước khi bên nào insert. Equality của storage cũng phải khớp identity bạn muốn: collation của SQL Server có thể coi string khác với Ordinal của C#.
 
-Câu hỏi để sau: Identifier dài làm đổi gì? Batch có thể dùng bao nhiêu memory? Identity theo tenant nên khớp equality storage thế nào? Chọn một câu, không mở rộng mục tiêu hôm nay mãi.
+Cùng kiểu đánh đổi này xuất hiện trên Azure. [Duplicate detection của Service Bus](https://learn.microsoft.com/azure/service-bus-messaging/duplicate-detection) nhớ các `MessageId` trong một time window cấu hình được và bỏ message gửi lặp. Docs nói window lớn hơn ảnh hưởng throughput vì mọi ID đã ghi đều phải được so khớp, nên hãy giữ window nhỏ nhất có thể. Đó lại là set `seen` của bạn, thêm giới hạn thời gian để chặn memory. Nó chống gửi trùng, nhưng [pattern Idempotent Consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer#problems-and-considerations) cảnh báo nó không thay thế việc xử lý idempotent ở consumer. Nếu side effect nằm ngoài transaction database, một unique key riêng không đủ để bảo đảm exactly-once.
+
+Phía Angular, cùng ý tưởng bằng TypeScript:
+
+```typescript
+// Set giữ thứ tự insert nên lần xuất hiện đầu thắng. String so sánh phân biệt hoa thường.
+const unique = [...new Set(orderIds)];
+```
+
+## 11. Tổng hợp và xem lại
+
+**Block synthesis · khoảng 45 phút · Việc cần làm:** giải thích quyết định thành lời hoặc viết ra mà không nhìn ghi chú, rồi tự review. **Dừng khi:** bạn có một câu quyết định và một câu hỏi còn mở.
+
+Đóng các ví dụ và giải thích:
+
+1. Vì sao một `foreach` có thể là Θ(n²)?
+
+<details>
+<summary>Đáp án</summary>
+
+Thân vòng lặp tìm trong một list ngày càng dài, nên tổng là `0+1+...+(n-1)` khi input toàn ID khác nhau.
+
+</details>
+
+2. Vì sao cần cả `HashSet` và `List`?
+
+<details>
+<summary>Đáp án</summary>
+
+Membership và thứ tự output là hai việc khác nhau. Hash table tốn thêm storage.
+
+</details>
+
+3. Hashing có luôn nhanh hơn không?
+
+<details>
+<summary>Đáp án</summary>
+
+Không. Batch nhỏ, u thấp, chi phí key, allocation và cache đều ảnh hưởng.
+
+</details>
+
+4. Với `A,B,A,B`, scan làm bao nhiêu phép so sánh?
+
+<details>
+<summary>Đáp án</summary>
+
+`0+1+1+2 = 4`, so với sáu khi bốn ID khác nhau.
+
+</details>
+
+Một lời giải thích cuối tốt nêu contract, workload kỳ vọng, cấu trúc đã chọn, lập luận ủng hộ và một giới hạn. Ví dụ: "Với nhiều ID khác nhau có độ dài bị chặn, tôi dùng HashSet cùng List. Invariant giữ thứ tự xuất hiện đầu, còn số lần scan tăng bậc hai. Hashing là expected tuyến tính dưới các giả định phù hợp và tốn thêm storage. Benchmark mẫu minh họa trade-off nhưng độ bất định của thời gian rất lớn. Tôi cần số liệu thật về phân bố key và memory trước khi hứa latency production."
+
+Tự review bốn điểm: edge case và invariant; giả định về n, u và chi phí key; số đo có công bằng không và giới hạn của nó; biến thể đếm duplicate có giữ thứ tự không. Nếu giải thích chưa rõ, quay lại một counterexample nhỏ và thử một ID mới. Sau một khoảng thời gian, tự dựng lại các phép đếm hoặc biến thể mà không nhìn ghi chú. Sai thì ôn sớm hơn, nhớ dễ thì giãn dài hơn. Lịch 1/3/7 ngày chỉ là điểm bắt đầu, bạn điều chỉnh được.
+
+Câu hỏi để mang theo: identifier dài thì thay đổi gì? Một batch có thể dùng bao nhiêu memory? Identity theo tenant nên khớp với equality của storage thế nào? Chọn một câu; đừng mở rộng mục tiêu hôm nay mãi.
 
 ## Đọc thêm
 
 - [Microsoft: List.Contains](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.contains?view=net-10.0) và [HashSet.Add](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1.add?view=net-10.0): kiểm tra equality, giá trị trả về và resize.
-- [MIT OCW: Hashing II, trang 1–3](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/160b3b5f9da2e03815ca1e6ee0dba62a_MIT6_006F11_lec09.pdf): suy ra giả định load factor và tăng table theo khấu hao.
-- [BenchmarkDotNet good practices](https://benchmarkdotnet.org/articles/guides/good-practices.html): chuẩn bị benchmark Release công bằng, tránh ngoại suy từ một môi trường.
-- [SQL Server unique indexes](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/create-unique-indexes?view=sql-server-ver17): mở rộng ví dụ batch sang uniqueness do storage thực thi.
-- [Hướng dẫn lab C#](../../../labs/cost-model/dotnet/README.vi.md): setup, lệnh benchmark và troubleshooting tùy chọn khi muốn chạy thí nghiệm.
+- [EF Core: Efficient querying](https://learn.microsoft.com/ef/core/performance/efficient-querying#tracking,-no-tracking-and-identity-resolution) và [Identity resolution](https://learn.microsoft.com/ef/core/change-tracking/identity-resolution): change tracker như một dictionary.
+- [Azure Service Bus duplicate detection](https://learn.microsoft.com/azure/service-bus-messaging/duplicate-detection): seen set có giới hạn thời gian ở mức message.
+- [SQL Server unique indexes](https://learn.microsoft.com/en-us/sql/relational-databases/indexes/create-unique-indexes?view=sql-server-ver17): uniqueness do storage thực thi.
+- [Hướng dẫn lab C#](../../../labs/cost-model/dotnet/README.vi.md): setup, lệnh benchmark và troubleshooting tùy chọn.
 
 <!-- LESSON_NAVIGATION_START -->
 ## Nội dung liên quan
 
-- [Bản đồ chủ đề](../../references/topic-map.md) — Chọn phần nền tảng hoặc chủ đề muốn học sâu tiếp theo.
-- [Hướng dẫn lab C#](../../../labs/cost-model/dotnet/README.vi.md) — Cài SDK, lệnh chạy và cách xử lý lỗi benchmark.
+- [Bản đồ chủ đề](../../references/topic-map.md) - Chọn phần nền tảng hoặc chủ đề muốn học sâu tiếp theo.
+- [Hướng dẫn lab C#](../../../labs/cost-model/dotnet/README.vi.md) - Cài SDK, lệnh chạy và cách xử lý lỗi benchmark.
 
 ---
 
-[Danh sách bài học](../../README.md) · [Bài sau: Bài 02 — Tìm biên và cửa sổ thời gian →](../boundary-search/lesson.md)
+[Danh sách bài học](../../README.md) · [Bài sau: Bài 02 - Tìm biên và cửa sổ thời gian →](../boundary-search/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

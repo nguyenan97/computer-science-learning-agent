@@ -1,4 +1,4 @@
-# Lab Bài 02 — Tìm biên bằng C#
+# Lab Bài 02 - Tìm biên bằng C#
 
 [English](README.md) · [Bài tiếng Việt](../../../vi/lessons/boundary-search/lesson.md)
 
@@ -18,6 +18,7 @@ dependency benchmark, Python hay SQL Server.
 dotnet --version
 dotnet run -c Release --project LessonLab
 dotnet run -c Release --project LessonLab -- --check
+dotnet run -c Release --project LessonLab -- --observe
 ```
 
 Với clone, working directory là `labs/boundary-search/dotnet`. Với
@@ -34,7 +35,7 @@ Count [30, 30): 0
 Count [11, 39): 3
 ```
 
-`--check` in **15/15 checks passed**, exit 0 khi mọi check thành công;
+`--check` in **17/17 checks passed**, exit 0 khi mọi check thành công;
 bất cứ check nào thất bại đều exit 1. Các case gồm empty data, duplicate đầu,
 target thiếu, khoảng ngoài dữ liệu, key âm/cực trị, ngữ nghĩa endpoint, biên đảo,
 giữ nguyên input, null input, encoding kết quả âm của .NET, mảng ảo rất lớn
@@ -53,3 +54,7 @@ Key timestamp là `long`, sorted tăng dần. Hai search giả định indexed a
 comparison có chi phí hằng số. Check sortedness, sort và update mảng là công việc
 riêng. Ví dụ SQL ở bài học không được console lab này thực thi.
 Chạy reference check xác minh hành vi code; thực hành và báo cáo kết quả tùy chọn.
+
+`--observe` in số lượt indexed read mà một lower boundary thực hiện với 8, 1.024 và
+65.536 phần tử, rồi tìm event record theo key timestamp. Nó đếm số lần đọc phần tử,
+không đo thời gian CPU.

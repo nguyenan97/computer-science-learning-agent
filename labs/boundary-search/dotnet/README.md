@@ -1,4 +1,4 @@
-# Lesson 02 lab — Boundary search in C#
+# Lesson 02 lab - Boundary search in C#
 
 [Tiếng Việt](README.vi.md) · [English lesson](../../../lessons/boundary-search/lesson.md)
 
@@ -18,6 +18,7 @@ benchmark dependency, Python dependency or SQL Server requirement.
 dotnet --version
 dotnet run -c Release --project LessonLab
 dotnet run -c Release --project LessonLab -- --check
+dotnet run -c Release --project LessonLab -- --observe
 ```
 
 For a clone, the working directory is `labs/boundary-search/dotnet`. For the
@@ -34,7 +35,7 @@ Count [30, 30): 0
 Count [11, 39): 3
 ```
 
-`--check` prints **15/15 checks passed** and exits 0 when every check succeeds;
+`--check` prints **17/17 checks passed** and exits 0 when every check succeeds;
 any failed check exits 1. It covers empty data, first duplicates, missing targets,
 outside ranges, negative/extreme keys, endpoint semantics, reversed bounds, input
 preservation, null input, .NET's negative-result encoding, a virtual large array
@@ -54,3 +55,7 @@ time indexed access and comparisons. Checking sortedness, sorting and updating t
 array are separate work. SQL examples live in the lesson and are not executed by
 this console lab. Running reference checks verifies code behavior; practice and
 reporting results are optional.
+
+`--observe` prints how many indexed reads a lower boundary makes for 8, 1,024 and
+65,536 elements, then searches event records by a timestamp key. It counts element
+reads, not CPU time.

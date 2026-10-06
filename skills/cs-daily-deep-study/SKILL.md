@@ -34,8 +34,22 @@ Explain the full objective in connected prose: foundation, derivation, narrated 
 complete task code, expected observations, worked answers and limits.
 Sources and ZIPs supplement the explanations. An outline or link list is insufficient.
 Provide optional self-checks, a foundation bridge and a reading-only route.
-Every recall prompt, exercise and lab has a complete answer available immediately.
+Every recall prompt, exercise and lab has a complete answer available immediately,
+inside a collapsible `<details>` block under its prompt (see the lesson spec).
 Trying first is optional; access to the next lesson requires no submission.
+
+Page rules that readers flagged on lesson 1 (details in the lesson spec):
+- Open with a concept primer: each key term (e.g. Big-O) in one or two plain sentences
+  plus a tiny example, before any formal definition.
+- No "full day / 420 minutes" header or schedule table. Put the profile block, minutes
+  and task at the start of each section, and a one-line divider for breaks.
+- Plain hyphen `-` only; never `—` or `–`.
+- Developer-natural Vietnamese. Keep English terms (duplicate, dedupe, hash, trace,
+  benchmark, worst case, amortized) per [vi-style-glossary](../../references/vi-style-glossary.md);
+  never literal-translate ("khử trùng" is wrong).
+- Real-world application plus one researched case study from a well-known GitHub
+  repository, pinned to a commit: what problem the idea solves there and how to apply it.
+- Enough depth for the whole day; add traces, scenarios and sources rather than cut.
 
 A build day emphasizes implementation, debugging and a controlled experiment.
 A paper day produces annotations, a claim ledger, a reproduced result or derivation,
@@ -54,7 +68,8 @@ Separate verified findings, predictions and instructor inference. Never invent a
 measurements or novelty. Preserve citations and third-party license notices.
 Use the IUH source only for names/codes; do not republish its syllabus descriptions.
 
-Review EN/VI meaning, code, commands, examples, answers and limitations.
+Review EN/VI meaning, code, commands, examples, answers and limitations. Scan
+the Vietnamese for literal translations and for any `—`/`–` before publishing.
 Run `python scripts/check_all.py`; it bootstraps dependencies and the SDK in a fresh
 checkout. Required checks include labs and extracted ZIPs. Browser and benchmark
 checks are separate diagnostics; report whether they ran.

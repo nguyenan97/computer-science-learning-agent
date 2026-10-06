@@ -4,8 +4,8 @@
       "id": "2026-10-05-cost-model",
       "date": "2026-10-05",
       "title": {
-        "en": "Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#",
-        "vi": "Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#"
+        "en": "Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#",
+        "vi": "Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#"
       },
       "files": [
         "lessons/2026-10-05-cost-model/lesson.md",
@@ -109,11 +109,11 @@
           "id": "hash-limits",
           "question": {
             "en": "Which assumptions support expected linear deduplication, and why does a benchmark not prove service p99?",
-            "vi": "Giả định nào giúp khử trùng có thời gian tuyến tính kỳ vọng, và vì sao benchmark không chứng minh p99 của dịch vụ?"
+            "vi": "Giả định nào giúp dedupe có thời gian tuyến tính kỳ vọng, và vì sao benchmark không chứng minh p99 của dịch vụ?"
           },
           "answer": {
             "en": "Bounded key hash/equality cost, adequate hash distribution and amortized resizing support expected O(n); adversarial collisions can increase comparisons. A synthetic benchmark measures its chosen workload and environment, not production queues, key distributions, peak memory or request latency.",
-            "vi": "Chi phí hash/so sánh key có giới hạn, phân bố hash phù hợp và resize phân tích khấu hao hỗ trợ O(n) kỳ vọng; collision bất lợi có thể tăng số so sánh. Benchmark tổng hợp đo workload và môi trường đã chọn, không đo hàng đợi production, phân bố key, bộ nhớ đỉnh hay độ trễ request."
+            "vi": "Chi phí hash/equality của key có giới hạn, phân bố hash phù hợp và amortized resize hỗ trợ expected O(n); collision bất lợi có thể tăng số so sánh. Benchmark tổng hợp chỉ đo workload và môi trường đã chọn, không đo hàng đợi production, phân bố key, peak memory hay latency của request."
           }
         }
       ],
@@ -127,13 +127,13 @@
       "id": "boundary-search",
       "date": "2026-10-06",
       "title": {
-        "en": "Lesson 02 — Boundary search and time windows",
-        "vi": "Bài 02 — Tìm biên và cửa sổ thời gian"
+        "en": "Lesson 02 - Boundary search and time windows",
+        "vi": "Bài 02 - Tìm biên và cửa sổ thời gian"
       },
       "related": {
         "en": [
           {
-            "title": "Lesson 01 — Big-O and data structures: removing duplicate order IDs in C#",
+            "title": "Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#",
             "path": "lessons/2026-10-05-cost-model/lesson.md",
             "description": "Review how hidden work inside a loop determines its cost."
           },
@@ -145,7 +145,7 @@
         ],
         "vi": [
           {
-            "title": "Bài 01 — Big-O và cấu trúc dữ liệu: khử trùng mã đơn hàng bằng C#",
+            "title": "Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#",
             "path": "vi/lessons/2026-10-05-cost-model/lesson.md",
             "description": "Ôn cách công việc bên trong vòng lặp quyết định chi phí."
           },
@@ -159,32 +159,16 @@
       "files": [
         "lessons/boundary-search/lesson.md",
         "vi/lessons/boundary-search/lesson.md",
-        "labs/boundary-search/starter.py",
-        "labs/boundary-search/check.py",
-        "labs/boundary-search/observe.py",
-        "labs/boundary-search/mentor/solution.py",
-        "labs/boundary-search/mentor/hints.md",
         "labs/boundary-search/dotnet/global.json",
         "labs/boundary-search/dotnet/README.md",
         "labs/boundary-search/dotnet/README.vi.md",
         "labs/boundary-search/dotnet/LessonLab/LessonLab.csproj",
         "labs/boundary-search/dotnet/LessonLab/Program.cs",
         "labs/boundary-search/dotnet/LessonLab/BoundarySearch.cs",
+        "labs/boundary-search/dotnet/LessonLab/Extras.cs",
         "labs/boundary-search/dotnet/LessonLab/Checks.cs"
       ],
       "labs": [
-        {
-          "language": "python",
-          "directory": "labs/boundary-search",
-          "check": [
-            "python",
-            "check.py",
-            "--module",
-            "mentor/solution.py",
-            "--stage",
-            "all"
-          ]
-        },
         {
           "language": "csharp",
           "directory": "labs/boundary-search/dotnet",
@@ -202,8 +186,8 @@
         }
       ],
       "summary": {
-        "en": "Prove the partition invariant and count half-open time windows with duplicate endpoints in Python, C# and T-SQL.",
-        "vi": "Chứng minh bất biến phân hoạch và đếm cửa sổ thời gian nửa mở có biên trùng bằng Python, C# và T-SQL."
+        "en": "Prove the partition invariant and count half-open time windows with duplicate endpoints in C# and T-SQL.",
+        "vi": "Chứng minh bất biến phân hoạch và đếm cửa sổ thời gian nửa mở có biên trùng bằng C# và T-SQL."
       },
       "recall": [
         {

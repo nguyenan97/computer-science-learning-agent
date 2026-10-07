@@ -15,7 +15,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Master | Leadership and risk | 0/2 | 0.0% |
 | Master | Research methods | 0/3 | 0.0% |
 | Master | Security | 0/1 | 0.0% |
-| Master | Statistics | 0/2 | 0.0% |
+| Master | Statistics | 1/2 | 50.0% |
 | Master | Systems | 0/4 | 0.0% |
 | Master | Visualization | 0/1 | 0.0% |
 | Doctoral | AI and learning | 0/2 | 0.0% |
@@ -24,7 +24,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Doctoral | Security | 0/1 | 0.0% |
 | Doctoral | Systems | 0/4 | 0.0% |
 
-**Total planned units: 7/43.**
+**Total planned units: 8/43.**
 
 [Course inventory and original study questions](topic-notes.md)
 
@@ -79,7 +79,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 
 ## Probability, estimation and uncertainty
 
-- **Planned** · Master · Statistics · `build`
+- **Published** · Master · Statistics · `build`
 - **Foundations:** —
 - **Objective:** Interpret sampling variation and confidence intervals without treating one run as a universal result.
 - **Practice:** Simulate samples, plot distributions and test assumptions on a reproducible seed.

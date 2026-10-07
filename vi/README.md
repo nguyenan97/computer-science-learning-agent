@@ -13,6 +13,7 @@ Hiểu cách chương trình hoạt động, chọn thuật toán phù hợp và
 4. **[Bài 04 - Quy hoạch động và xấp xỉ: chọn công việc trong một ngân sách](lessons/2026-10-08-dp-approximation/lesson.md)** - Chứng minh truy hồi DP 0/1 và xấp xỉ 1/2, đọc join planner PostgreSQL, kiểm tra bộ chọn C# bằng vét cạn.
 5. **[Bài 05 - Index và query plan: vì sao seek vẫn có thể tốn nhiều công](lessons/2026-10-09-index-query-plans/lesson.md)** - Giải thích đoạn khóa ghép và độ bao phủ, đọc source/plan SQLite thật, đo workload đọc/ghi tương đương bằng C#.
 6. **[Bài 06 - Transaction và phục hồi: ghi đúng vẫn có thể dùng quyết định đã cũ](lessons/2026-10-10-transactions-recovery/lesson.md)** - Chạy lịch dùng quyết định cũ, kiểm tra đặt giữ, đọc source WAL SQLite và thử hai client/phục hồi crash tiến trình bằng C#.
+7. **[Bài 07 - Độ bất định khi lấy mẫu: nhiều record chưa chắc có thêm bằng chứng](lessons/2026-10-11-sampling-uncertainty/lesson.md)** - Suy ra khoảng Wilson, đọc source SciPy và mô phỏng biến thiên lấy mẫu, độ bao phủ hữu hạn, quan sát liên kết bằng C#.
 <!-- LESSON_LIST_END -->
 
 Bắt đầu với Bài 01 nếu bạn muốn xây nền tảng phân tích chi phí. Bạn cũng có thể mở chủ đề trả lời câu hỏi hiện tại. Cuối mỗi trang có nội dung liên quan và link tới bài trước hoặc bài sau đã có.

@@ -11,6 +11,7 @@ Hiểu cách chương trình hoạt động, chọn thuật toán phù hợp và
 2. **[Bài 02 - Tìm biên bằng binary search và đếm sự kiện theo khoảng thời gian](lessons/boundary-search/lesson.md)** - Tìm vị trí đầu tiên thỏa điều kiện, chứng minh thuật toán đúng và đếm sự kiện trong [start,end) bằng C# và T-SQL.
 3. **[Bài 03 - Đường đi ngắn nhất: chọn BFS hay Dijkstra](lessons/2026-10-07-shortest-paths/lesson.md)** - Chọn mục tiêu tìm đường, chứng minh điều kiện dừng của BFS/Dijkstra, kiểm tra đường đi C# và diễn giải số thao tác.
 4. **[Bài 04 - Quy hoạch động và xấp xỉ: chọn công việc trong một ngân sách](lessons/2026-10-08-dp-approximation/lesson.md)** - Chứng minh truy hồi DP 0/1 và xấp xỉ 1/2, đọc join planner PostgreSQL, kiểm tra bộ chọn C# bằng vét cạn.
+5. **[Bài 05 - Index và query plan: vì sao seek vẫn có thể tốn nhiều công](lessons/2026-10-09-index-query-plans/lesson.md)** - Giải thích đoạn khóa ghép và độ bao phủ, đọc source/plan SQLite thật, đo workload đọc/ghi tương đương bằng C#.
 <!-- LESSON_LIST_END -->
 
 Bắt đầu với Bài 01 nếu bạn muốn xây nền tảng phân tích chi phí. Bạn cũng có thể mở chủ đề trả lời câu hỏi hiện tại. Cuối mỗi trang có nội dung liên quan và link tới bài trước hoặc bài sau đã có.

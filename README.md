@@ -11,6 +11,7 @@ Understand how programs work, choose useful algorithms and test engineering deci
 2. **[Lesson 02 - Boundary search with binary search and time-window counts](lessons/boundary-search/lesson.md)** - Prove the partition invariant and count half-open time windows with duplicate endpoints in C# and T-SQL.
 3. **[Lesson 03 - Shortest paths: choosing BFS or Dijkstra](lessons/2026-10-07-shortest-paths/lesson.md)** - Choose a route objective, prove BFS/Dijkstra stopping rules, check C# paths and interpret operation counts.
 4. **[Lesson 04 - Dynamic programming and approximation: selecting jobs within a budget](lessons/2026-10-08-dp-approximation/lesson.md)** - Prove a 0/1 DP recurrence and half approximation, inspect PostgreSQL join planning and test C# selections against exhaustive optima.
+5. **[Lesson 05 - Indexes and query plans: when a seek still does much work](lessons/2026-10-09-index-query-plans/lesson.md)** - Explain composite ranges and coverage, inspect SQLite source and real plans, and measure equivalent C# read/write workloads.
 <!-- LESSON_LIST_END -->
 
 Start with Lesson 01 if you want to build your cost-analysis foundation. You can also open the topic that answers your current question. Each page ends with related reading and links to the previous or next available lesson.

@@ -443,6 +443,124 @@
         "algorithms.optimization"
       ],
       "day_type": "build"
+    },
+    {
+      "id": "2026-10-09-index-query-plans",
+      "date": "2026-10-09",
+      "title": {
+        "en": "Lesson 05 - Indexes and query plans: when a seek still does much work",
+        "vi": "Bài 05 - Index và query plan: vì sao seek vẫn có thể tốn nhiều công"
+      },
+      "summary": {
+        "en": "Explain composite ranges and coverage, inspect SQLite source and real plans, and measure equivalent C# read/write workloads.",
+        "vi": "Giải thích đoạn khóa ghép và độ bao phủ, đọc source/plan SQLite thật, đo workload đọc/ghi tương đương bằng C#."
+      },
+      "files": [
+        "lessons/2026-10-09-index-query-plans/lesson.md",
+        "vi/lessons/2026-10-09-index-query-plans/lesson.md",
+        "labs/index-query-plans/dotnet/LICENSE-MIT.txt",
+        "labs/index-query-plans/dotnet/LessonLab/Checks.cs",
+        "labs/index-query-plans/dotnet/LessonLab/Database.cs",
+        "labs/index-query-plans/dotnet/LessonLab/Experiment.cs",
+        "labs/index-query-plans/dotnet/LessonLab/LessonLab.csproj",
+        "labs/index-query-plans/dotnet/LessonLab/Program.cs",
+        "labs/index-query-plans/dotnet/LessonLab/packages.lock.json",
+        "labs/index-query-plans/dotnet/README.md",
+        "labs/index-query-plans/dotnet/README.vi.md",
+        "labs/index-query-plans/dotnet/global.json"
+      ],
+      "related": {
+        "en": [
+          {
+            "title": "Lesson 02 - Boundary search",
+            "path": "lessons/boundary-search/lesson.md",
+            "description": "Recall half-open windows, duplicate boundaries and rank subtraction."
+          },
+          {
+            "title": "Lesson 04 - Dynamic programming and approximation",
+            "path": "lessons/2026-10-08-dp-approximation/lesson.md",
+            "description": "Recall state requirements and separate models from measurements."
+          },
+          {
+            "title": "C# lab guide",
+            "path": "labs/index-query-plans/dotnet/README.md",
+            "description": "Pinned dependencies, checks, measurements and sources."
+          }
+        ],
+        "vi": [
+          {
+            "title": "Bài 02 - Tìm biên",
+            "path": "vi/lessons/boundary-search/lesson.md",
+            "description": "Ôn khoảng nửa mở, biên trùng và phép lấy hiệu thứ hạng."
+          },
+          {
+            "title": "Bài 04 - Quy hoạch động và xấp xỉ",
+            "path": "vi/lessons/2026-10-08-dp-approximation/lesson.md",
+            "description": "Ôn yêu cầu trạng thái, tách mô hình khỏi số đo."
+          },
+          {
+            "title": "Hướng dẫn lab C#",
+            "path": "labs/index-query-plans/dotnet/README.vi.md",
+            "description": "Dependency được pin, kiểm tra, phép đo và mã nguồn."
+          }
+        ]
+      },
+      "labs": [
+        {
+          "language": "csharp",
+          "directory": "labs/index-query-plans/dotnet",
+          "check": [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--project",
+            "LessonLab",
+            "--",
+            "--check"
+          ],
+          "archive": "labs/index-query-plans/dotnet-lab.zip"
+        }
+      ],
+      "recall": [
+        {
+          "id": "seek-work",
+          "question": {
+            "en": "Why can a SEARCH plan still cost more than SCAN for a broad noncovering aggregate?",
+            "vi": "Vì sao plan SEARCH vẫn có thể tốn hơn SCAN khi tổng hợp trên đoạn rộng không bao phủ?"
+          },
+          "answer": {
+            "en": "Seek only locates a range. A broad thin-index plan traverses many entries and retrieves missing Amount values from the table; scan can avoid that extra route. Coverage, ordering, cache and selectivity affect the comparison, so plan labels alone do not rank runtime.",
+            "vi": "Seek chỉ định vị đoạn. Plan index gọn trên đoạn rộng duyệt nhiều phần tử rồi lấy Amount thiếu từ bảng; scan có thể bỏ bước thêm đó. Độ bao phủ, thứ tự, cache và tỷ lệ khớp ảnh hưởng phép so, nên nhãn plan chưa xếp hạng runtime."
+          }
+        },
+        {
+          "id": "cover-order",
+          "question": {
+            "en": "Does (Tenant,Occurred,Amount) both cover totals and guarantee page order by (Occurred,Id)?",
+            "vi": "(Tenant,Occurred,Amount) có vừa bao phủ tổng vừa bảo đảm thứ tự trang (Occurred,Id) không?"
+          },
+          "answer": {
+            "en": "It covers COUNT/SUM(Amount) under tenant/time predicates, but Amount breaks equal-time ties before rowid. To meet that page order, keep ORDER BY and consider (Tenant,Occurred,Id,Amount); SQL Server can keep Amount as an included nonkey column.",
+            "vi": "Nó bao phủ COUNT/SUM(Amount) theo tenant/thời gian, nhưng Amount phân định thời điểm bằng nhau trước rowid. Muốn đúng thứ tự trang, giữ ORDER BY và xét (Tenant,Occurred,Id,Amount); SQL Server có thể giữ Amount trong included column không thuộc khóa."
+          }
+        },
+        {
+          "id": "cursor-ties",
+          "question": {
+            "en": "Why must a keyset cursor retain both time and unique Id when timestamps can repeat?",
+            "vi": "Vì sao cursor phân trang phải giữ cả thời điểm và Id duy nhất khi timestamp có thể trùng?"
+          },
+          "answer": {
+            "en": "A time-only greater-than predicate skips remaining equal-time rows. Compare the next (time,Id) pair strictly above the last pair, with explicit ordering and a fixed snapshot. With first page IDs 2,3 ending at time 1/Id 3, the next page starts at Id 4, not Id 5.",
+            "vi": "Điều kiện lớn hơn chỉ theo thời điểm bỏ sót dòng còn lại có cùng thời điểm. So cặp (thời điểm,Id) tiếp theo lớn hơn nghiêm ngặt cặp cuối, với thứ tự rõ ràng và snapshot cố định. Trang đầu ID 2,3 kết thúc ở thời điểm 1/Id 3 thì trang tiếp bắt đầu từ Id 4, không phải Id 5."
+          }
+        }
+      ],
+      "topic_ids": [
+        "data.indexes"
+      ],
+      "day_type": "build"
     }
   ]
 }

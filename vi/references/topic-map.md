@@ -9,7 +9,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 | Thạc sĩ | AI và học máy | 0/7 | 0.0% |
 | Thạc sĩ | Thuật toán | 5/5 | 100.0% |
 | Thạc sĩ | Giao tiếp học thuật | 0/1 | 0.0% |
-| Thạc sĩ | Dữ liệu và cơ sở dữ liệu | 0/3 | 0.0% |
+| Thạc sĩ | Dữ liệu và cơ sở dữ liệu | 1/3 | 33.3% |
 | Thạc sĩ | Kiến thức chung | 0/1 | 0.0% |
 | Thạc sĩ | Thông tin và mô hình | 0/1 | 0.0% |
 | Thạc sĩ | Lãnh đạo và rủi ro | 0/2 | 0.0% |
@@ -24,7 +24,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 | Tiến sĩ | Bảo mật | 0/1 | 0.0% |
 | Tiến sĩ | Hệ thống | 0/4 | 0.0% |
 
-**Tổng chủ đề đã hoạch định: 5/43.**
+**Tổng chủ đề đã hoạch định: 6/43.**
 
 [Danh sách học phần và câu hỏi tự học viết mới](topic-notes.md)
 
@@ -65,7 +65,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 
 ## Lưu trữ, chỉ mục và query plan
 
-- **Chưa có bài** · Thạc sĩ · Dữ liệu và cơ sở dữ liệu · `build`
+- **Đã có bài** · Thạc sĩ · Dữ liệu và cơ sở dữ liệu · `build`
 - **Nền tảng:** Tìm biên và truy vấn có thứ tự
 - **Mục tiêu:** Giải thích seek với scan theo selectivity, thứ tự và chi phí cập nhật bằng query plan thật.
 - **Thực hành:** Nạp database cục bộ, đọc plan và đo workload có/không có index.

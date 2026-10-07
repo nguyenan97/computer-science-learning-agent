@@ -9,6 +9,7 @@ Understand how programs work, choose useful algorithms and test engineering deci
 <!-- LESSON_LIST_START -->
 1. **[Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#](lessons/2026-10-05-cost-model/lesson.md)** - Derive scan and hashing costs, preserve order and equality, and test performance claims.
 2. **[Lesson 02 - Boundary search with binary search and time-window counts](lessons/boundary-search/lesson.md)** - Prove the partition invariant and count half-open time windows with duplicate endpoints in C# and T-SQL.
+3. **[Lesson 03 - Shortest paths: choosing BFS or Dijkstra](lessons/2026-10-07-shortest-paths/lesson.md)** - Choose a route objective, prove BFS/Dijkstra stopping rules, check C# paths and interpret operation counts.
 <!-- LESSON_LIST_END -->
 
 Start with Lesson 01 if you want to build your cost-analysis foundation. You can also open the topic that answers your current question. Each page ends with related reading and links to the previous or next available lesson.

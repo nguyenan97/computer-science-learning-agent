@@ -228,6 +228,113 @@
         "advanced-algorithms.boundary-search.l1"
       ],
       "day_type": "build"
+    },
+    {
+      "id": "2026-10-07-shortest-paths",
+      "date": "2026-10-07",
+      "title": {
+        "en": "Lesson 03 - Shortest paths: choosing BFS or Dijkstra",
+        "vi": "Bài 03 - Đường đi ngắn nhất: chọn BFS hay Dijkstra"
+      },
+      "summary": {
+        "en": "Choose a route objective, prove BFS/Dijkstra stopping rules, check C# paths and interpret operation counts.",
+        "vi": "Chọn mục tiêu tìm đường, chứng minh điều kiện dừng của BFS/Dijkstra, kiểm tra đường đi C# và diễn giải số thao tác."
+      },
+      "files": [
+        "lessons/2026-10-07-shortest-paths/lesson.md",
+        "vi/lessons/2026-10-07-shortest-paths/lesson.md",
+        "labs/shortest-paths/dotnet/LICENSE-MIT.txt",
+        "labs/shortest-paths/dotnet/LessonLab/Checks.cs",
+        "labs/shortest-paths/dotnet/LessonLab/Experiment.cs",
+        "labs/shortest-paths/dotnet/LessonLab/LessonLab.csproj",
+        "labs/shortest-paths/dotnet/LessonLab/Program.cs",
+        "labs/shortest-paths/dotnet/LessonLab/Routes.cs",
+        "labs/shortest-paths/dotnet/README.md",
+        "labs/shortest-paths/dotnet/README.vi.md",
+        "labs/shortest-paths/dotnet/global.json"
+      ],
+      "related": {
+        "en": [
+          {
+            "title": "Lesson 02 - Boundary search",
+            "path": "lessons/boundary-search/lesson.md",
+            "description": "Recall how an invariant and a precondition justify a stopping rule."
+          },
+          {
+            "title": "C# lab guide",
+            "path": "labs/shortest-paths/dotnet/README.md",
+            "description": "SDK setup, correctness checks, experiment and source downloads."
+          }
+        ],
+        "vi": [
+          {
+            "title": "Bài 02 - Tìm biên",
+            "path": "vi/lessons/boundary-search/lesson.md",
+            "description": "Ôn cách bất biến và điều kiện đầu vào chứng minh điều kiện dừng."
+          },
+          {
+            "title": "Hướng dẫn lab C#",
+            "path": "labs/shortest-paths/dotnet/README.vi.md",
+            "description": "Cài SDK, kiểm tra tính đúng, thí nghiệm và tải mã nguồn."
+          }
+        ]
+      },
+      "labs": [
+        {
+          "language": "csharp",
+          "directory": "labs/shortest-paths/dotnet",
+          "check": [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--project",
+            "LessonLab",
+            "--",
+            "--check"
+          ],
+          "archive": "labs/shortest-paths/dotnet-lab.zip"
+        }
+      ],
+      "recall": [
+        {
+          "id": "finalization",
+          "question": {
+            "en": "Why may Dijkstra stop at a current minimum removal but not at first discovery of the target?",
+            "vi": "Vì sao Dijkstra có thể dừng khi lấy đích ra với khoảng cách nhỏ nhất còn hợp lệ, nhưng không được dừng ở lần tìm thấy đầu tiên?"
+          },
+          "answer": {
+            "en": "Discovery proves only that a route exists: a direct cost-10 edge can be improved by three cost-1 edges. For a current minimum label, any cheaper route would have an unfinished prefix whose label is smaller; nonnegative remaining edges imply that contradiction. Skip stale entries before stopping.",
+            "vi": "Lần tìm thấy đầu tiên chỉ chứng minh có đường: cạnh trực tiếp chi phí 10 có thể được cải thiện bởi ba cạnh chi phí 1. Với khoảng cách nhỏ nhất còn hợp lệ, một đường rẻ hơn phải có đoạn đầu chưa xử lý mang khoảng cách nhỏ hơn; phần còn lại không âm dẫn tới mâu thuẫn với cách chọn đỉnh. Bỏ entry stale trước khi dừng."
+          }
+        },
+        {
+          "id": "lazy-queue",
+          "question": {
+            "en": "Why can the lab heap contain two entries for one node, and what are its time and memory bounds?",
+            "vi": "Vì sao heap của lab có thể chứa hai entry cho một đỉnh, và cận thời gian/bộ nhớ là gì?"
+          },
+          "answer": {
+            "en": "Each strict improvement enqueues a new cost instead of decreasing a key, leaving the old entry stale. Skip an entry when its stored cost differs from dist[node]. At most E improvements give O(V + E log(E+2)) time and O(V+E) search memory, assuming adjacency arrays and bounded integer operations.",
+            "vi": "Mỗi lần cải thiện nghiêm ngặt thêm một chi phí mới thay vì giảm key, để lại entry cũ stale. Bỏ entry khi chi phí lưu khác dist[node]. Tối đa E lần cải thiện cho O(V + E log(E+2)) thời gian và O(V+E) bộ nhớ tìm kiếm, với mảng kề và phép toán số nguyên có chi phí giới hạn."
+          }
+        },
+        {
+          "id": "state-budget",
+          "question": {
+            "en": "Why is one shortest distance per location insufficient when a route may use at most one paid crossing?",
+            "vi": "Vì sao một khoảng cách nhỏ nhất cho mỗi vị trí chưa đủ khi đường chỉ được dùng tối đa một lượt tính phí?"
+          },
+          "answer": {
+            "en": "A faster arrival may have spent the allowance and be unable to continue, while a slower arrival still has a legal route. Use (location,usedPaid) as the state, reject transitions over budget and minimize nonnegative travel cost over allowed target states.",
+            "vi": "Lần đến nhanh hơn có thể đã dùng hết lượt và không đi tiếp được, còn lần đến chậm hơn vẫn có đường hợp lệ. Dùng (vị trí,số lượt đã dùng) làm trạng thái, bỏ phép chuyển vượt giới hạn và tối thiểu hóa chi phí di chuyển không âm trên các trạng thái đích hợp lệ."
+          }
+        }
+      ],
+      "topic_ids": [
+        "algorithms.graphs"
+      ],
+      "day_type": "build"
     }
   ]
 }

@@ -549,5 +549,5 @@ A left boundary keeps equal values in the right part (`hi = mid`); a right bound
 
 ---
 
-[← Previous: Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#](../2026-10-05-cost-model/lesson.md) · [All lessons](../../README.md)
+[← Previous: Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#](../2026-10-05-cost-model/lesson.md) · [All lessons](../../README.md) · [Next: Lesson 03 - Shortest paths: choosing BFS or Dijkstra →](../2026-10-07-shortest-paths/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

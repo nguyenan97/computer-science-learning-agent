@@ -557,5 +557,5 @@ Biên trái giữ giá trị bằng target ở phần bên phải bằng `hi = m
 
 ---
 
-[← Bài trước: Bài 01 - Big-O và cấu trúc dữ liệu: dedupe mã đơn hàng bằng C#](../2026-10-05-cost-model/lesson.md) · [Danh sách bài học](../../README.md)
+[← Bài trước: Bài 01 - Big-O và cấu trúc dữ liệu: dedupe mã đơn hàng bằng C#](../2026-10-05-cost-model/lesson.md) · [Danh sách bài học](../../README.md) · [Bài sau: Bài 03 - Đường đi ngắn nhất: chọn BFS hay Dijkstra →](../2026-10-07-shortest-paths/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

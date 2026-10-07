@@ -9,6 +9,7 @@ Hiểu cách chương trình hoạt động, chọn thuật toán phù hợp và
 <!-- LESSON_LIST_START -->
 1. **[Bài 01 - Big-O và cấu trúc dữ liệu: dedupe mã đơn hàng bằng C#](lessons/2026-10-05-cost-model/lesson.md)** - Phân tích chi phí của List và HashSet, giữ thứ tự xuất hiện đầu tiên và kiểm tra giả thuyết về hiệu năng.
 2. **[Bài 02 - Tìm biên bằng binary search và đếm sự kiện theo khoảng thời gian](lessons/boundary-search/lesson.md)** - Tìm vị trí đầu tiên thỏa điều kiện, chứng minh thuật toán đúng và đếm sự kiện trong [start,end) bằng C# và T-SQL.
+3. **[Bài 03 - Đường đi ngắn nhất: chọn BFS hay Dijkstra](lessons/2026-10-07-shortest-paths/lesson.md)** - Chọn mục tiêu tìm đường, chứng minh điều kiện dừng của BFS/Dijkstra, kiểm tra đường đi C# và diễn giải số thao tác.
 <!-- LESSON_LIST_END -->
 
 Bắt đầu với Bài 01 nếu bạn muốn xây nền tảng phân tích chi phí. Bạn cũng có thể mở chủ đề trả lời câu hỏi hiện tại. Cuối mỗi trang có nội dung liên quan và link tới bài trước hoặc bài sau đã có.

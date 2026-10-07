@@ -6,6 +6,7 @@
   - [Bài 02 - Tìm biên bằng binary search và đếm sự kiện theo khoảng thời gian](/vi/lessons/boundary-search/lesson)
   - [Bài 03 - Đường đi ngắn nhất: chọn BFS hay Dijkstra](/vi/lessons/2026-10-07-shortest-paths/lesson)
   - [Bài 04 - Quy hoạch động và xấp xỉ: chọn công việc trong một ngân sách](/vi/lessons/2026-10-08-dp-approximation/lesson)
+  - [Bài 05 - Index và query plan: vì sao seek vẫn có thể tốn nhiều công](/vi/lessons/2026-10-09-index-query-plans/lesson)
 <!-- LESSON_SIDEBAR_END -->
 
 - **Khám phá**

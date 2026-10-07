@@ -9,7 +9,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Master | AI and learning | 0/7 | 0.0% |
 | Master | Algorithms | 5/5 | 100.0% |
 | Master | Academic communication | 0/1 | 0.0% |
-| Master | Data and databases | 0/3 | 0.0% |
+| Master | Data and databases | 1/3 | 33.3% |
 | Master | General studies | 0/1 | 0.0% |
 | Master | Information and modeling | 0/1 | 0.0% |
 | Master | Leadership and risk | 0/2 | 0.0% |
@@ -24,7 +24,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Doctoral | Security | 0/1 | 0.0% |
 | Doctoral | Systems | 0/4 | 0.0% |
 
-**Total planned units: 5/43.**
+**Total planned units: 6/43.**
 
 [Course inventory and original study questions](topic-notes.md)
 
@@ -65,7 +65,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 
 ## Storage, indexes and query plans
 
-- **Planned** · Master · Data and databases · `build`
+- **Published** · Master · Data and databases · `build`
 - **Foundations:** Boundary search and ordered queries
 - **Objective:** Explain seek versus scan from selectivity, ordering and update cost, using a real query plan.
 - **Practice:** Populate a local database, inspect plans and measure indexed and unindexed workloads.

@@ -785,5 +785,5 @@ The next session should retrieve the state meaning, the downward-update countere
 
 ---
 
-[← Previous: Lesson 03 - Shortest paths: choosing BFS or Dijkstra](../2026-10-07-shortest-paths/lesson.md) · [All lessons](../../README.md)
+[← Previous: Lesson 03 - Shortest paths: choosing BFS or Dijkstra](../2026-10-07-shortest-paths/lesson.md) · [All lessons](../../README.md) · [Next: Lesson 05 - Indexes and query plans: when a seek still does much work →](../2026-10-09-index-query-plans/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

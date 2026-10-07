@@ -785,5 +785,5 @@ Buổi sau nên tự nhớ lại ý nghĩa trạng thái, phản ví dụ cập 
 
 ---
 
-[← Bài trước: Bài 03 - Đường đi ngắn nhất: chọn BFS hay Dijkstra](../2026-10-07-shortest-paths/lesson.md) · [Danh sách bài học](../../README.md)
+[← Bài trước: Bài 03 - Đường đi ngắn nhất: chọn BFS hay Dijkstra](../2026-10-07-shortest-paths/lesson.md) · [Danh sách bài học](../../README.md) · [Bài sau: Bài 05 - Index và query plan: vì sao seek vẫn có thể tốn nhiều công →](../2026-10-09-index-query-plans/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

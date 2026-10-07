@@ -2,30 +2,21 @@
 
 [Tiếng Việt](../../vi/lessons/2026-10-05-cost-model/lesson.md) · [Download the C# lab](https://nguyenan97.github.io/computer-science-learning-agent/labs/cost-model/dotnet-lab.zip)
 
-A loop can look simple and still do billions of comparisons. This lesson shows where that hidden work comes from, how a different data structure removes it, what that costs in memory, and where the same decision shows up in real code (EF Core's change tracker, Azure Service Bus, SQL Server unique indexes). Everything you need to follow the algorithm, the full implementation and the worked answers is on this page. The lab ZIP and official sources are extras for running experiments and reading deeper.
+A simple loop can do billions of comparisons if each iteration searches a long list. This lesson analyzes that cost, uses `HashSet` to reduce the search work and examines the extra memory it needs. The same decision appears in EF Core change tracking, Azure Service Bus duplicate detection and SQL Server unique indexes.
 
-**Goal:** write a batch dedupe that keeps the first occurrence of each order ID, then explain when to use a plain scan and when to use hashing, using correctness, operation counts and CPU/allocation measurements. You only need basic C# loops and collections. Each section tells you what to do and for how long.
+**Objective:** deduplicate order IDs while preserving first-occurrence order, then explain when to scan and when to hash using correctness, comparison counts, execution time and allocated memory. Prerequisites: basic C# loops and collections.
 
-## Concepts in plain words
+## Core ideas
 
-Read this first. Each idea is short on purpose. Section 4 gives the formal version after you have seen the numbers.
-
-- **Duplicate and dedupe.** A duplicate is a value that appears more than once, like order ID `B2` in `B2, A1, B2`. Dedupe (deduplicate) means keeping one copy of each value.
-- **n and u.** `n` is how many items you read. `u` is how many *different* items there are. For `B2, A1, B2, C3, A1`: n = 5, u = 3.
-- **Cost model.** Before comparing two ideas you choose what to count. Here we count equality comparisons between two IDs. It lets you compare algorithms without a stopwatch. It is a simplification, not the CPU's real work.
-- **Big-O and Θ.** Big-O describes a limit on how fast work grows for large inputs, ignoring constant factors: O(n) grows no faster than linearly, while O(n²) allows quadratic growth. It does not promise an exact ratio or a number of seconds; for example, constant work is also O(n). For the concrete formula `T(n) = 3n`, doubling n doubles the work; for `T(n) = n²`, it quadruples it. Θ (theta) describes a tight growth rate: both limits have the same order.
-- **Worst case, expected case, amortized.** Worst case is the input that needs the most work among inputs of the same size. Expected case is an average under stated probability assumptions (for hashing: keys spread out well). Amortized means the average cost over a whole sequence of operations, even if one operation (like a resize) is expensive.
-- **Hash table, bucket, collision.** A hash function turns a key into a number, which picks a small group of slots called a bucket. You look inside that bucket instead of checking everything. A collision is when two different keys land in the same bucket. Results stay correct because equality is still checked.
-- **Invariant.** A sentence that is true after every loop step. If it is true at the start, stays true each step, and implies the requirement at the end, the code is correct.
-- **Trace, prefix, edge case.** A trace follows the code step by step; a prefix is the part of the input read so far. After two steps through `B2, A1, B2`, the prefix is `B2, A1`. An edge case tests a boundary of the requirement, like empty input or a null ID.
-- **Load factor and resize.** Load factor is the number of stored entries divided by the number of buckets: 8 entries and 16 buckets gives 0.5. Resize creates larger storage so the table can hold more keys without growing the average bucket too much.
-- **Allocation, GC and peak memory.** Allocation is how much new memory an operation requests; GC (garbage collection) reclaims managed objects that are no longer reachable. Peak live memory is the most memory alive at one time; peak working set counts resident process memory. Allocating two arrays one after another does not mean both remain alive forever.
-- **Benchmark, latency and p99.** A benchmark measures a chosen workload; latency is how long one request takes. If p99 latency is 100 ms, about 99% of measured requests finish within 100 ms. Average batch time does not establish a service's p99.
-- **Identity, idempotency and transaction.** Identity says which keys mean the same thing: `a` and `A` differ under Ordinal equality. Idempotency means retrying the same event does not apply its business effect again. A database transaction commits its writes together or rolls them back together; storing an event marker and updating the order in one transaction prevents a retry from skipping an unfinished update.
+- **Cost model.** Before comparing algorithms, choose what to count. This lesson counts comparisons between two IDs; it is a simplified model, not a count of CPU instructions.
+- **Big-O and Θ.** Big-O gives an upper bound on how fast cost grows for large inputs, ignoring constant factors: O(n) grows no faster than linearly, but may grow more slowly; for example, O(1) is also O(n). Θ gives a tight asymptotic bound: upper and lower bounds have the same order; `3n` is Θ(n), while `n²` is Θ(n²). Doubling n doubles the first formula and quadruples the second, but O alone does not promise those ratios or an execution time.
+- **Worst case and expected case.** Worst case examines the most expensive input among inputs of the same size. Expected case averages cost under stated probability assumptions; with hashing, state the hash-distribution assumption instead of assuming every input is favorable.
+- **Amortized analysis.** Add up the cost of a sequence of operations and spread it across them, without a probability assumption. A table expansion can be expensive, but does not happen on every insertion; the body will derive its total cost.
+- **Invariant.** A property preserved after each loop step. If it holds initially, each step preserves it and it implies the requirement when the loop ends, it proves correctness. For example, after each step the result contains one copy of each ID read so far.
 
 ## 1. Quick self-check
 
-**Block recall · about 20 minutes · Do:** answer from memory if you can, then open each answer. There are no earlier lessons to recall yet, so this checks the prerequisites for today. **Stop when:** you can say which of the four you want to re-read.
+**About 20 minutes - Check prerequisites:** try the questions, then open each answer to compare. This is the first lesson, so there are no earlier lessons to recall. **Stop when:** you know which questions need another look.
 
 1. For `B2,A1,B2,C3,A1`, what output keeps the first-occurrence order? What does sorting do to it?
 
@@ -36,7 +27,7 @@ Read this first. Each idea is short on purpose. Section 4 gives the formal versi
 
 </details>
 
-2. How many equality checks does a sequential scan make for `A,B,C,D`?
+2. If you deduplicate `A,B,C,D` by comparing each ID with the result list so far, how many comparisons do you make?
 
 <details>
 <summary>Answer</summary>
@@ -54,12 +45,12 @@ No to both. Equal hashes can still be different keys, so equality is checked. Tw
 
 </details>
 
-4. Is "allocated per operation" the same as peak memory?
+4. Is the benchmark’s `Allocated` column the most memory in use at one time?
 
 <details>
 <summary>Answer</summary>
 
-No. Allocation is the new memory requested during the measured operation. Peak memory is the most memory alive at once.
+No. `Allocated` measures the total new memory allocated by the operation. The most memory still in use at one time is a different quantity: earlier allocations may already have been reclaimed.
 
 </details>
 
@@ -67,7 +58,7 @@ Not sure about sequential search? Draw `[B2, A1]`. Looking for `B2` stops after 
 
 ## 2. A small production requirement
 
-**Block foundation · about 50 minutes for sections 2 to 5 · Do:** read each trace and rebuild it by hand before looking at the next table. **Stop when:** you can state the invariant in section 5 from memory.
+**About 50 minutes for sections 2-5 - Analyze the algorithm:** work through each example by hand before reading its result table. **Stop when:** you can state the invariant in section 5 without looking.
 
 A logistics job receives order IDs from a log or a message batch. An ID can appear many times. Return each ID **once, in the order it first appeared**.
 
@@ -82,7 +73,7 @@ Fix three rules before optimizing anything:
 - Keep first-occurrence order. Sorting to `A1,B2,C3` breaks the requirement.
 - Do not modify the input. The input list and each ID are not null; the lab code rejects null. An empty string is a valid value in this example.
 
-This is dedupe **inside one batch**. It is not exactly-once message processing; section 10 explains the difference.
+This deduplicates **within one batch**; it does not ensure that each message is processed once across the system. Section 10 analyzes that limit. Write `n` for the input size and `u` for the number of different IDs.
 
 **Try it:** how many items and how many different IDs are in the example? With a temporary output `[B2, A1]`, what must you do to know if `C3` was seen?
 
@@ -139,7 +130,7 @@ Double the input and the work grows about four times. You cannot turn these numb
 
 ## 4. What Big-O says and does not say
 
-A **cost model** states what you count. Here we treat comparing or hashing one ID as a constant cost, and n is the number of items. That is an assumption to make the analysis possible, not a law about all strings.
+**Cost model** assumes that comparing or hashing one ID has constant cost, and n is the item count. This is appropriate when ID length is bounded; if ID length grows with the input, include that length in the model.
 
 **Formal definition.** `T(n)` is `O(n²)` if there are constants C and n₀ such that `T(n) ≤ C·n²` for all `n ≥ n₀`. It means "grows no faster than n²", not "takes n² seconds".
 
@@ -147,7 +138,7 @@ For all-distinct IDs, `n(n-1)/2` is dominated by the n² term, so the scan model
 
 **What if every ID is `A`?** After the first ID, each `Contains` finds a match immediately: only n-1 comparisons, which is Θ(n). Worst case does not mean every input is slow.
 
-With u different IDs the list has at most u items, so the scan is bounded by `O(n(1+u))`. When u is small it can be good enough. When u grows with n, the worst case becomes quadratic.
+With u different IDs the list has at most u items, so the scan is bounded by `O(n(1+u))`. When u is small it can be good enough. When u has the same order as n, or u = Θ(n), the worst case is Θ(n²); all-distinct input is one example.
 
 **Try it:** you see one `foreach` over n items. Can you say it is O(n)?
 
@@ -176,7 +167,9 @@ foreach (string id in values)
 
 ### Why hashing helps
 
-Picture a table with many buckets. The hash of an ID picks a bucket, so you look there instead of scanning the whole list. **Equal hashes do not mean equal IDs**: when several IDs land in one bucket, the runtime still compares them with equality.
+A hash function turns an ID into a number that selects a bucket of entries to check. You search that bucket instead of the whole list. A collision occurs when different IDs land in the same bucket. **Equal hashes do not guarantee equal IDs**: the runtime still checks equality.
+
+Load factor is the number of entries divided by the number of buckets: 8 entries and 16 buckets gives 0.5. Growing the table fast enough relative to the entry count bounds the average bucket size.
 
 If hashes spread well, each bucket stays small, and the cost of one key is bounded, then a lookup does a constant amount of work on average. Three words appear here, and they are different promises:
 
@@ -201,7 +194,9 @@ At the start both are empty. A repeated ID makes `Add` return false: nothing cha
 | Scan a List | O(n(1+u)); Θ(n²) when all different | O(1) | O(u) |
 | HashSet + List | Expected O(n), with assumptions | O(u) | O(u) |
 
-A `HashSet` keeps extra bucket and entry arrays. The `List` keeps references to the strings; this code does not clone the input strings. When an array grows there is an allocation and a copy, and old arrays may wait for GC. **Allocation, live memory and peak working set are different measurements.**
+`HashSet` needs extra bucket and entry arrays. `List` holds references to input strings, rather than making copies. When a larger array is needed, the runtime allocates it and copies the data; the old array may wait for GC to reclaim it once it is unreachable.
+
+**Total allocated memory, live memory and peak working set are three different quantities.** Peak live memory is the most memory alive at one time; peak working set is the most process memory resident in RAM. Allocating two arrays one after another does not mean both remain alive forever.
 
 `new HashSet<string>(n, ...)` or `new List<string>(n)` can reduce resizing when you know the size, but with a large n and small u you reserve too much. If you preallocate for n, do not call that storage O(u) when u is small and independent of n. Keep this tweak out of the main version for now.
 
@@ -209,7 +204,7 @@ A `HashSet` keeps extra bucket and entry arrays. The `List` keeps references to 
 
 ## 6. Sources and research questions
 
-**Block sources · about 45 minutes · Do:** read the sources below and answer the four questions in your own words, writing one claim and the evidence for it. **Stop when:** every question has a claim, a source and a limit.
+**About 45 minutes - Read and compare sources:** answer the four questions in your own words, stating a claim and supporting evidence. **Stop when:** each answer has a source and a limit to the claim.
 
 Sources for this lesson:
 
@@ -257,7 +252,7 @@ Only about the workload and scope you measured. Production key distribution, pea
 
 ## 7. Reading real code: collections and EF Core
 
-**Block implementation-reading · about 45 minutes · Do:** trace the `HashSet.Add` path, then read the EF Core case study and map it to the lesson. **Stop when:** you can explain, in your own words, what EF Core stores in a dictionary and why.
+**About 45 minutes - Follow the implementation:** read the `HashSet.Add` path, then compare it with EF Core’s use of a dictionary. **Stop when:** you can explain what EF Core stores and which problem the dictionary solves.
 
 ### Collection source
 
@@ -289,7 +284,7 @@ Pinned source to read: [List.cs](https://github.com/dotnet/runtime/blob/4271d88e
 
 If your project uses EF Core, this is a familiar place to see the same decision in a product. The project is [dotnet/efcore](https://github.com/dotnet/efcore), read at commit `7adff35c6c583fa6f7aa3939389ab3314be330ab`.
 
-**The product problem.** A tracking query must return one object per database row key. If 100 posts point to the same blog, you must get one `Blog` instance, not 100 copies, or EF cannot know which copy to save. The EF docs call this identity resolution. Each time a row is turned into an entity, EF has to answer your question from section 2: "have I already seen this key?"
+**The product problem.** In a tracking query, rows with the same key must share an entity. If 100 posts reference one blog, EF Core reuses one `Blog` instance to track changes consistently instead of holding 100 instances with the same key. This is identity resolution. Before creating an entity from each row, EF Core must answer: "is there already an entity with this key?"
 
 **What the code does** (verified in the pinned source):
 
@@ -426,7 +421,7 @@ The seed context is disposed before querying, and each mode gets a new context. 
 
 ## 8. Guided C# practice
 
-**Block lab · about 75 minutes · Do:** build the method yourself, predict edge cases, test, break a rule on purpose and repair it. **Stop when:** the checks pass and you can explain one bug you avoided and one assumption the code needs.
+**About 75 minutes - Write and test code:** implement the method, predict edge cases, run tests, deliberately violate a requirement and repair it. **Stop when:** the checks pass and you can explain an avoided defect and an assumption the code needs.
 
 The method below includes the null policy. Put it in a class if you run it locally; the logic needs no database or framework.
 
@@ -505,13 +500,15 @@ Steps:
 
 ## 9. Controlled experiment
 
-**Block experiment · about 45 minutes · Do:** change one factor, predict, measure, then compare with the prediction. **Stop when:** you have one decision and one thing you still cannot conclude.
+**About 45 minutes - Measure one change:** choose a factor, state a hypothesis, measure and compare with the prediction. **Stop when:** you have one evidence-supported decision and one thing you cannot conclude.
 
 **Fair comparison.** Measure scan and hash on the same input, with the same equality and the same ordering contract. Build the input before the measured part, and make each measured call create a new result. Otherwise one path may reuse warm state or skip allocation while the other still allocates.
 
 The downloadable lab uses BenchmarkDotNet 0.15.8, N = 128, 512, 2048, nominal distinct ratios 10% and 100%, and fixed-length IDs. For N = 128 and 10%, the real distinct count is `floor(128×0.10) = 12`. Predict before running: fewer distinct IDs make the List scan shorter; hash tables usually allocate more. Big-O does not give a speed ratio.
 
-Run in Release, without a debugger. Read Mean, Error and Allocated together. Here Error is half of the 99.9% confidence interval from BenchmarkDotNet, not a guaranteed bound. Allocated includes new output and table storage but not the prebuilt input; it does not measure peak working set, live heap or service p99.
+Run in Release, without a debugger. Read `Mean`, `Error` and `Allocated` together. `Error` is half the width of BenchmarkDotNet’s 99.9% confidence interval, not a guaranteed error bound. `Allocated` includes memory for new output and table storage, but not the prebuilt input; it does not measure peak working set or live heap.
+
+This benchmark measures batch execution time, not service request latency. If p99 latency is 100 ms, about 99% of measured requests finish within 100 ms; average batch time does not establish that quantity.
 
 From the lab's `dotnet` directory, run:
 
@@ -548,7 +545,7 @@ If you do not run the benchmark, use the sample report to practice interpretatio
 
 ## 10. Changed requirement: duplicate report
 
-**Block transfer · about 35 minutes · Do:** design first, then read the solution, then trace the table. **Stop when:** you have traced or run the solution against the four inputs.
+**About 35 minutes - Solve a changed requirement:** design the solution, compare it with the answer and work through the table. **Stop when:** you have traced or run the four inputs.
 
 Support needs a count instead of unique IDs. For `B2,A1,B2,C3,A1` return `[(B2,2),(A1,2)]` and drop IDs that appear once. Keep ordinal identity, first-occurrence order, unchanged input and the same null policy.
 
@@ -609,10 +606,10 @@ Sorting by count would change the report order. Incrementing only new IDs would 
 
 ### Production: batch dedupe is not idempotency
 
-Two service instances can both receive B2, because each instance's set starts empty. A `HashSet` inside one batch does not prevent another instance from applying the same event. Use a key the storage enforces, for example tenant + event ID, and **commit the event marker and the business update in the same database transaction**.
+Idempotency means retrying the same event does not apply its business effect again. Two service instances can both receive B2, because each has its own set. A batch `HashSet` does not prevent the other instance from applying the event. Use a key the database enforces as unique, for example tenant + event ID, and **store the processed-event marker and the business update in one transaction**. The transaction must commit both writes or roll back both.
 
 ```sql
--- Not run in this session; the key is the identity the business cares about.
+-- Illustrative example; not executed against SQL Server.
 CREATE UNIQUE INDEX UX_OrderEvents_Tenant_Event
     ON dbo.OrderEvents (TenantId, EventId);
 
@@ -637,7 +634,7 @@ const unique = [...new Set(orderIds)];
 
 ## 11. Synthesis and review
 
-**Block synthesis · about 45 minutes · Do:** explain the decision aloud or in writing without notes, then review your own answer. **Stop when:** you have one decision statement and one open question.
+**About 45 minutes - Explain and review:** state the decision aloud or in writing without notes, then check it. **Stop when:** you have one decision statement and one unresolved question.
 
 Close the examples and explain:
 
@@ -699,5 +696,5 @@ Questions to carry forward: what changes with long identifiers? How much memory 
 
 ---
 
-[All lessons](../../README.md) · [Next: Lesson 02 - Boundary search and time windows →](../boundary-search/lesson.md)
+[All lessons](../../README.md) · [Next: Lesson 02 - Boundary search with binary search and time-window counts →](../boundary-search/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

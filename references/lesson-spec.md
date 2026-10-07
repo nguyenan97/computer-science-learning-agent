@@ -49,9 +49,9 @@ All tasks remain optional, and access to tomorrow's lesson requires no submissio
 Every lesson is a full day, so the page never announces it. Do not put a header line such
 as "full day: 420 minutes", a study/break split or an "updated" date under the title,
 and do not open with a schedule table. Put the plan where the learner needs it: each
-major section starts with one line, e.g. `**Block foundation · ~50 phút · Làm:** trace
-the table by hand, then state the invariant`, taken from the profile block it
-implements, with its stop condition. Breaks and lunch get a one-line divider at the
+major section starts with one line, e.g. `**Nền tảng · 50 phút:** chạy từng bước theo
+bảng, rồi nêu bất biến`, with the task and stop condition from the profile block it
+implements. Use a reader-facing activity label, not an internal block ID. Breaks and lunch get a one-line divider at the
 point where they fall. The section minutes plus breaks still sum to the profile budget.
 
 ## Recall without learner records
@@ -80,12 +80,14 @@ Each page independently teaches the whole objective in connected prose. Include:
 
 - Practical motivation, the main objective and concrete prerequisites with optional
   self-checks, worked answers and a foundation bridge.
-- A **concept primer** right after the objective and before any derivation: every
-  term the lesson depends on (for a Big-O lesson: Big-O itself, cost model, worst/
-  expected/amortized case, collision, invariant) gets a one-to-two sentence idea in
-  plain words and a tiny concrete example. Say what question it answers. Formal
-  definitions, quantifiers and proofs come later in the body. A term may not first
-  appear in a section heading, table or answer without having been introduced here.
+- A **concept primer** right after the objective and before any derivation: explain
+  the few central ideas needed to follow the lesson, each in one or two plain
+  sentences with a small example and the question it answers. For a Big-O lesson,
+  prioritize the cost model, asymptotic bounds, expected/amortized reasoning and
+  correctness invariant. This is not a dictionary of English developer vocabulary:
+  API, input, output, query, test, debug and duplicate need no primer entries or
+  compulsory glosses. Introduce supporting concepts where they become useful in
+  the body. Formal definitions, quantifiers and proofs follow the intuitive examples.
 - A **real-world application** section: where this idea shows up in a production
   .NET/SQL Server/Angular/Azure system, then one case study from a well-known public
   repository (see Sources and code). Say what problem the project solves with the
@@ -113,21 +115,26 @@ show final code. An answer already seen is not evidence of independent retrieval
 - Use a plain hyphen `-` for punctuation. Never use the em dash `—` or en dash `–`
   in lesson prose, titles, tables or headings; use `-`, a comma or a new sentence.
   Numeric ranges use `-` too (`0-20`).
-- Write Vietnamese the way developers speak at work. Keep established English terms
-  as they are and follow [vi-style-glossary](vi-style-glossary.md): e.g. *duplicate*,
-  *dedupe*, *hash*, *bucket*, *collision*, *trace*, *benchmark*, *worst case*, *amortized*.
-  Do not coin literal translations ("khử trùng", "khấu hao", "chặn trên" for terms
-  engineers say in English). On the first use of a kept term, add a short Vietnamese
-  gloss in parentheses; later uses stay English. Vietnamese carries the connecting
-  sentences, not the vocabulary. If a sentence needs a dictionary, rewrite it.
+- Write complete, natural Vietnamese sentences with accurate technical and research
+  terminology; follow [vi-style-glossary](vi-style-glossary.md). Keep familiar English
+  terms when useful, without mandatory translations or primer entries. Use established
+  Vietnamese terms where they clarify the idea, including mô hình chi phí, cận trên,
+  bất biến, giả định and quan sát. Never translate deduplication as "khử trùng".
+  Explain unfamiliar concepts in context, not by attaching a gloss to every English
+  word. Remove redundant wording and English fragments that interrupt Vietnamese syntax.
+- Research explanations connect the question, assumptions, method, evidence and
+  limits of the conclusion. Distinguish a model assumption, a testable hypothesis,
+  an observed result and an inference. Preserve qualifications needed for correctness;
+  do not remove them merely to shorten a paragraph.
 - Short sentences, one idea each. Show the concrete example before the formula or
   definition. Prefer "mỗi lần `Contains` quét hết list" over abstract nominalizations.
 - The English page follows the same rule: plain words, no jargon unexplained.
 - Depth is measured against the day's budget, not a page count: every profile block
   needs matching material on the page (primer, trace, source reading, real-world
   case, lab, experiment, changed-context task, synthesis). A page that finishes
-  the objective in a few minutes of reading is too thin. Add worked variations,
-  more traces, a production scenario or a second source before shortening anything.
+  the objective in a few minutes of reading is too thin. Remove redundant prose while
+  preserving substantive explanations and practice. Add worked variations, traces,
+  production scenarios or sources only when an objective or block needs more material.
 
 Keep code, commands, cases, table structure and substantive content aligned in both
 languages. Translate explanatory comments when helpful without changing behavior.

@@ -5,7 +5,7 @@
       "date": "2026-10-05",
       "title": {
         "en": "Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#",
-        "vi": "Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#"
+        "vi": "Bài 01 - Big-O và cấu trúc dữ liệu: dedupe mã đơn hàng bằng C#"
       },
       "files": [
         "lessons/2026-10-05-cost-model/lesson.md",
@@ -80,7 +80,7 @@
       ],
       "summary": {
         "en": "Derive scan and hashing costs, preserve order and equality, and test performance claims.",
-        "vi": "Suy ra chi phí quét và hashing, giữ thứ tự và quy tắc bằng nhau, rồi kiểm tra nhận định về hiệu năng."
+        "vi": "Phân tích chi phí của List và HashSet, giữ thứ tự xuất hiện đầu tiên và kiểm tra giả thuyết về hiệu năng."
       },
       "recall": [
         {
@@ -97,12 +97,12 @@
         {
           "id": "stable-hash",
           "question": {
-            "en": "How do HashSet and List preserve the first occurrence order, and what equality rule must they share?",
-            "vi": "HashSet và List giữ thứ tự xuất hiện đầu tiên ra sao, và phải dùng chung quy tắc bằng nhau nào?"
+            "en": "How do HashSet and List preserve the first occurrence order, and how should key equality be chosen?",
+            "vi": "HashSet và List giữ thứ tự xuất hiện đầu tiên như thế nào, và cần chọn quy tắc so sánh mã ra sao?"
           },
           "answer": {
             "en": "Scan input in order; append to the List only when HashSet.Add returns true. The set answers membership and the list carries output order. Use a comparer consistent with the required key equality; changing case sensitivity changes the contract.",
-            "vi": "Quét input theo thứ tự; chỉ thêm vào List khi HashSet.Add trả true. Set trả lời câu hỏi tồn tại, còn list giữ thứ tự output. Comparer phải phù hợp quy tắc bằng nhau của key; đổi phân biệt hoa thường sẽ đổi contract."
+            "vi": "Đọc input theo thứ tự; chỉ thêm vào List khi HashSet.Add trả true. HashSet kiểm tra mã đã xuất hiện, còn List giữ thứ tự kết quả. Comparer phải phù hợp với cách hệ thống xác định hai mã là một; thay đổi quy tắc phân biệt hoa thường sẽ thay đổi kết quả."
           }
         },
         {
@@ -113,7 +113,7 @@
           },
           "answer": {
             "en": "Bounded key hash/equality cost, adequate hash distribution and amortized resizing support expected O(n); adversarial collisions can increase comparisons. A synthetic benchmark measures its chosen workload and environment, not production queues, key distributions, peak memory or request latency.",
-            "vi": "Chi phí hash/equality của key có giới hạn, phân bố hash phù hợp và amortized resize hỗ trợ expected O(n); collision bất lợi có thể tăng số so sánh. Benchmark tổng hợp chỉ đo workload và môi trường đã chọn, không đo hàng đợi production, phân bố key, peak memory hay latency của request."
+            "vi": "Chi phí tính hash và so sánh khóa bị chặn, phân bố hash phù hợp và tổng chi phí tăng dung lượng tuyến tính cho phép suy ra chi phí kỳ vọng O(n). Nhiều khóa có cùng hash có thể làm tăng số phép so sánh. Benchmark chỉ đo dữ liệu và môi trường đã chọn, chưa phản ánh hàng đợi, phân bố khóa, mức dùng bộ nhớ cao nhất hay thời gian xử lý request của dịch vụ thực tế."
           }
         }
       ],
@@ -127,8 +127,8 @@
       "id": "boundary-search",
       "date": "2026-10-06",
       "title": {
-        "en": "Lesson 02 - Boundary search and time windows",
-        "vi": "Bài 02 - Tìm biên và cửa sổ thời gian"
+        "en": "Lesson 02 - Boundary search with binary search and time-window counts",
+        "vi": "Bài 02 - Tìm biên bằng binary search và đếm sự kiện theo khoảng thời gian"
       },
       "related": {
         "en": [
@@ -145,7 +145,7 @@
         ],
         "vi": [
           {
-            "title": "Bài 01 - Big-O và cấu trúc dữ liệu: loại bỏ duplicate mã đơn hàng bằng C#",
+            "title": "Bài 01 - Big-O và cấu trúc dữ liệu: dedupe mã đơn hàng bằng C#",
             "path": "vi/lessons/2026-10-05-cost-model/lesson.md",
             "description": "Ôn cách công việc bên trong vòng lặp quyết định chi phí."
           },
@@ -187,7 +187,7 @@
       ],
       "summary": {
         "en": "Prove the partition invariant and count half-open time windows with duplicate endpoints in C# and T-SQL.",
-        "vi": "Chứng minh bất biến phân hoạch và đếm cửa sổ thời gian nửa mở có biên trùng bằng C# và T-SQL."
+        "vi": "Tìm vị trí đầu tiên thỏa điều kiện, chứng minh thuật toán đúng và đếm sự kiện trong [start,end) bằng C# và T-SQL."
       },
       "recall": [
         {
@@ -198,7 +198,7 @@
           },
           "answer": {
             "en": "For sorted data, every index below lo contains a value < target, and every index at or above hi contains a value >= target. Unknown positions lie in [lo,hi). Each branch preserves that partition and shrinks it; when lo==hi, this is the first index with value >= target, or n if absent.",
-            "vi": "Với dữ liệu đã sắp xếp, mọi vị trí trước lo có giá trị < target, mọi vị trí từ hi trở đi có giá trị >= target. Vùng chưa biết là [lo,hi). Mỗi nhánh giữ phân hoạch và thu nhỏ vùng này; khi lo==hi, đây là vị trí đầu tiên có giá trị >= target, hoặc n nếu không có."
+            "vi": "Với dữ liệu đã sắp xếp, mọi vị trí trước lo có giá trị < target, mọi vị trí từ hi trở đi có giá trị >= target. Các vị trí chưa xác định nằm trong [lo,hi). Mỗi nhánh duy trì hai điều kiện trên và thu hẹp khoảng này. Khi lo==hi, lo là vị trí đầu tiên có giá trị >= target, hoặc n nếu không có phần tử thỏa điều kiện."
           }
         },
         {
@@ -209,18 +209,18 @@
           },
           "answer": {
             "en": "Three. lower_bound(2)=0 and lower_bound(7)=3, so the count is 3-0. The start includes every duplicate 2; the end excludes every duplicate 7. Adjacent half-open windows assign each event to exactly one window.",
-            "vi": "Ba. lower_bound(2)=0 và lower_bound(7)=3, nên số lượng là 3-0. Biên đầu chứa mọi giá trị 2 trùng; biên cuối loại mọi giá trị 7 trùng. Các cửa sổ nửa mở liền nhau gán mỗi sự kiện vào đúng một cửa sổ."
+            "vi": "Có ba sự kiện: lower_bound(2)=0 và lower_bound(7)=3, nên số lượng là 3-0. Khoảng [2,7) chứa cả hai giá trị 2 và loại cả hai giá trị 7. Hai khoảng nửa mở liền nhau không đếm trùng sự kiện tại biên chung."
           }
         },
         {
           "id": "dotnet-binary-search",
           "question": {
             "en": "How do you decode a negative .NET BinarySearch result, and can a successful result replace lower_bound when duplicates exist?",
-            "vi": "Giải mã kết quả BinarySearch âm của .NET ra sao, và kết quả tìm thấy có thay lower_bound khi có giá trị trùng không?"
+            "vi": "Đọc kết quả âm của BinarySearch trong .NET như thế nào? Khi có giá trị trùng, kết quả tìm thấy có thay được lower_bound không?"
           },
           "answer": {
             "en": "If r<0, the insertion index is ~r, not -r. On a hit, Array.BinarySearch/List<T>.BinarySearch may return any matching index, so use an explicit lower_bound for the first duplicate or for exact [start,end) counting. The input must be sorted by the same comparer.",
-            "vi": "Nếu r<0, vị trí chèn là ~r, không phải -r. Khi tìm thấy, Array.BinarySearch/List<T>.BinarySearch có thể trả bất kỳ vị trí khớp nào, nên dùng lower_bound rõ ràng để lấy phần tử trùng đầu tiên hoặc đếm chính xác [start,end). Input phải được sắp theo cùng comparer."
+            "vi": "Nếu r<0, vị trí chèn là ~r, không phải -r. Khi tìm thấy, Array.BinarySearch/List<T>.BinarySearch có thể trả bất kỳ vị trí nào có giá trị cần tìm. Vì vậy, cần lower_bound để lấy vị trí đầu tiên hoặc đếm chính xác trong [start,end). Dữ liệu phải được sắp xếp theo cùng comparer dùng khi tìm kiếm."
           }
         }
       ],

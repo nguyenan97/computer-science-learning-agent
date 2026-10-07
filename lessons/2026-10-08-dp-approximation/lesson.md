@@ -733,17 +733,38 @@ Expected: `PASS: 720 count-limited cases; demo value=8.` The tests use determini
 **Synthesis · 45 minutes.** Close the page, reconstruct the argument, then check the answers below. **Done when:** you can identify which state to keep, which contract makes it correct and what the experiment actually observed.
 
 1. Why does the item layer matter, and why can one row only be updated downwards?
+
+<details>
+<summary>Answer 1</summary>
+
+The layer records availability of each job; both branches read the previous prefix. In one row, descending capacities preserve that previous-prefix meaning at the lower lookup. Ascending updates can reuse the current job. A count limit adds a count dimension; changing constraints can change the state.
+
+</details>
+
 2. When is O(nC) a misleading “polynomial” claim?
+
+<details>
+<summary>Answer 2</summary>
+
+C is a numeric capacity, not its bit length. Doubling its value doubles table work even when its representation grows by one bit. This is pseudopolynomial; a table guard may reject a mathematically valid instance. Smaller memory alone does not remove the time dependency.
+
+</details>
+
 3. What protects the density method, and why does PostgreSQL's GEQO not inherit that guarantee?
+
+<details>
+<summary>Answer 3</summary>
+
+Choose the better of the density solution and best feasible single job. Under positive costs, nonnegative additive values and one budget, the fractional bound proves at least OPT/2. GEQO searches a different constrained plan space with estimated costs; neither this construction nor this proof describes it.
+
+</details>
+
 4. Separate assumptions, predictions, observations and inferences for this lab. Which production claims still need evidence?
 
 <details>
-<summary>Answer</summary>
+<summary>Answer 4</summary>
 
-1. The layer records availability of each job; both branches read the previous prefix. In one row, descending capacities preserve that previous-prefix meaning at the lower lookup. Ascending updates can reuse the current job. A count limit adds a count dimension; changing constraints can change the state.
-2. C is a numeric capacity, not its bit length. Doubling its value doubles table work even when its representation grows by one bit. This is pseudopolynomial; a table guard may reject a mathematically valid instance. Smaller memory alone does not remove the time dependency.
-3. Choose the better of the density solution and best feasible single job. Under positive costs, nonnegative additive values and one budget, the fractional bound proves at least OPT/2. GEQO searches a different constrained plan space with estimated costs; neither this construction nor this proof describes it.
-4. **Assumptions:** indivisible independent jobs, unique IDs, positive integer costs, additive nonnegative values, one fixed capacity and the lab's numeric/resource contract. **Predictions:** the DP values and operation formulas; the deliberately bad greedy families. **Observations after running:** the displayed CSV rows and finite-suite checks. **Inferences:** agreement on those inputs and reproduction of the chosen failure modes. The general optimum/half claims rely on proof plus a reviewed implementation. Worker latency, cost-estimate accuracy, transactional safety, fairness, PostgreSQL query performance and real batch quality still need separate evidence. A source inspection establishes program structure at the cited commit, not runtime behavior measured on our database.
+**Assumptions:** indivisible independent jobs, unique IDs, positive integer costs, additive nonnegative values, one fixed capacity and the lab's numeric/resource contract. **Predictions:** the DP values and operation formulas; the deliberately bad greedy families. **Observations after running:** the displayed CSV rows and finite-suite checks. **Inferences:** agreement on those inputs and reproduction of the chosen failure modes. The general optimum/half claims rely on proof plus a reviewed implementation. Worker latency, cost-estimate accuracy, transactional safety, fairness, PostgreSQL query performance and real batch quality still need separate evidence. A source inspection establishes program structure at the cited commit, not runtime behavior measured on our database.
 
 </details>
 

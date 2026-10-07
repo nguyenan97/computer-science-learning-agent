@@ -58,7 +58,8 @@ source claims, commands, predictions, observed results and limitations. Review
 clarified that the exact-greedy case needs all eligible jobs to fit together, not
 merely each job to fit individually. Added an explicit bridge from binary search,
 BFS and Dijkstra invariants and a small dominance example where the source uses
-nondominated cost/value pairs.
+nondominated cost/value pairs. Pre-merge review also separated each synthesis
+self-check and its answer into its own immediate, default-closed panel.
 
 Every take reads the previous item row; traceback skips ties and promises one
 optimal feasible subset rather than a uniquely preferred subset. Rolling DP updates
@@ -97,7 +98,7 @@ table; the original half theorem is not asserted under the new count constraint.
 - Local Chromium public-site diagnostic: 8 lesson pages, 8 language switches,
   8 previous/next clicks, 195 internal document links and 23 asset links;
   no runtime errors or third-party requests. Includes the staged ZIP and source links.
-- Additional desktop/mobile checks: all 14 answer panels in each language start
+- Additional desktop/mobile checks: all 17 answer panels in each language start
   closed and toggle both ways. The main answer renders all five C# sources; transfer
   renders its sixth source. Mobile checks at 390px passed; Vietnamese mobile layout
   was visually inspected.

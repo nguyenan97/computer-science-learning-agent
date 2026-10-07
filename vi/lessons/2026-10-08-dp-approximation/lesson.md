@@ -733,17 +733,38 @@ Kết quả dự kiến: `PASS: 720 count-limited cases; demo value=8.` Các tes
 **Tổng hợp · 45 phút.** Đóng trang, tự dựng lại lập luận rồi đối chiếu đáp án. **Hoàn thành khi:** xác định được trạng thái cần giữ, điều kiện làm nó đúng và điều thí nghiệm thực sự quan sát được.
 
 1. Vì sao cần lớp công việc, và vì sao chỉ được cập nhật một hàng theo chiều giảm?
+
+<details>
+<summary>Đáp án 1</summary>
+
+Lớp công việc ghi nhận công việc nào còn dùng được; cả hai nhánh đọc dãy trước. Với một hàng, duyệt ngân sách giảm giữ ý nghĩa dãy trước ở ô thấp hơn được tra cứu. Duyệt tăng có thể chọn lại công việc hiện tại. Giới hạn số lượng thêm chiều số lượng; thay ràng buộc có thể phải thay trạng thái.
+
+</details>
+
 2. Khi nào gọi O(nC) là “đa thức” gây hiểu nhầm?
+
+<details>
+<summary>Đáp án 2</summary>
+
+C là độ lớn ngân sách, không phải số bit biểu diễn. Nhân đôi C làm công việc bảng tăng đôi dù biểu diễn chỉ thêm một bit. Đây là giả đa thức; giới hạn bảng có thể từ chối input hợp lệ về toán học. Chỉ giảm bộ nhớ chưa bỏ phụ thuộc thời gian vào C.
+
+</details>
+
 3. Điều gì bảo vệ greedy theo tỷ lệ, và vì sao GEQO của PostgreSQL không có bảo đảm đó từ bài này?
+
+<details>
+<summary>Đáp án 3</summary>
+
+Chọn nghiệm tốt hơn giữa greedy theo tỷ lệ và công việc đơn hợp lệ có giá trị cao nhất. Với chi phí dương, giá trị cộng được không âm và một ngân sách, cận chia nhỏ chứng minh đạt ít nhất OPT/2. GEQO tìm trong không gian kế hoạch có ràng buộc khác, dùng chi phí ước lượng; cách tạo nghiệm và chứng minh này không mô tả GEQO.
+
+</details>
+
 4. Tách giả định, dự đoán, quan sát và suy luận cho lab. Nhận định nào về production còn cần bằng chứng?
 
 <details>
-<summary>Đáp án</summary>
+<summary>Đáp án 4</summary>
 
-1. Lớp công việc ghi nhận công việc nào còn dùng được; cả hai nhánh đọc dãy trước. Với một hàng, duyệt ngân sách giảm giữ ý nghĩa dãy trước ở ô thấp hơn được tra cứu. Duyệt tăng có thể chọn lại công việc hiện tại. Giới hạn số lượng thêm chiều số lượng; thay ràng buộc có thể phải thay trạng thái.
-2. C là độ lớn ngân sách, không phải số bit biểu diễn. Nhân đôi C làm công việc bảng tăng đôi dù biểu diễn chỉ thêm một bit. Đây là giả đa thức; giới hạn bảng có thể từ chối input hợp lệ về toán học. Chỉ giảm bộ nhớ chưa bỏ phụ thuộc thời gian vào C.
-3. Chọn nghiệm tốt hơn giữa greedy theo tỷ lệ và công việc đơn hợp lệ có giá trị cao nhất. Với chi phí dương, giá trị cộng được không âm và một ngân sách, cận chia nhỏ chứng minh đạt ít nhất OPT/2. GEQO tìm trong không gian kế hoạch có ràng buộc khác, dùng chi phí ước lượng; cách tạo nghiệm và chứng minh này không mô tả GEQO.
-4. **Giả định:** công việc nguyên vẹn, độc lập, ID duy nhất, chi phí nguyên dương, giá trị cộng được không âm, một ngân sách cố định và điều kiện số học/tài nguyên của lab. **Dự đoán:** giá trị DP và công thức số thao tác; các nhóm cố ý làm greedy kém. **Quan sát sau khi chạy:** các dòng CSV và kiểm tra trên tập hữu hạn. **Suy luận:** các input đó khớp và tái hiện được kiểu sai đã chọn. Nhận định tối ưu/xấp xỉ tổng quát dựa vào chứng minh cùng implementation đã review. Latency worker, độ đúng của chi phí ước lượng, an toàn transaction, công bằng, hiệu năng truy vấn PostgreSQL và chất lượng batch thực còn cần bằng chứng riêng. Đọc source xác nhận cấu trúc chương trình ở commit đã dẫn, chưa phải đo hành vi runtime trên database của ta.
+**Giả định:** công việc nguyên vẹn, độc lập, ID duy nhất, chi phí nguyên dương, giá trị cộng được không âm, một ngân sách cố định và điều kiện số học/tài nguyên của lab. **Dự đoán:** giá trị DP và công thức số thao tác; các nhóm cố ý làm greedy kém. **Quan sát sau khi chạy:** các dòng CSV và kiểm tra trên tập hữu hạn. **Suy luận:** các input đó khớp và tái hiện được kiểu sai đã chọn. Nhận định tối ưu/xấp xỉ tổng quát dựa vào chứng minh cùng implementation đã review. Latency worker, độ đúng của chi phí ước lượng, an toàn transaction, công bằng, hiệu năng truy vấn PostgreSQL và chất lượng batch thực còn cần bằng chứng riêng. Đọc source xác nhận cấu trúc chương trình ở commit đã dẫn, chưa phải đo hành vi runtime trên database của ta.
 
 </details>
 

@@ -7,6 +7,7 @@
   - [Lesson 03 - Shortest paths: choosing BFS or Dijkstra](/lessons/2026-10-07-shortest-paths/lesson)
   - [Lesson 04 - Dynamic programming and approximation: selecting jobs within a budget](/lessons/2026-10-08-dp-approximation/lesson)
   - [Lesson 05 - Indexes and query plans: when a seek still does much work](/lessons/2026-10-09-index-query-plans/lesson)
+  - [Lesson 06 - Transactions and recovery: a correct write can use a stale decision](/lessons/2026-10-10-transactions-recovery/lesson)
 <!-- LESSON_SIDEBAR_END -->
 
 - **Explore**

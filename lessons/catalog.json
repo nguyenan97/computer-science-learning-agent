@@ -561,6 +561,126 @@
         "data.indexes"
       ],
       "day_type": "build"
+    },
+    {
+      "id": "2026-10-10-transactions-recovery",
+      "date": "2026-10-10",
+      "title": {
+        "en": "Lesson 06 - Transactions and recovery: a correct write can use a stale decision",
+        "vi": "Bài 06 - Transaction và phục hồi: ghi đúng vẫn có thể dùng quyết định đã cũ"
+      },
+      "summary": {
+        "en": "Trace stale decisions, guard reservations, read SQLite WAL source and test two-client schedules and process-crash recovery in C#.",
+        "vi": "Chạy lịch dùng quyết định cũ, kiểm tra đặt giữ, đọc source WAL SQLite và thử hai client/phục hồi crash tiến trình bằng C#."
+      },
+      "files": [
+        "lessons/2026-10-10-transactions-recovery/lesson.md",
+        "vi/lessons/2026-10-10-transactions-recovery/lesson.md",
+        "labs/transactions-recovery/dotnet/LICENSE-MIT.txt",
+        "labs/transactions-recovery/dotnet/LessonLab/Checks.cs",
+        "labs/transactions-recovery/dotnet/LessonLab/Crash.cs",
+        "labs/transactions-recovery/dotnet/LessonLab/Experiment.cs",
+        "labs/transactions-recovery/dotnet/LessonLab/LessonLab.csproj",
+        "labs/transactions-recovery/dotnet/LessonLab/Program.cs",
+        "labs/transactions-recovery/dotnet/LessonLab/Schedules.cs",
+        "labs/transactions-recovery/dotnet/LessonLab/Store.cs",
+        "labs/transactions-recovery/dotnet/LessonLab/packages.lock.json",
+        "labs/transactions-recovery/dotnet/README.md",
+        "labs/transactions-recovery/dotnet/README.vi.md",
+        "labs/transactions-recovery/dotnet/global.json"
+      ],
+      "related": {
+        "en": [
+          {
+            "title": "Lesson 05 - Indexes and query plans",
+            "path": "lessons/2026-10-09-index-query-plans/lesson.md",
+            "description": "Separate access cost, correctness and the pagination snapshot assumption."
+          },
+          {
+            "title": "Lesson 03 - Shortest paths",
+            "path": "lessons/2026-10-07-shortest-paths/lesson.md",
+            "description": "Recall checking stale evidence against current state."
+          },
+          {
+            "title": "C# lab guide",
+            "path": "labs/transactions-recovery/dotnet/README.md",
+            "description": "Pinned setup, schedules, process-crash checks and limitations."
+          }
+        ],
+        "vi": [
+          {
+            "title": "Bài 05 - Index và query plan",
+            "path": "vi/lessons/2026-10-09-index-query-plans/lesson.md",
+            "description": "Tách chi phí truy cập, tính đúng và giả định snapshot khi phân trang."
+          },
+          {
+            "title": "Bài 03 - Đường đi ngắn nhất",
+            "path": "vi/lessons/2026-10-07-shortest-paths/lesson.md",
+            "description": "Ôn đối chiếu thông tin cũ với trạng thái hiện tại."
+          },
+          {
+            "title": "Hướng dẫn lab C#",
+            "path": "labs/transactions-recovery/dotnet/README.vi.md",
+            "description": "Cấu hình được pin, lịch thực thi, kiểm tra crash tiến trình và giới hạn."
+          }
+        ]
+      },
+      "labs": [
+        {
+          "language": "csharp",
+          "directory": "labs/transactions-recovery/dotnet",
+          "check": [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--project",
+            "LessonLab",
+            "--",
+            "--check"
+          ],
+          "archive": "labs/transactions-recovery/dotnet-lab.zip"
+        }
+      ],
+      "recall": [
+        {
+          "id": "stale-scope",
+          "question": {
+            "en": "Why do atomic write transactions not repair the blind lost-update workflow?",
+            "vi": "Vì sao transaction ghi nguyên tử chưa sửa workflow mất cập nhật do ghi mù?"
+          },
+          "answer": {
+            "en": "The read occurred earlier outside each write transaction. Serializing later writes does not refresh the application value. Validate expected version/current stock and atomically persist the decrement plus receipt; A+S=I is the one-item rule.",
+            "vi": "Lần đọc diễn ra trước, ngoài từng transaction ghi. Cho các lần ghi sau chạy lần lượt chưa làm mới giá trị ứng dụng. Kiểm tra version/tồn hiện tại và lưu phần trừ cùng xác nhận nguyên tử; A+S=I là quy tắc một mặt hàng."
+          }
+        },
+        {
+          "id": "snapshot-retry",
+          "question": {
+            "en": "Why must a stale WAL read transaction end before reconsidering a write?",
+            "vi": "Vì sao transaction đọc WAL cũ phải kết thúc trước khi xét lại phép ghi?"
+          },
+          "answer": {
+            "en": "Its end mark stays fixed; after another commit, promotion can return BUSY_SNAPSHOT. End/roll back that transaction, read fresh state and redo the bounded decision. Waiting or repeating the old snapshot does not refresh it.",
+            "vi": "Mốc kết thúc giữ nguyên; sau commit khác, nâng lên ghi có thể trả BUSY_SNAPSHOT. Kết thúc/rollback transaction, đọc mới và xét lại quyết định có cận. Chờ hoặc lặp snapshot cũ chưa làm mới nó."
+          }
+        },
+        {
+          "id": "commit-recovery",
+          "question": {
+            "en": "What do before/after-commit process kills establish, and why is WAL length insufficient?",
+            "vi": "Dừng tiến trình trước/sau commit xác minh điều gì, và vì sao chiều dài WAL chưa đủ?"
+          },
+          "answer": {
+            "en": "The tested boundaries reopen old or committed SQL state without a partial group. WAL bytes alone do not identify validated commit markers. This supports those process-crash cases, not power-loss/device guarantees, all kill points or SQL Server behavior.",
+            "vi": "Hai biên được thử mở lại trạng thái SQL cũ hoặc đã commit, không có nhóm áp dụng một nửa. Byte WAL chưa xác định dấu commit đã kiểm tra. Điều này hỗ trợ các ca crash tiến trình, chưa bảo đảm mất điện/thiết bị, mọi vị trí dừng hay SQL Server."
+          }
+        }
+      ],
+      "topic_ids": [
+        "data.transactions"
+      ],
+      "day_type": "build"
     }
   ]
 }

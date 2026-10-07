@@ -884,5 +884,5 @@ For a tenant/time aggregate, trial a tenant-leading covering index if representa
 
 ---
 
-[← Previous: Lesson 04 - Dynamic programming and approximation: selecting jobs within a budget](../2026-10-08-dp-approximation/lesson.md) · [All lessons](../../README.md)
+[← Previous: Lesson 04 - Dynamic programming and approximation: selecting jobs within a budget](../2026-10-08-dp-approximation/lesson.md) · [All lessons](../../README.md) · [Next: Lesson 06 - Transactions and recovery: a correct write can use a stale decision →](../2026-10-10-transactions-recovery/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

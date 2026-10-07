@@ -335,6 +335,114 @@
         "algorithms.graphs"
       ],
       "day_type": "build"
+    },
+    {
+      "id": "2026-10-08-dp-approximation",
+      "date": "2026-10-08",
+      "title": {
+        "en": "Lesson 04 - Dynamic programming and approximation: selecting jobs within a budget",
+        "vi": "Bài 04 - Quy hoạch động và xấp xỉ: chọn công việc trong một ngân sách"
+      },
+      "summary": {
+        "en": "Prove a 0/1 DP recurrence and half approximation, inspect PostgreSQL join planning and test C# selections against exhaustive optima.",
+        "vi": "Chứng minh truy hồi DP 0/1 và xấp xỉ 1/2, đọc join planner PostgreSQL, kiểm tra bộ chọn C# bằng vét cạn."
+      },
+      "files": [
+        "lessons/2026-10-08-dp-approximation/lesson.md",
+        "vi/lessons/2026-10-08-dp-approximation/lesson.md",
+        "labs/budget-selection/dotnet/LICENSE-MIT.txt",
+        "labs/budget-selection/dotnet/LessonLab/Budget.cs",
+        "labs/budget-selection/dotnet/LessonLab/Checks.cs",
+        "labs/budget-selection/dotnet/LessonLab/Experiment.cs",
+        "labs/budget-selection/dotnet/LessonLab/LessonLab.csproj",
+        "labs/budget-selection/dotnet/LessonLab/Oracle.cs",
+        "labs/budget-selection/dotnet/LessonLab/Program.cs",
+        "labs/budget-selection/dotnet/README.md",
+        "labs/budget-selection/dotnet/README.vi.md",
+        "labs/budget-selection/dotnet/global.json"
+      ],
+      "related": {
+        "en": [
+          {
+            "title": "Lesson 03 - Shortest paths",
+            "path": "lessons/2026-10-07-shortest-paths/lesson.md",
+            "description": "Recall state and finalization arguments."
+          },
+          {
+            "title": "C# lab guide",
+            "path": "labs/budget-selection/dotnet/README.md",
+            "description": "SDK setup, checks, experiment and sources."
+          }
+        ],
+        "vi": [
+          {
+            "title": "Bài 03 - Đường đi ngắn nhất",
+            "path": "vi/lessons/2026-10-07-shortest-paths/lesson.md",
+            "description": "Ôn trạng thái và lập luận chốt khoảng cách."
+          },
+          {
+            "title": "Hướng dẫn lab C#",
+            "path": "labs/budget-selection/dotnet/README.vi.md",
+            "description": "Cài SDK, kiểm tra, thí nghiệm và mã nguồn."
+          }
+        ]
+      },
+      "labs": [
+        {
+          "language": "csharp",
+          "directory": "labs/budget-selection/dotnet",
+          "check": [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--project",
+            "LessonLab",
+            "--",
+            "--check"
+          ],
+          "archive": "labs/budget-selection/dotnet-lab.zip"
+        }
+      ],
+      "recall": [
+        {
+          "id": "item-state",
+          "question": {
+            "en": "What does F(i,c) retain in 0/1 selection?",
+            "vi": "F(i,c) giữ thông tin gì khi chọn 0/1?"
+          },
+          "answer": {
+            "en": "It is the greatest additive value using the first i jobs at cost at most c. The item prefix records availability; both skip and take read the previous prefix so the current job cannot repeat.",
+            "vi": "Đó là giá trị cộng dồn lớn nhất từ i công việc đầu, chi phí không vượt c. Dãy công việc ghi nhận những công việc được dùng; cả hai nhánh chọn/bỏ đọc dãy trước nên không lặp công việc hiện tại."
+          }
+        },
+        {
+          "id": "rolling-direction",
+          "question": {
+            "en": "Why must one-row 0/1 DP update capacities downwards? Give a counterexample.",
+            "vi": "Vì sao DP 0/1 một hàng phải cập nhật ngân sách giảm dần? Cho phản ví dụ."
+          },
+          "answer": {
+            "en": "The lower lookup must still represent the previous prefix. One job with cost 2 and value 3, capacity 4: ascending writes 3 at 2 then reuses it to write 6 at 4, but the optimum is 3. Descending preserves the previous layer at c-cost.",
+            "vi": "Ô thấp hơn được tra cứu phải còn mang ý nghĩa dãy trước. Một công việc chi phí 2, giá trị 3, ngân sách 4: duyệt tăng ghi 3 ở 2 rồi dùng lại để ghi 6 ở 4, nhưng tối ưu là 3. Duyệt giảm giữ lớp trước tại c-chi phí."
+          }
+        },
+        {
+          "id": "half-bound",
+          "question": {
+            "en": "Why does the better of density greedy and best feasible single achieve OPT/2? Under which assumptions?",
+            "vi": "Vì sao nghiệm tốt hơn giữa greedy theo tỷ lệ và công việc đơn hợp lệ tốt nhất đạt OPT/2? Cần giả định nào?"
+          },
+          "answer": {
+            "en": "After filtering oversized jobs, fractional relaxation bounds OPT by the full density prefix plus the first nonfitting job value. Greedy contains the prefix; best single covers that value. Thus OPT <= G+B <= 2 max(G,B), for independent indivisible jobs, positive costs, nonnegative additive values and one budget.",
+            "vi": "Sau khi lọc công việc quá ngân sách, bài toán chia nhỏ chặn OPT bởi giá trị đoạn đầu theo tỷ lệ cộng giá trị công việc đầu tiên không vừa. Greedy chứa đoạn đầu; công việc đơn tốt nhất chặn giá trị đó. Do đó OPT <= G+B <= 2 max(G,B), với công việc nguyên vẹn độc lập, chi phí dương, giá trị cộng dồn không âm và một ngân sách."
+          }
+        }
+      ],
+      "topic_ids": [
+        "algorithms.optimization"
+      ],
+      "day_type": "build"
     }
   ]
 }

@@ -644,5 +644,5 @@ Nguồn được dẫn ngay tại nhận định tương ứng. [Mã OSRM](https
 
 ---
 
-[← Bài trước: Bài 02 - Tìm biên bằng binary search và đếm sự kiện theo khoảng thời gian](../boundary-search/lesson.md) · [Danh sách bài học](../../README.md)
+[← Bài trước: Bài 02 - Tìm biên bằng binary search và đếm sự kiện theo khoảng thời gian](../boundary-search/lesson.md) · [Danh sách bài học](../../README.md) · [Bài sau: Bài 04 - Quy hoạch động và xấp xỉ: chọn công việc trong một ngân sách →](../2026-10-08-dp-approximation/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

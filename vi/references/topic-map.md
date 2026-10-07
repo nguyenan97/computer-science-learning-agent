@@ -7,7 +7,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 | Thạc sĩ / Tiến sĩ | Nhóm | Chủ đề có bài / đã hoạch định | Độ phủ |
 |---|---|---:|---:|
 | Thạc sĩ | AI và học máy | 0/7 | 0.0% |
-| Thạc sĩ | Thuật toán | 4/5 | 80.0% |
+| Thạc sĩ | Thuật toán | 5/5 | 100.0% |
 | Thạc sĩ | Giao tiếp học thuật | 0/1 | 0.0% |
 | Thạc sĩ | Dữ liệu và cơ sở dữ liệu | 0/3 | 0.0% |
 | Thạc sĩ | Kiến thức chung | 0/1 | 0.0% |
@@ -24,7 +24,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 | Tiến sĩ | Bảo mật | 0/1 | 0.0% |
 | Tiến sĩ | Hệ thống | 0/4 | 0.0% |
 
-**Tổng chủ đề đã hoạch định: 4/43.**
+**Tổng chủ đề đã hoạch định: 5/43.**
 
 [Danh sách học phần và câu hỏi tự học viết mới](topic-notes.md)
 
@@ -58,7 +58,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 
 ## Quy hoạch động và xấp xỉ
 
-- **Chưa có bài** · Thạc sĩ · Thuật toán · `build`
+- **Đã có bài** · Thạc sĩ · Thuật toán · `build`
 - **Nền tảng:** Đồ thị và chọn chiến lược
 - **Mục tiêu:** Định nghĩa state/công thức truy hồi, so phản ví dụ greedy và chặn chất lượng cho một bài tối ưu.
 - **Thực hành:** Viết oracle chính xác nhỏ và so heuristic trên dữ liệu sinh.

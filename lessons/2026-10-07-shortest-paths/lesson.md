@@ -644,5 +644,5 @@ Sources are linked where their claims are used. The [OSRM source](https://github
 
 ---
 
-[← Previous: Lesson 02 - Boundary search with binary search and time-window counts](../boundary-search/lesson.md) · [All lessons](../../README.md)
+[← Previous: Lesson 02 - Boundary search with binary search and time-window counts](../boundary-search/lesson.md) · [All lessons](../../README.md) · [Next: Lesson 04 - Dynamic programming and approximation: selecting jobs within a budget →](../2026-10-08-dp-approximation/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

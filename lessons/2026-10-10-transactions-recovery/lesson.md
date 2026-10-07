@@ -891,5 +891,5 @@ Use the target engine and representative request conflicts, retries, multi-item 
 
 ---
 
-[← Previous: Lesson 05 - Indexes and query plans: when a seek still does much work](../2026-10-09-index-query-plans/lesson.md) · [All lessons](../../README.md)
+[← Previous: Lesson 05 - Indexes and query plans: when a seek still does much work](../2026-10-09-index-query-plans/lesson.md) · [All lessons](../../README.md) · [Next: Lesson 07 - Sampling uncertainty: more records need not mean more evidence →](../2026-10-11-sampling-uncertainty/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

@@ -681,6 +681,127 @@
         "data.transactions"
       ],
       "day_type": "build"
+    },
+    {
+      "id": "2026-10-11-sampling-uncertainty",
+      "date": "2026-10-11",
+      "title": {
+        "en": "Lesson 07 - Sampling uncertainty: more records need not mean more evidence",
+        "vi": "Bài 07 - Độ bất định khi lấy mẫu: nhiều record chưa chắc có thêm bằng chứng"
+      },
+      "summary": {
+        "en": "Derive Wilson intervals, inspect SciPy source and simulate sampling variation, finite coverage and linked observations in C#.",
+        "vi": "Suy ra khoảng Wilson, đọc source SciPy và mô phỏng biến thiên lấy mẫu, độ bao phủ hữu hạn, quan sát liên kết bằng C#."
+      },
+      "files": [
+        "lessons/2026-10-11-sampling-uncertainty/lesson.md",
+        "vi/lessons/2026-10-11-sampling-uncertainty/lesson.md",
+        "lessons/2026-10-11-sampling-uncertainty/sampling-distribution.png",
+        "labs/sampling-uncertainty/distribution.csv",
+        "labs/sampling-uncertainty/dotnet/LICENSE-MIT.txt",
+        "labs/sampling-uncertainty/dotnet/LessonLab/Checks.cs",
+        "labs/sampling-uncertainty/dotnet/LessonLab/Draws.cs",
+        "labs/sampling-uncertainty/dotnet/LessonLab/Experiment.cs",
+        "labs/sampling-uncertainty/dotnet/LessonLab/LessonLab.csproj",
+        "labs/sampling-uncertainty/dotnet/LessonLab/Program.cs",
+        "labs/sampling-uncertainty/dotnet/LessonLab/Stats.cs",
+        "labs/sampling-uncertainty/dotnet/LessonLab/packages.lock.json",
+        "labs/sampling-uncertainty/dotnet/README.md",
+        "labs/sampling-uncertainty/dotnet/README.vi.md",
+        "labs/sampling-uncertainty/dotnet/global.json"
+      ],
+      "related": {
+        "en": [
+          {
+            "title": "Lesson 06 - Transactions and recovery",
+            "path": "lessons/2026-10-10-transactions-recovery/lesson.md",
+            "description": "Separate controlled checks from general claims; identify the original request."
+          },
+          {
+            "title": "Lesson 04 - Dynamic programming and approximation",
+            "path": "lessons/2026-10-08-dp-approximation/lesson.md",
+            "description": "Recall state meaning and why update direction matters."
+          },
+          {
+            "title": "C# lab guide",
+            "path": "labs/sampling-uncertainty/dotnet/README.md",
+            "description": "Pinned SDK/runtime, simulated counts and interpretation limits."
+          }
+        ],
+        "vi": [
+          {
+            "title": "Bài 06 - Transaction và phục hồi",
+            "path": "vi/lessons/2026-10-10-transactions-recovery/lesson.md",
+            "description": "Tách ca kiểm tra có kiểm soát khỏi nhận định chung; xác định danh tính request."
+          },
+          {
+            "title": "Bài 04 - Quy hoạch động và xấp xỉ",
+            "path": "vi/lessons/2026-10-08-dp-approximation/lesson.md",
+            "description": "Ôn ý nghĩa trạng thái và lý do chọn chiều cập nhật."
+          },
+          {
+            "title": "Hướng dẫn lab C#",
+            "path": "labs/sampling-uncertainty/dotnet/README.vi.md",
+            "description": "SDK/runtime cố định, số đếm mô phỏng và giới hạn diễn giải."
+          }
+        ]
+      },
+      "labs": [
+        {
+          "language": "csharp",
+          "directory": "labs/sampling-uncertainty/dotnet",
+          "check": [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--project",
+            "LessonLab",
+            "--",
+            "--check"
+          ],
+          "archive": "labs/sampling-uncertainty/dotnet-lab.zip"
+        }
+      ],
+      "recall": [
+        {
+          "id": "confidence-scope",
+          "question": {
+            "en": "What does nominal 95% confidence mean for a Wilson interval?",
+            "vi": "Mức tin cậy danh nghĩa 95% của khoảng Wilson nghĩa là gì?"
+          },
+          "answer": {
+            "en": "Before sampling, random intervals aim to cover a fixed p in about 95% of repeated model samples. Wilson finite coverage can differ; this is not posterior probability 0.95 for the observed interval or a guarantee about biased/dependent data.",
+            "vi": "Trước lấy mẫu, khoảng ngẫu nhiên hướng tới chứa p cố định ở khoảng 95% mẫu mô hình lặp. Độ bao phủ Wilson hữu hạn có thể khác; không phải xác suất hậu nghiệm 0,95 của khoảng đã thấy hay bảo đảm cho dữ liệu lệch/phụ thuộc."
+          }
+        },
+        {
+          "id": "row-unit",
+          "question": {
+            "en": "Why do ten copies of each of twenty outcomes not provide 200 independent units?",
+            "vi": "Vì sao sao mười lần mỗi kết quả trong hai mươi kết quả chưa cho 200 đơn vị độc lập?"
+          },
+          "answer": {
+            "en": "The 200-row mean equals the twenty-unit mean. Under independent latent Bernoulli groups its variance is p(1-p)/20, not p(1-p)/200. Collapse groups only under the stated equal-size/identical-outcome model; dedupe alone does not remove common incidents.",
+            "vi": "Trung bình 200 dòng bằng trung bình hai mươi đơn vị. Với nhóm Bernoulli ẩn độc lập, phương sai là p(1-p)/20, không phải p(1-p)/200. Chỉ gộp theo mô hình cùng kích thước/cùng kết quả đã nêu; dedupe chưa loại sự cố chung."
+          }
+        },
+        {
+          "id": "zero-count",
+          "question": {
+            "en": "Why is a zero-event Wald interval a counterexample, and what can simulation establish?",
+            "vi": "Vì sao khoảng Wald không sự kiện là phản ví dụ, và mô phỏng xác minh được gì?"
+          },
+          "answer": {
+            "en": "At k=0 Wald has zero width, although positive p can yield no events. Wilson retains a positive upper bound but is approximate. Finite binomial sums evaluate coverage under a model; seeded simulation observes selected synthetic cases, not production representativeness.",
+            "vi": "Tại k=0 Wald có độ rộng không dù p dương vẫn có thể cho không sự kiện. Wilson giữ đầu trên dương nhưng là xấp xỉ. Tổng nhị thức hữu hạn xét độ bao phủ dưới mô hình; mô phỏng có seed quan sát ca giả lập, chưa xác minh tính đại diện production."
+          }
+        }
+      ],
+      "topic_ids": [
+        "statistics.uncertainty"
+      ],
+      "day_type": "build"
     }
   ]
 }

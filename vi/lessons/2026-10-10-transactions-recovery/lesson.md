@@ -891,5 +891,5 @@ Dùng engine đích cùng tranh chấp request, retry, quy tắc nhiều mặt h
 
 ---
 
-[← Bài trước: Bài 05 - Index và query plan: vì sao seek vẫn có thể tốn nhiều công](../2026-10-09-index-query-plans/lesson.md) · [Danh sách bài học](../../README.md)
+[← Bài trước: Bài 05 - Index và query plan: vì sao seek vẫn có thể tốn nhiều công](../2026-10-09-index-query-plans/lesson.md) · [Danh sách bài học](../../README.md) · [Bài sau: Bài 07 - Độ bất định khi lấy mẫu: nhiều record chưa chắc có thêm bằng chứng →](../2026-10-11-sampling-uncertainty/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

@@ -7,6 +7,7 @@
   - [Bài 03 - Đường đi ngắn nhất: chọn BFS hay Dijkstra](/vi/lessons/2026-10-07-shortest-paths/lesson)
   - [Bài 04 - Quy hoạch động và xấp xỉ: chọn công việc trong một ngân sách](/vi/lessons/2026-10-08-dp-approximation/lesson)
   - [Bài 05 - Index và query plan: vì sao seek vẫn có thể tốn nhiều công](/vi/lessons/2026-10-09-index-query-plans/lesson)
+  - [Bài 06 - Transaction và phục hồi: ghi đúng vẫn có thể dùng quyết định đã cũ](/vi/lessons/2026-10-10-transactions-recovery/lesson)
 <!-- LESSON_SIDEBAR_END -->
 
 - **Khám phá**

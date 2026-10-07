@@ -884,5 +884,5 @@ Với tổng hợp theo tenant/thời gian, thử index bao phủ bắt đầu b
 
 ---
 
-[← Bài trước: Bài 04 - Quy hoạch động và xấp xỉ: chọn công việc trong một ngân sách](../2026-10-08-dp-approximation/lesson.md) · [Danh sách bài học](../../README.md)
+[← Bài trước: Bài 04 - Quy hoạch động và xấp xỉ: chọn công việc trong một ngân sách](../2026-10-08-dp-approximation/lesson.md) · [Danh sách bài học](../../README.md) · [Bài sau: Bài 06 - Transaction và phục hồi: ghi đúng vẫn có thể dùng quyết định đã cũ →](../2026-10-10-transactions-recovery/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

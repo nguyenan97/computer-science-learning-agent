@@ -9,7 +9,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 | Thạc sĩ | AI và học máy | 0/7 | 0.0% |
 | Thạc sĩ | Thuật toán | 5/5 | 100.0% |
 | Thạc sĩ | Giao tiếp học thuật | 0/1 | 0.0% |
-| Thạc sĩ | Dữ liệu và cơ sở dữ liệu | 1/3 | 33.3% |
+| Thạc sĩ | Dữ liệu và cơ sở dữ liệu | 2/3 | 66.7% |
 | Thạc sĩ | Kiến thức chung | 0/1 | 0.0% |
 | Thạc sĩ | Thông tin và mô hình | 0/1 | 0.0% |
 | Thạc sĩ | Lãnh đạo và rủi ro | 0/2 | 0.0% |
@@ -24,7 +24,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 | Tiến sĩ | Bảo mật | 0/1 | 0.0% |
 | Tiến sĩ | Hệ thống | 0/4 | 0.0% |
 
-**Tổng chủ đề đã hoạch định: 6/43.**
+**Tổng chủ đề đã hoạch định: 7/43.**
 
 [Danh sách học phần và câu hỏi tự học viết mới](topic-notes.md)
 
@@ -72,7 +72,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 
 ## Transaction, đồng thời và phục hồi
 
-- **Chưa có bài** · Thạc sĩ · Dữ liệu và cơ sở dữ liệu · `build`
+- **Đã có bài** · Thạc sĩ · Dữ liệu và cơ sở dữ liệu · `build`
 - **Nền tảng:** Lưu trữ, chỉ mục và query plan
 - **Mục tiêu:** Tái hiện một anomaly isolation và giải thích cơ chế ngăn chặn/phục hồi đã chọn.
 - **Thực hành:** Chạy hai client đồng thời với lịch thực thi ghi lại và trace crash/recovery.

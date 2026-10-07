@@ -9,7 +9,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Master | AI and learning | 0/7 | 0.0% |
 | Master | Algorithms | 5/5 | 100.0% |
 | Master | Academic communication | 0/1 | 0.0% |
-| Master | Data and databases | 1/3 | 33.3% |
+| Master | Data and databases | 2/3 | 66.7% |
 | Master | General studies | 0/1 | 0.0% |
 | Master | Information and modeling | 0/1 | 0.0% |
 | Master | Leadership and risk | 0/2 | 0.0% |
@@ -24,7 +24,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Doctoral | Security | 0/1 | 0.0% |
 | Doctoral | Systems | 0/4 | 0.0% |
 
-**Total planned units: 6/43.**
+**Total planned units: 7/43.**
 
 [Course inventory and original study questions](topic-notes.md)
 
@@ -72,7 +72,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 
 ## Transactions, concurrency and recovery
 
-- **Planned** · Master · Data and databases · `build`
+- **Published** · Master · Data and databases · `build`
 - **Foundations:** Storage, indexes and query plans
 - **Objective:** Reproduce one isolation anomaly and explain the selected prevention and recovery mechanism.
 - **Practice:** Run two concurrent clients with a logged schedule and crash/recovery trace.

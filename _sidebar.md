@@ -5,6 +5,7 @@
   - [Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#](/lessons/2026-10-05-cost-model/lesson)
   - [Lesson 02 - Boundary search with binary search and time-window counts](/lessons/boundary-search/lesson)
   - [Lesson 03 - Shortest paths: choosing BFS or Dijkstra](/lessons/2026-10-07-shortest-paths/lesson)
+  - [Lesson 04 - Dynamic programming and approximation: selecting jobs within a budget](/lessons/2026-10-08-dp-approximation/lesson)
 <!-- LESSON_SIDEBAR_END -->
 
 - **Explore**

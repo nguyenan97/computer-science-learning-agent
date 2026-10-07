@@ -7,7 +7,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Master / Doctoral | Area | Published topics / planned | Coverage |
 |---|---|---:|---:|
 | Master | AI and learning | 0/7 | 0.0% |
-| Master | Algorithms | 4/5 | 80.0% |
+| Master | Algorithms | 5/5 | 100.0% |
 | Master | Academic communication | 0/1 | 0.0% |
 | Master | Data and databases | 0/3 | 0.0% |
 | Master | General studies | 0/1 | 0.0% |
@@ -24,7 +24,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Doctoral | Security | 0/1 | 0.0% |
 | Doctoral | Systems | 0/4 | 0.0% |
 
-**Total planned units: 4/43.**
+**Total planned units: 5/43.**
 
 [Course inventory and original study questions](topic-notes.md)
 
@@ -58,7 +58,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 
 ## Dynamic programming and approximation
 
-- **Planned** · Master · Algorithms · `build`
+- **Published** · Master · Algorithms · `build`
 - **Foundations:** Graphs and strategy selection
 - **Objective:** Define state/recurrence, compare a greedy counterexample and bound solution quality for one optimization task.
 - **Practice:** Implement a small exact oracle and compare candidate heuristics on generated instances.

@@ -22,7 +22,7 @@ what was observed; section names remain useful after line numbers change.
 | F04 / P2 / answer access | `scripts/review_queue.py:149` emits one answer block for several questions and a typographic dash. Lesson 02 library questions/practice list group independent answers. | Opening one answer reveals unrelated answers; pasted planner recall violates the page contract. | One immediately following, default-closed block per question in queue output and both Lesson 02 pages; optional attempt wording and plain hyphens. |
 | F05 / P2 / structure | Lesson 01 sections 2-5 and Lesson 02 sections 2-4 rely on a timebox elsewhere instead of each section's task/time/done line. | The reader cannot tell where to stop a local section. | Split the existing foundation budget into 10/15/10/15 and 10/25/15 minutes respectively, with a concrete product in each section. Existing breaks/budget remain intact. |
 | F06 / P2 / answer placement | Lesson 03 section 5 exposes setup/code/results before its answer. Lesson 01 section 9 and Lesson 05 section 6 show recorded experiment results outside a result answer. | Predicting first is difficult and placement differs across lessons. | One complete closed lab answer in Lesson 03; its experiment file joins the complete lab. Separate interpretation prompts and closed result answers for the recorded benchmark/read/write tables. Defect prompts stay outside lab answers. |
-| F07 / P2 / UI | Mobile VI Lesson 08 baseline DOM still says `lang=en`. Lesson links use rgb(66,185,131) on white (about 2.48:1 contrast). Wide table measured 483px of content in a 282px box, without explicit tabindex/focus treatment. | Incorrect language metadata, low-contrast reading and unclear keyboard access to clipped content. | Local Docsify hook sets language/title; high-contrast theme/token styles; visible focus and localized, keyboard-focusable overflowing table/code containers. Horizontal content scroll remains inside the page. |
+| F07 / P2 / UI | Mobile VI Lesson 08 baseline DOM still says `lang=en`. Lesson links use rgb(66,185,131) on white (about 2.48:1 contrast). Wide table measured 483px of content in a 282px box, without explicit tabindex/focus treatment. A long inline literal reaches x=373.19 beyond content edge x=336 while page width remains 390. | Incorrect language metadata, low-contrast reading and unclear keyboard access to clipped content. | Local Docsify hook sets language/title; high-contrast theme/token styles; visible focus and localized, keyboard-focusable overflowing table/code containers. Horizontal table/code scroll remains inside the page; long prose literals wrap without losing characters. |
 | F08 / P2 / maintenance | `references/lesson-template.md` is a four-line pointer; skill repeats page-rule bullets despite spec ownership. | Future authors reconstruct the requirements manually and can propagate inconsistent structures. | Flexible scaffold, semantic review checklist and ownership/generated-artifact map; skill refers to the canonical spec rather than maintaining another page contract. Profile remains the owner of schedules. |
 | F09 / P3 / presentation | Lesson 01 `LessonLab/Program.cs` / `Checks.cs` print agent/reference verification commentary. | Internal audit claims interrupt the example output. | Console output describes the task/checks only; finite-test limits stay in learner-useful explanations. |
 | F10 / P2 / model assumptions | Lesson 08 complexity paragraph lists O(B*2^B) without stating the cost assumption for validating hashed IDs. | A reader can infer that arbitrarily long keys cost a constant amount. | Both languages state bounded numeric/ID costs and suitable hash distribution; variable-length identity processing has separate cost. No theorem, estimand or sharp-null interpretation was changed. |
@@ -142,7 +142,7 @@ Commands below are repository-root commands; staging outputs must be fresh paths
   language and neighbor navigation, 375 linked documents and 60 asset links;
   no runtime errors/third-party requests.
 - Browser interactions on all 16 pages at 1440x1000 and 390x844: 624 answer checks start closed and toggle; 484 exact rendered code blocks,
-  176 table checks, four plot loads, 60 keyboard horizontal-scroll checks, 32 language
+  176 table checks, four plot loads, unclipped inline-code tokens, 60 keyboard horizontal-scroll checks, 32 language
   switches/neighbor clicks and 32 actual downloaded candidate ZIP byte comparisons.
   Minimum tested link/inline-code/token text contrast is 4.674:1. Screenshots of
   desktop introduction and mobile code/trace/chart were also inspected.
@@ -161,6 +161,9 @@ part of this unmerged PR's verification.
 
 ## Remaining work and verification limits
 
+- CI currently annotates the existing setup-python v5 action being forced from Node 20
+  to Node 24, and an upcoming ubuntu-latest runner migration. These are platform
+  maintenance notices, not failed checks; review the action/runner update separately.
 - No SQL Server/T-SQL execution, real cloud integration, full PostgreSQL/Kafka/OSRM/
   GrowthBook build or SciPy/R runtime validation. The newly archived EF SQLite
   example verifies its three query modes, not EF internals/performance as a whole.

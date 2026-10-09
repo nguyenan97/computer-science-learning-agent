@@ -1,6 +1,7 @@
 /* Original MIT UI styles; dependency files retain their upstream bytes. */
 :root { --theme-color: #16724a; }
 .markdown-section code { color: #a33e00; }
+.markdown-section :not(pre) > code { white-space: pre-wrap; overflow-wrap: anywhere; }
 .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #636660; }
 .token.boolean, .token.number, .token.function, .token.keyword { color: #a33e00; }
 .token.property { color: #805500; }

@@ -110,6 +110,32 @@ async def check(site, base, chromium):
                 totals['code_blocks'] += len(codes)
                 totals['tables'] += await article.locator('table').count()
                 assert await page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), route
+                # Page width alone misses inline literals clipped by their ancestor.
+                # Pre/table code deliberately scrolls; prose code must wrap inside
+                # the article's content box, including every wrapped fragment.
+                clipped = await article.evaluate("""(article) => {
+                  const box = article.getBoundingClientRect(), css = getComputedStyle(article);
+                  const left = box.left + parseFloat(css.paddingLeft);
+                  const right = box.right - parseFloat(css.paddingRight);
+                  return [...article.querySelectorAll('code')].filter(node => {
+                    if (node.closest('pre, table')) return false;
+                    // pre-wrap may legally hang trailing spaces and decorations
+                    // over a line edge. Check visible text tokens, not that padding.
+                    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+                    let text;
+                    while ((text = walker.nextNode())) {
+                      for (const token of text.data.matchAll(/\\S+/g)) {
+                        const range = document.createRange();
+                        range.setStart(text, token.index);
+                        range.setEnd(text, token.index + token[0].length);
+                        if ([...range.getClientRects()].some(rect => rect.width &&
+                            (rect.left < left - 1 || rect.right > right + 1))) return true;
+                      }
+                    }
+                    return false;
+                  }).map(node => node.textContent);
+                }""")
+                assert not clipped, (route, 'clipped inline code', clipped)
                 scrollables = article.locator('table, pre')
                 for number in range(await scrollables.count()):
                     node = scrollables.nth(number)

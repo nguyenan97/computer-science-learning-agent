@@ -15,8 +15,9 @@ Match the conversation language; every daily lesson is complete in English and V
 ## Plan the day
 
 1. Read the single [lesson spec](../../references/lesson-spec.md).
-2. Run `python scripts/daily_plan.py`, or supply `--on YYYY-MM-DD` when the learner
-   names a study date. Its default calendar is Asia/Ho_Chi_Minh.
+2. For the next lesson run `python scripts/daily_plan.py --next` before editing the
+   catalog. This uses the day after its latest publication date. Use `--on YYYY-MM-DD`
+   for an explicit date, or no date flag for today in Asia/Ho_Chi_Minh.
 3. Follow the returned topic: an uncovered master unit with published prerequisites,
    then a doctoral unit after the master inventory is covered. Inventory order breaks
    ties. Coverage counts published artifacts and never certifies knowledge or a degree.
@@ -38,22 +39,11 @@ Every recall prompt, exercise and lab has a complete answer available immediatel
 inside a collapsible `<details>` block under its prompt (see the lesson spec).
 Trying first is optional; access to the next lesson requires no submission.
 
-Page rules that readers flagged on lesson 1 (details in the lesson spec):
-- Open with a short concept primer for the central ideas (e.g. Big-O), using a plain
-  explanation and a small example before formal definitions. Familiar English developer
-  words do not need glossary entries; explain supporting ideas where they are used.
-- No "full day / 420 minutes" header or schedule table. Put the activity, minutes
-  and task at the start of each section, and a one-line divider for breaks.
-- Plain hyphen `-` only; never `—` or `–`.
-- Natural Vietnamese with precise technical and research terminology, following
-  [vi-style-glossary](../../references/vi-style-glossary.md). Keep familiar English
-  words where useful, without compulsory glosses; use established Vietnamese terms
-  for the explanation. Never use "khử trùng" for deduplication. Remove filler while
-  preserving assumptions, evidence and limits needed for a correct conclusion.
-- Real-world application plus one researched case study from a well-known GitHub
-  repository, pinned to a commit: what problem the idea solves there and how to apply it.
-- Preserve substantive depth and practice for the whole day while removing redundant
-  prose. Add traces, scenarios or sources only when an objective needs more material.
+The [lesson spec](../../references/lesson-spec.md) owns page structure, answers,
+typography, experiments and source requirements. Start from its flexible
+[scaffold](../../references/lesson-template.md), using the planner's actual blocks.
+Use the [maintainer review checklist](../../docs/lesson-review.md) to challenge
+meaning, assumptions and reproducibility rather than merely count headings.
 
 A build day emphasizes implementation, debugging and a controlled experiment.
 A paper day produces annotations, a claim ledger, a reproduced result or derivation,
@@ -75,8 +65,9 @@ Use the IUH source only for names/codes; do not republish its syllabus descripti
 Review EN/VI meaning, code, commands, examples, answers and limitations. Scan
 the Vietnamese for literal translations and for any `—`/`–` before publishing.
 Run `python scripts/check_all.py`; it bootstraps dependencies and the SDK in a fresh
-checkout. Required checks include labs and extracted ZIPs. Browser and benchmark
-checks are separate diagnostics; report whether they ran.
+checkout. Required checks include code/config extracted from both pages, source labs
+and extracted ZIPs. Browser and benchmark checks are separate diagnostics; run the
+requested desktop/mobile checks and report each result, including failed optional steps.
 
 ## Publish through a PR
 

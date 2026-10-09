@@ -1,5 +1,7 @@
 # Lab C# - Index và query plan
 
+Tắt roll-forward cho SDK/runtime: dùng SDK 10.0.401 và runtime 10.0.12.
+
 Dùng .NET SDK **10.0.401**, target **net10.0**, Microsoft.Data.Sqlite **10.0.9** và SQLitePCLRaw.bundle_e_sqlite3 **3.0.3**. Engine đi kèm trả **SQLite 3.50.4**. Project và lock file pin dependency; lần restore đầu cần NuGet. Không cần database server.
 
 Tải [ZIP](https://nguyenan97.github.io/computer-science-learning-agent/labs/index-query-plans/dotnet-lab.zip), giải nén rồi chạy trong `dotnet`. Nếu dùng checkout, vào `labs/index-query-plans/dotnet`.

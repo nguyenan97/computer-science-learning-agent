@@ -212,19 +212,23 @@ Dùng **.NET SDK 10.0.401**, target **net10.0**, không có package ngoài. Gi�
 
 `dotnet/global.json`:
 
+<!-- lab-file: global.json -->
 ```json
 {
-  "sdk": { "version": "10.0.401", "rollForward": "latestPatch" }
+  "sdk": { "version": "10.0.401", "rollForward": "disable" }
 }
 ```
 
 `dotnet/LessonLab/LessonLab.csproj`:
 
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -253,6 +257,7 @@ Nếu cần, cài đúng SDK từ Microsoft. Sau khi build, `dotnet run --no-res
 
 `LessonLab/Budget.cs`: `Validate` từ chối ID lặp, không âm thầm dedupe. `Exact` chỉ đọc hàng trước và dựng nghiệm khi cải thiện nghiêm ngặt. `ExactValueRolling` chỉ trả giá trị. Comparer theo tỷ lệ dùng tích chéo số nguyên với `BigInteger` để tránh tỷ lệ bị làm tròn và phép nhân `long` bị tràn; giá trị/chi phí ở đây có cận 64/32 bit cố định. Khi tỷ lệ bằng nhau, dùng index gốc để phân định. Các hàm không sửa input.
 
+<!-- lab-file: LessonLab/Budget.cs -->
 ```csharp
 // Original MIT teaching code. No PostgreSQL or textbook code is copied.
 using System.Numerics;
@@ -361,6 +366,7 @@ public static class Budget
 
 `LessonLab/Oracle.cs`: xét mọi tập con. Nó dùng chung bước kiểm tra input nhưng không dùng công thức DP hay thứ tự tỷ lệ, nên độc lập khi đối chiếu tối ưu trên miền được chấp nhận. Với n>=1, thời gian O(n·2^n), bộ nhớ tìm kiếm thêm O(n). Giới hạn 22 công việc chặn lần chạy tham chiếu quá lớn ngoài ý muốn.
 
+<!-- lab-file: LessonLab/Oracle.cs -->
 ```csharp
 // Exhaustive independent reference for small instances, original MIT code.
 public static class Oracle
@@ -396,6 +402,7 @@ public static class Oracle
 
 `LessonLab/Program.cs`:
 
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 if (args.Length == 0)
 {
@@ -414,6 +421,7 @@ else throw new ArgumentException("Use no arguments, --check or --experiment.");
 
 `LessonLab/Checks.cs`: kiểm tra tính hợp lệ, không lặp index, tối ưu chính xác, kết quả bảng nén, input không đổi và bất đẳng thức 1/2. Xét hết các bộ ba công việc có chi phí 1-3, giá trị 0-3, ngân sách 0-6; thêm ca ngẫu nhiên có seed và biên số học. Phép so `2*A >= OPT` dùng `BigInteger` vì hai lần một kết quả `long` hợp lệ có thể vượt `long.MaxValue`. Ca tỷ lệ rất gần nhau với giá trị lớn phát hiện lỗi so thứ tự bằng số thực.
 
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 using System.Numerics;
 
@@ -515,6 +523,7 @@ public static class Checks
 
 `LessonLab/Experiment.cs`: sinh workload có kiểm soát ở mục 6. `Work` dùng đơn vị được ghi rõ riêng cho từng thuật toán. Đếm so sánh tỷ lệ riêng, không tính bước sắp index kết quả. Chất lượng được làm tròn bằng decimal khi in; comparer và bất đẳng thức kiểm tra dùng số học chính xác. Khi OPT bằng 0, quy ước in chất lượng 1 vì nghiệm hợp lệ giá trị 0 đã tối ưu, không phải tính 0/0.
 
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 using System.Globalization;
 

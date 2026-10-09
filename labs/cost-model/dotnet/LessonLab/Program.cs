@@ -14,4 +14,3 @@ foreach (int n in new[] { 128, 256, 512 })
 }
 Console.WriteLine($"128 identical IDs: {Deduplication.CountScan(Dataset.Make(128, 1)).Comparisons} scan comparisons");
 Console.WriteLine($"Duplicates: {string.Join(", ", Deduplication.DuplicateSummary(example).Select(x => $"{x.Id}={x.Count}"))}");
-Console.WriteLine("Agent/reference execution is not learner evidence.");

@@ -1,5 +1,7 @@
 # Lab C# - Chọn công việc bằng DP và xấp xỉ
 
+Tắt roll-forward cho SDK/runtime: dùng SDK 10.0.401 và runtime 10.0.12.
+
 Dùng .NET SDK **10.0.401**, pin trong `global.json`, target **net10.0**. Không cần package ngoài hay database. Nếu thiếu, cài SDK từ [Microsoft](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
 
 Tải [ZIP](https://nguyenan97.github.io/computer-science-learning-agent/labs/budget-selection/dotnet-lab.zip), giải nén rồi chạy trong `dotnet`. Nếu dùng checkout, vào `labs/budget-selection/dotnet`.

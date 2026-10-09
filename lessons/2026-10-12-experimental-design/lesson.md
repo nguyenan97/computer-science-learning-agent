@@ -257,6 +257,7 @@ Use SDK **10.0.401**, runtime **Microsoft.NETCore.App 10.0.12**, target **net10.
 Extract the ZIP or create `dotnet` with the files below. Run from `dotnet`; `cd dotnet` below assumes you start in its parent directory.
 
 `global.json`:
+<!-- lab-file: global.json -->
 ```json
 {
   "sdk": { "version": "10.0.401", "rollForward": "disable" }
@@ -265,6 +266,7 @@ Extract the ZIP or create `dotnet` with the files below. Run from `dotnet`; `cd 
 
 
 `LessonLab/LessonLab.csproj`:
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -283,6 +285,7 @@ Extract the ZIP or create `dotnet` with the files below. Run from `dotnet`; `cd 
 
 
 `LessonLab/packages.lock.json`:
+<!-- lab-file: LessonLab/packages.lock.json -->
 ```json
 {
   "version": 1,
@@ -304,6 +307,7 @@ dotnet run --no-restore -c Release --project LessonLab -- --experiment
 
 
 `LessonLab/Design.cs`:
+<!-- lab-file: LessonLab/Design.cs -->
 ```csharp
 public sealed record Unit(string Id, int Y0, int Y1);
 public sealed record Pair(Unit Left, Unit Right);
@@ -393,6 +397,7 @@ public static class Design
 
 
 `LessonLab/Experiment.cs`:
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 using System.Globalization;
 
@@ -447,6 +452,7 @@ public static class Experiment
 
 
 `LessonLab/Checks.cs`:
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 public static class Checks
 {
@@ -548,6 +554,7 @@ public static class Checks
 
 
 `LessonLab/Program.cs`:
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 using System.Globalization;
 
@@ -577,7 +584,7 @@ PASS: 64 independent assignments; 6561 potential tables; variance; sharp-null si
 
 The independent scan selects 6 of 12 units with a 12-bit mask, keeps exactly one treatment per pair and scans arm totals directly; it does not call `Observe`/`Differences`. There are 924 balanced subsets, of which 64 obey the paired design. Comparing the full multisets preserves repeated estimates. The 6561 tables `3^8` exhaust potential outcomes 0,1,2 for four units in two pairs; an integer-sum identity checks unbiasedness without double approximation. Variance is checked against 1456/36; relabeling, ties, validation and null-size checks cover other mechanisms.
 
-The 1-10 pair limit bounds enumeration at 1024 assignments. Outcomes are 0-10000 and IDs are nonempty/unique. Integer `long` sums and absolute-tail comparisons avoid orientation mistakes and floating-point p-value boundaries; printed means/SDs use rounded doubles. `Distribution` takes O(B*2^B) time and O(2^B+B) memory; `SharpNull` takes O(B*2^B) time and O(B) memory. This is bounded enumeration, not a large-scale statistical engine.
+The 1-10 pair limit bounds enumeration at 1024 assignments. Outcomes are 0-10000 and IDs are nonempty/unique. Integer `long` sums and absolute-tail comparisons avoid orientation mistakes and floating-point p-value boundaries; printed means/SDs use rounded doubles. `Distribution` takes O(B*2^B) time and O(2^B+B) memory; `SharpNull` takes O(B*2^B) time and O(B) memory. This is bounded enumeration, not a large-scale statistical engine. Complexity assumes bounded integer operations and bounded ID hashing/equality with suitable hash distribution; unbounded identifiers add their own processing cost.
 
 Checks cover the fixed table, the stated exhaustive small tables and selected edge cases; they do not prove every input, design or production model. The foundation proof supplies the general expectation argument under its assumptions. If execution is unavailable, check the six demo rows by hand, inspect the independent oracle, find the sign repair and interpret the next section's CSV. For a missing SDK, install the exact version or use the reading route; for a lock error, keep the supplied lock file. Changing dependencies/pins creates a different experiment. The ZIP's LICENSE/README supplement the complete runnable code here.
 

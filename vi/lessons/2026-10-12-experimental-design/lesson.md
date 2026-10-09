@@ -257,6 +257,7 @@ Dùng SDK **10.0.401**, runtime **Microsoft.NETCore.App 10.0.12**, target **net1
 Giải nén ZIP hoặc tạo `dotnet` với các file sau. Chạy từ thư mục `dotnet`; `cd dotnet` bên dưới giả định đang ở thư mục chứa nó.
 
 `global.json`:
+<!-- lab-file: global.json -->
 ```json
 {
   "sdk": { "version": "10.0.401", "rollForward": "disable" }
@@ -265,6 +266,7 @@ Giải nén ZIP hoặc tạo `dotnet` với các file sau. Chạy từ thư mụ
 
 
 `LessonLab/LessonLab.csproj`:
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -283,6 +285,7 @@ Giải nén ZIP hoặc tạo `dotnet` với các file sau. Chạy từ thư mụ
 
 
 `LessonLab/packages.lock.json`:
+<!-- lab-file: LessonLab/packages.lock.json -->
 ```json
 {
   "version": 1,
@@ -304,6 +307,7 @@ dotnet run --no-restore -c Release --project LessonLab -- --experiment
 
 
 `LessonLab/Design.cs`:
+<!-- lab-file: LessonLab/Design.cs -->
 ```csharp
 public sealed record Unit(string Id, int Y0, int Y1);
 public sealed record Pair(Unit Left, Unit Right);
@@ -393,6 +397,7 @@ public static class Design
 
 
 `LessonLab/Experiment.cs`:
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 using System.Globalization;
 
@@ -447,6 +452,7 @@ public static class Experiment
 
 
 `LessonLab/Checks.cs`:
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 public static class Checks
 {
@@ -548,6 +554,7 @@ public static class Checks
 
 
 `LessonLab/Program.cs`:
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 using System.Globalization;
 
@@ -577,7 +584,7 @@ PASS: 64 independent assignments; 6561 potential tables; variance; sharp-null si
 
 Phép quét độc lập chọn 6 trong 12 đơn vị bằng mask 12 bit, giữ các cách có đúng một treatment mỗi cặp, rồi cộng hai nhánh trực tiếp; nó không dùng `Observe`/`Differences`. Có 924 tập cân bằng, trong đó 64 tập đúng thiết kế theo cặp. So cả đa tập 64 ước lượng bảo vệ số lần xuất hiện lặp. Kiểm tra 6561 bảng `3^8` xét hết kết quả tiềm năng 0,1,2 của bốn đơn vị trong hai cặp; đẳng thức tổng nguyên kiểm tra tính không lệch, không dựa vào gần đúng double. Kiểm tra phương sai đối chiếu với 1456/36; kiểm tra đổi nhãn, trường hợp bằng nhau, đầu vào và mức lỗi null bổ sung các cơ chế khác.
 
-Giới hạn 1-10 cặp chặn phép liệt kê tại 1024 cách. Mỗi outcome thuộc 0-10000, ID không rỗng và không lặp. Tổng nguyên `long` cùng so trị tuyệt đối tránh lỗi dấu và sai số ở biên p-value; trung bình/SD in bằng double có làm tròn. `Distribution` có thời gian O(B*2^B), bộ nhớ O(2^B+B); `SharpNull` có thời gian O(B*2^B), bộ nhớ O(B). Đây là liệt kê nhỏ, không phải bộ máy thống kê quy mô lớn.
+Giới hạn 1-10 cặp chặn phép liệt kê tại 1024 cách. Mỗi outcome thuộc 0-10000, ID không rỗng và không lặp. Tổng nguyên `long` cùng so trị tuyệt đối tránh lỗi dấu và sai số ở biên p-value; trung bình/SD in bằng double có làm tròn. `Distribution` có thời gian O(B*2^B), bộ nhớ O(2^B+B); `SharpNull` có thời gian O(B*2^B), bộ nhớ O(B). Đây là liệt kê nhỏ, không phải bộ máy thống kê quy mô lớn. Phân tích giả định phép tính nguyên có chi phí bị chặn, việc hash/so sánh ID bị chặn và phân bố hash phù hợp; ID không giới hạn độ dài sẽ thêm chi phí xử lý riêng.
 
 Các phép kiểm tra bao phủ bảng cố định, mọi bảng nhỏ đã nêu và trường hợp biên được chọn; chưa chứng minh mọi input, mọi thiết kế hoặc mô hình production. Chứng minh kỳ vọng ở phần nền tảng cho lập luận tổng quát theo giả định. Nếu chưa chạy được, đối chiếu sáu dòng demo bằng tay, đọc oracle độc lập, tìm nhánh sửa dấu và diễn giải CSV ở phần sau. Thiếu SDK: cài đúng phiên bản hoặc dùng lối chỉ đọc; lỗi lock file: giữ nguyên file đã cho. Không nâng dependency hay bỏ pin để gọi là cùng thí nghiệm. LICENSE/README trong ZIP là tài liệu bổ sung; code cần chạy đã đầy đủ ở đây.
 

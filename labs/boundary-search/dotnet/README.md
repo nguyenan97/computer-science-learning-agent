@@ -1,5 +1,7 @@
 # Lesson 02 lab - Boundary search in C#
 
+SDK/runtime roll-forward is disabled: use SDK 10.0.401 and runtime 10.0.12.
+
 [Tiếng Việt](README.vi.md) · [English lesson](../../../lessons/boundary-search/lesson.md)
 
 This standalone console lab finds the first value greater than or equal to a target

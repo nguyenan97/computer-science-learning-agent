@@ -1,5 +1,7 @@
 # Lesson 01 lab - C# / .NET
 
+SDK/runtime roll-forward is disabled: use SDK 10.0.401 and runtime 10.0.12.
+
 [Tiếng Việt](README.vi.md) · [English lesson](../../../lessons/2026-10-05-cost-model/lesson.md)
 
 The lesson uses this lab for guided C# implementation, debugging and a
@@ -52,7 +54,7 @@ Duplicates: B2=2, A1=2
 
 The eight checks cover order/input preservation, edge cases, comparer semantics,
 null policy, count model, lookup work on one workload, forced collisions and counts.
-Passing them verifies reference-code behavior, not learning or durable mastery.
+These checks cover the listed cases; the invariant argument supports the general contract.
 `CountScan` is an explicit operation model, not an instrumented measurement of all
 runtime instructions inside `List.Contains`.
 
@@ -98,3 +100,12 @@ Do not benchmark `CountScan` against uninstrumented Hash: counters change the wo
 
 Without setup, the full lesson's trace, formulas and worked code form the reading-only
 path. Benchmark results are optional evidence about execution, never learner assessment.
+
+## Optional identity-resolution check
+
+[Project](IdentityDemo/IdentityDemo.csproj), [complete code](IdentityDemo/Program.cs), [dependency lock](IdentityDemo/packages.lock.json). Run from `dotnet` with the same pinned SDK/runtime:
+
+```bash
+dotnet restore IdentityDemo --locked-mode
+dotnet run --no-restore -c Release --project IdentityDemo
+```

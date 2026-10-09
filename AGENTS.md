@@ -9,7 +9,9 @@ The learner uses Codex cloud and self-studies from IUH master (2020) and doctora
 (2022) course-name outlines. The planner counts public lesson artifacts, rather than
 learner knowledge. Save no answers, scores, progress logs or automatic schedules.
 
-Run `python scripts/daily_plan.py` before selection. The date is the learner's study
+Run `python scripts/daily_plan.py --next` for the next lesson, before editing the
+catalog; use `--on YYYY-MM-DD` for an explicit date, or no date flag for today.
+The date is the learner's study
 date in Asia/Ho_Chi_Minh, or an explicitly requested date. The public inventory selects
 an uncovered master topic with covered prerequisites before doctoral topics. Reuse
 an existing same-day lesson. The budget and build/paper blocks live in the study profile.

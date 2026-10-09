@@ -1,5 +1,7 @@
 # C# lab - Budget selection with DP and approximation
 
+SDK/runtime roll-forward is disabled: use SDK 10.0.401 and runtime 10.0.12.
+
 Use .NET SDK **10.0.401**, pinned in `global.json`, targeting **net10.0**. No third-party package or database is required. Install the SDK from [Microsoft](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) if needed.
 
 Download [the ZIP](https://nguyenan97.github.io/computer-science-learning-agent/labs/budget-selection/dotnet-lab.zip), extract it and run inside `dotnet`. In a checkout, use `labs/budget-selection/dotnet`.

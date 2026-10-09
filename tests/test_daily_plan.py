@@ -1,6 +1,6 @@
 """Public-artifact planning, curriculum gating, coverage and Vietnamese dates."""
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import json
 from pathlib import Path
 import subprocess
@@ -10,7 +10,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'scripts'))
-from daily_plan import plan
+from daily_plan import next_date, plan
 from generate_topic_map import coverage, covered_topics, validate_topics
 from study_profile import load_profile, study_date
 
@@ -40,6 +40,23 @@ def lesson(key, on, topics):
 
 
 class DailyPlanTests(unittest.TestCase):
+    def test_next_publication_date_uses_latest_catalog_date_not_order_or_today(self):
+        entries = [lesson('future', '2026-10-12', []), lesson('older', '2026-10-05', [])]
+        self.assertEqual(next_date(entries, date(2026, 10, 9)), '2026-10-13')
+        self.assertEqual(next_date([], date(2026, 10, 9)), '2026-10-09')
+        with tempfile.TemporaryDirectory() as directory:
+            topics = Path(directory)/'topics.json'; catalog = Path(directory)/'catalog.json'
+            topics.write_text(json.dumps(inventory()))
+            catalog.write_text(json.dumps({'lessons': [lesson('future', '2026-10-12',
+                                                              ['foundations.program-reasoning'])]}))
+            args = [sys.executable, str(ROOT/'scripts/daily_plan.py'), '--topics', str(topics),
+                    '--catalog', str(catalog), '--next']
+            result = subprocess.run(args, capture_output=True, text=True, check=True)
+            self.assertEqual(json.loads(result.stdout)['on'], '2026-10-13')
+            self.assertEqual(json.loads(result.stdout)['topic']['id'], 'algorithms.graphs')
+            conflict = subprocess.run(args + ['--on', '2026-10-07'], capture_output=True, text=True)
+            self.assertNotEqual(conflict.returncode, 0)
+
     def test_master_priority_prerequisites_and_repeatability(self):
         data = inventory()
         self.assertEqual(plan(data, [], '2026-10-07')['topic']['id'], 'foundations.program-reasoning')

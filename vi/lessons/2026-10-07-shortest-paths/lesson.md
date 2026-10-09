@@ -183,23 +183,34 @@ Lab chỉ tái hiện ý tưởng chọn khoảng cách nhỏ nhất và relaxat
 
 **Lab · 75 phút.** Chạy demo, đọc implementation, chạy kiểm tra và giải thích lỗi cố ý bên dưới. **Hoàn thành khi:** lệnh kiểm tra tính đúng thành công và giải thích được vì sao đích đã tối ưu khi lấy ra, kể cả với cạnh 0.
 
-Dùng **.NET SDK 10.0.401**, target **net10.0**, không có package ngoài. Tải và giải nén ZIP; thư mục ngoài cùng là `dotnet`. Hoặc tạo thư mục đó và bốn file `LessonLab/*.cs` dưới đây. Đây là toàn bộ mã chạy của lab, nên có thể làm theo trang mà không tải riêng mã nguồn.
+Viết hai hàm tìm đường theo quy tắc ở mục 2, gồm đỉnh cha, đích không tới được và cập nhật nghiêm ngặt. Chạy demo, kiểm tra và thí nghiệm, rồi giải thích lỗi dưới đây. Nếu cài đặt vượt 15 phút, chuyển sang đọc lời giải.
 
-`dotnet/global.json`:
+<details>
+<summary>Đáp án - toàn bộ lab chạy được</summary>
 
+Dùng SDK **10.0.401**, runtime **10.0.12**, target **net10.0**; tắt roll-forward cho SDK/runtime. Không cần package ngoài hay database. Giải nén ZIP hoặc tạo mọi file dưới đây tính từ `dotnet`, rồi chạy trong thư mục đó. Cài SDK/reference pack lần đầu có thể cần mạng; sau khi restore thành công, lệnh no-restore chạy được offline.
+
+Graph sao chép mảng kề; ReadOnlySpan cung cấp góc nhìn chỉ đọc. Đỉnh cha dựng lại một đường tối ưu, không phải mọi đường đồng chi phí hay ID cạnh song song. Khoảng cách null biểu diễn không tới được, khác chi phí 0. Cập nhật nghiêm ngặt và các đỉnh đã tối ưu ngăn chu trình đỉnh cha qua cạnh 0.
+
+`global.json`:
+
+<!-- lab-file: global.json -->
 ```json
 {
-  "sdk": { "version": "10.0.401", "rollForward": "latestPatch" }
+  "sdk": { "version": "10.0.401", "rollForward": "disable" }
 }
 ```
 
-`dotnet/LessonLab/LessonLab.csproj`:
+`LessonLab/LessonLab.csproj`:
 
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -207,29 +218,9 @@ Dùng **.NET SDK 10.0.401**, target **net10.0**, không có package ngoài. Tả
 </Project>
 ```
 
-Mở terminal trong thư mục `dotnet` đã giải nén:
+`LessonLab/Routes.cs`:
 
-```bash
-dotnet --version
-dotnet run -c Release --project LessonLab
-dotnet run -c Release --project LessonLab -- --check
-dotnet run -c Release --project LessonLab -- --experiment
-```
-
-Output demo dự kiến:
-
-```text
-BFS unit projection: hops=1, path=0->3
-Dijkstra original: cost=3, path=0->1->2->3
-The BFS path costs 10 in the original graph. Dijkstra costs 3.
-```
-
-Nếu SDK đã có, restore không cần package của bên thứ ba. Sau một lần build thành công, `dotnet run --no-restore -c Release --project LessonLab -- --check` chạy được offline. Nếu chưa có SDK, dùng bảng chạy từng bước và đáp án; không cần dịch vụ online hay SQL Server. Khi thiếu SDK đã pin, cài đúng phiên bản thay vì tự đổi target. [Hướng dẫn lab](../../../labs/shortest-paths/dotnet/README.vi.md) có cách cài và link mã nguồn.
-
-### Đồ thị và hai hàm tìm đường
-
-`LessonLab/Routes.cs` sao chép cạnh vào mảng kề riêng, nên bên gọi không thể đổi trọng số giữa lúc tìm kiếm. `ReadOnlySpan<Edge>` cho đọc mà không cấp phát collection mới. Chi phí dùng `long`; ID đỉnh dùng `int`. Đồ thị được kiểm tra một lần, còn nguồn/đích được kiểm tra ở mỗi truy vấn.
-
+<!-- lab-file: LessonLab/Routes.cs -->
 ```csharp
 // Original teaching code, MIT. This is not adapted from OSRM.
 public readonly record struct Link(int From, int To, long Cost);
@@ -346,12 +337,9 @@ public static class Routes
 }
 ```
 
-`parent` lưu cách đến đỉnh trên đường tốt nhất đã biết. Đi ngược từ đích theo đỉnh cha rồi đảo list. Khoảng cách `null` phân biệt đích không tới được với đường tới được có chi phí 0. Với trọng số không âm và chỉ cập nhật khi giảm nghiêm ngặt, đỉnh đã tối ưu không thể nhận đỉnh cha tốt hơn, nên chu trình 0 không tạo chu trình đỉnh cha. Có thể có nhiều đường cùng chi phí; yêu cầu chỉ trả một đường, không phải mọi đường. Chỉ có ID đỉnh thì chưa xác định được đã dùng cạnh nào trong hai cạnh song song. Nếu UI cần chỉ rõ dịch vụ hay hành lang, trả thêm ID cạnh.
-
-### Mã chạy demo
-
 `LessonLab/Program.cs`:
 
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 if (args.Length == 0)
 {
@@ -367,26 +355,9 @@ else if (args is ["--experiment"]) Experiment.Run();
 else throw new ArgumentException("Use no arguments, --check or --experiment.");
 ```
 
-### Kiểm tra tính đúng và sửa lỗi
+`LessonLab/Checks.cs`:
 
-Chạy `--check`. Chương trình so sánh Dijkstra với một thuật toán tham chiếu độc lập dùng relaxation lặp trên đồ thị nhỏ, kiểm tra đường trả về có thật và đúng chi phí, rồi đối chiếu BFS trên phiên bản trọng số 1. Các ca gồm đích được tìm thấy sớm rồi cải thiện, entry stale thực sự được lấy ra, đỉnh không nối với nguồn, đường đồng chi phí, cạnh song song, cạnh tự nối, chu trình 0, từ chối cạnh âm và biên số học.
-
-Bài tập: developer thêm `if (edge.To == target) return ...;` ngay sau khi thêm một khoảng cách được cải thiện vào queue. Giải thích lỗi và cách sửa. Sau đó giải thích vì sao đổi `candidate >= distance[edge.To]` thành `candidate > distance[edge.To]` cũng nguy hiểm.
-
-<details>
-<summary>Đáp án</summary>
-
-Thay đổi đầu trả T ở chi phí 10 trong demo trước khi tìm thấy đường chi phí 3. Bỏ câu lệnh dừng đó. Giữ phép kiểm tra đích sau khi lấy entry ra và sau khi bỏ entry stale, như `Routes.cs`. Ca test cố định xác nhận demo phải trả 3, giúp tái hiện hồi quy mà không sửa hàm tìm đường.
-
-Thay đổi thứ hai thêm cả ứng viên đồng chi phí và đổi đỉnh cha khi bằng nhau. Với chu trình 0 tới được từ nguồn, chương trình có thể thêm entry mãi; cạnh 0 tự nối còn có thể đặt đỉnh cha thành chính nó. Chỉ nhận cải thiện nghiêm ngặt: bỏ qua `candidate >= distance[edge.To]`. Test có cả chu trình 0 và cạnh 0 tự nối để kiểm tra điều kiện này. Đánh dấu ngay khi tìm thấy là đúng với điều kiện trọng số 1 của BFS; chép cách đó vào Dijkstra sẽ chặn những lần cải thiện về sau.
-
-</details>
-
-`LessonLab/Checks.cs` dưới đây là toàn bộ chương trình kiểm tra. Thuật toán tham chiếu dùng relaxation lặp theo kiểu Bellman-Ford, không có priority queue. Input của nó không âm và rất nhỏ nên độc lập với cách quản lý heap, không tiến gần giới hạn tràn số. Seed cố định các ca ngẫu nhiên cho SDK này; bộ test hữu hạn là bằng chứng kiểm tra, không thay chứng minh cho mọi đồ thị.
-
-<details>
-<summary>Đáp án - toàn bộ chương trình kiểm tra</summary>
-
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 public static class Checks
 {
@@ -507,38 +478,9 @@ public static class Checks
 }
 ```
 
-</details>
+`LessonLab/Experiment.cs`:
 
-Lệnh in dòng `PASS` sau các phép so sánh với thuật toán tham chiếu, kiểm tra đường và kiểm tra từ chối input. Nếu lỗi, trước hết xác định điều kiện nào bị vi phạm: đưa đồ thị không đồng trọng số 1 vào BFS là sai input; trả đích trọng số 10 thay vì 3 là lỗi thuật toán. `OverflowException` báo một ứng viên được xét vượt phạm vi đã quy định; để tổng tự tràn có thể tạo priority âm giả.
-
-Nghỉ - 10 phút, rời màn hình.
-
-## 6. Thí nghiệm có kiểm soát: ít thao tác vẫn có thể trả lời sai mục tiêu
-
-**Thí nghiệm · 45 phút.** Dự đoán số thao tác, chạy `--experiment`, rồi đổi một trọng số hoặc thứ tự cạnh kề. **Hoàn thành khi:** phân biệt được số đếm quan sát, cận độ phức tạp và nhận định về latency.
-
-Dùng chuỗi có hướng gồm n đỉnh, các cạnh `0 -> 1 -> ... -> n-1`, thêm cạnh trực tiếp `0 -> n-1` được lưu trước. Với n=64, 256, 1024, giữ cấu trúc và đích giống nhau trong mỗi cặp. Ở trường hợp trọng số 1, mọi cạnh có chi phí 1. Ở trường hợp có trọng số khác nhau, chỉ đổi cạnh trực tiếp thành `2*n`; cạnh trên chuỗi vẫn là 1. So sánh Dijkstra trên đồ thị có trọng số với BFS trên một bản đã thay rõ ràng mọi trọng số bằng 1, rồi tính chi phí đường BFS theo đồ thị gốc.
-
-**Giả thuyết:** BFS trên bản trọng số 1 làm ít việc nhưng tối ưu sai mục tiêu của đồ thị có trọng số. Dijkstra phải xử lý chuỗi để xác nhận đường rẻ hơn. Đây là phép đếm thao tác xác định, không phải benchmark thời gian. `Settled` đếm lần lấy entry hợp lệ ra, gồm cả đích; `Scanned` đếm cạnh đi ra đã xét; `Stale` đếm entry cũ bị bỏ qua. Không tính tạo đồ thị, khởi tạo mảng, đảo đường, số phép so sánh trong heap hay công việc SQL/API.
-
-Dự đoán bốn dòng khi n=64 và giải thích vì sao Dijkstra trên đồ thị trọng số 1 có thể xử lý thêm một đỉnh so với BFS.
-
-<details>
-<summary>Đáp án</summary>
-
-| Trường hợp | Thuật toán | Kết quả | Chi phí theo đồ thị gốc | Settled | Scanned | Stale |
-|---|---|---|---|---|---|---|
-| Trọng số 1 | BFS | 1 cạnh | 1 | 2 | 2 | 0 |
-| Trọng số 1 | Dijkstra | Chi phí 1 | 1 | 3 | 3 | 0 |
-| Bản thay trọng số bằng 1 | BFS | 1 cạnh | 128 | 2 | 2 | 0 |
-| Có trọng số | Dijkstra | Chi phí 63 | 63 | 64 | 64 | 0 |
-
-BFS đọc cạnh trực tiếp trước, thêm đích vào queue trước đỉnh 1. Hai ứng viên của Dijkstra đều có chi phí 1, nên priority `(cost,node ID)` lấy đỉnh 1 trước đỉnh 63. Đỉnh 1 xét thêm một cạnh trước khi lấy đích ra. Trong trường hợp có trọng số, khoảng cách tới đích giữ ở 128 cho đến khi chuỗi cải thiện nó thành 63. Entry đích cũ vẫn trong heap lúc trả kết quả, nên `Stale=0` không có nghĩa là chưa tạo entry stale. Ca test đích không tới được chạy hết heap và kiểm tra nhánh bỏ entry cũ.
-
-</details>
-
-`LessonLab/Experiment.cs`, toàn bộ mã tạo dữ liệu và in CSV:
-
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 public static class Experiment
 {
@@ -571,6 +513,62 @@ public static class Experiment
     }
 }
 ```
+
+```bash
+dotnet --version
+dotnet run -c Release --project LessonLab
+dotnet run -c Release --project LessonLab -- --check
+dotnet run -c Release --project LessonLab -- --experiment
+```
+
+Kết quả demo dự kiến:
+
+```text
+BFS unit projection: hops=1, path=0->3
+Dijkstra original: cost=3, path=0->1->2->3
+The BFS path costs 10 in the original graph. Dijkstra costs 3.
+```
+
+Thuật toán tham chiếu dùng relaxation lặp trên trọng số nhỏ không âm, nhưng không có priority queue. Các ca đối chiếu đường/khoảng cách và BFS trọng số 1 gồm entry stale thực sự được lấy ra, đỉnh không tới được, đường đồng chi phí, cạnh song song/tự nối, chu trình 0 và biên từ chối số học. Các ca có seed là bằng chứng hữu hạn; lập luận ở mục 2 chứng minh kết quả tổng quát. Lệnh kiểm tra in PASS hoặc trả exit code khác 0. Trước hết xem điều kiện nào sai; không để tổng ứng viên tự tràn.
+
+</details>
+
+Bài tập: developer thêm `if (edge.To == target) return ...;` ngay sau khi thêm một khoảng cách được cải thiện vào queue. Giải thích lỗi và cách sửa. Sau đó giải thích vì sao đổi `candidate >= distance[edge.To]` thành `candidate > distance[edge.To]` cũng nguy hiểm.
+
+<details>
+<summary>Đáp án</summary>
+
+Thay đổi đầu trả T ở chi phí 10 trong demo trước khi tìm thấy đường chi phí 3. Bỏ câu lệnh dừng đó. Giữ phép kiểm tra đích sau khi lấy entry ra và sau khi bỏ entry stale, như `Routes.cs`. Ca test cố định xác nhận demo phải trả 3, giúp tái hiện hồi quy mà không sửa hàm tìm đường.
+
+Thay đổi thứ hai thêm cả ứng viên đồng chi phí và đổi đỉnh cha khi bằng nhau. Với chu trình 0 tới được từ nguồn, chương trình có thể thêm entry mãi; cạnh 0 tự nối còn có thể đặt đỉnh cha thành chính nó. Chỉ nhận cải thiện nghiêm ngặt: bỏ qua `candidate >= distance[edge.To]`. Test có cả chu trình 0 và cạnh 0 tự nối để kiểm tra điều kiện này. Đánh dấu ngay khi tìm thấy là đúng với điều kiện trọng số 1 của BFS; chép cách đó vào Dijkstra sẽ chặn những lần cải thiện về sau.
+
+</details>
+
+Nghỉ - 10 phút, rời màn hình.
+
+## 6. Thí nghiệm có kiểm soát: ít thao tác vẫn có thể trả lời sai mục tiêu
+
+**Thí nghiệm · 45 phút.** Dự đoán số thao tác, chạy `--experiment`, rồi đổi một trọng số hoặc thứ tự cạnh kề. **Hoàn thành khi:** phân biệt được số đếm quan sát, cận độ phức tạp và nhận định về latency.
+
+Dùng chuỗi có hướng gồm n đỉnh, các cạnh `0 -> 1 -> ... -> n-1`, thêm cạnh trực tiếp `0 -> n-1` được lưu trước. Với n=64, 256, 1024, giữ cấu trúc và đích giống nhau trong mỗi cặp. Ở trường hợp trọng số 1, mọi cạnh có chi phí 1. Ở trường hợp có trọng số khác nhau, chỉ đổi cạnh trực tiếp thành `2*n`; cạnh trên chuỗi vẫn là 1. So sánh Dijkstra trên đồ thị có trọng số với BFS trên một bản đã thay rõ ràng mọi trọng số bằng 1, rồi tính chi phí đường BFS theo đồ thị gốc.
+
+**Giả thuyết:** BFS trên bản trọng số 1 làm ít việc nhưng tối ưu sai mục tiêu của đồ thị có trọng số. Dijkstra phải xử lý chuỗi để xác nhận đường rẻ hơn. Đây là phép đếm thao tác xác định, không phải benchmark thời gian. `Settled` đếm lần lấy entry hợp lệ ra, gồm cả đích; `Scanned` đếm cạnh đi ra đã xét; `Stale` đếm entry cũ bị bỏ qua. Không tính tạo đồ thị, khởi tạo mảng, đảo đường, số phép so sánh trong heap hay công việc SQL/API.
+
+Dự đoán bốn dòng khi n=64 và giải thích vì sao Dijkstra trên đồ thị trọng số 1 có thể xử lý thêm một đỉnh so với BFS.
+
+<details>
+<summary>Đáp án</summary>
+
+| Trường hợp | Thuật toán | Kết quả | Chi phí theo đồ thị gốc | Settled | Scanned | Stale |
+|---|---|---|---|---|---|---|
+| Trọng số 1 | BFS | 1 cạnh | 1 | 2 | 2 | 0 |
+| Trọng số 1 | Dijkstra | Chi phí 1 | 1 | 3 | 3 | 0 |
+| Bản thay trọng số bằng 1 | BFS | 1 cạnh | 128 | 2 | 2 | 0 |
+| Có trọng số | Dijkstra | Chi phí 63 | 63 | 64 | 64 | 0 |
+
+BFS đọc cạnh trực tiếp trước, thêm đích vào queue trước đỉnh 1. Hai ứng viên của Dijkstra đều có chi phí 1, nên priority `(cost,node ID)` lấy đỉnh 1 trước đỉnh 63. Đỉnh 1 xét thêm một cạnh trước khi lấy đích ra. Trong trường hợp có trọng số, khoảng cách tới đích giữ ở 128 cho đến khi chuỗi cải thiện nó thành 63. Entry đích cũ vẫn trong heap lúc trả kết quả, nên `Stale=0` không có nghĩa là chưa tạo entry stale. Ca test đích không tới được chạy hết heap và kiểm tra nhánh bỏ entry cũ.
+
+</details>
 
 Với n=256 và 1024, Dijkstra trả chi phí 255 và 1023; đường BFS trên bản trọng số 1 có chi phí gốc 512 và 2048. Dijkstra xác định xong n đỉnh và xét n cạnh với cấu trúc này. Chạy lệnh để đối chiếu dự đoán với output.
 

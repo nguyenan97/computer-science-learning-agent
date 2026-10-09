@@ -135,6 +135,23 @@ class ReviewQueueTests(unittest.TestCase):
         self.assertIn('Chưa có bài trước', review_queue.render_markdown(
             review_queue.select_reviews([], '2026-10-07'), 'vi'))
 
+    def test_each_recall_has_its_own_immediately_following_closed_answer(self):
+        queue = review_queue.select_reviews([lesson('one', '2026-10-09'),
+                                            lesson('three', '2026-10-07'),
+                                            lesson('seven', '2026-10-03')], '2026-10-10')
+        self.assertEqual(len(queue['reviews']), 3)
+        for lang in ('en', 'vi'):
+            text = review_queue.render_markdown(queue, lang)
+            self.assertEqual(text.count('<details>'), 3)
+            self.assertNotIn('<details open', text)
+            self.assertNotRegex(text, '[—–]')
+            for index, item in enumerate(queue['reviews']):
+                start = text.index(f'{index+1}. {item["question"][lang]}')
+                end = text.index('</details>', start)
+                self.assertIn(item['answer'][lang], text[start:end])
+                if index < 2:
+                    self.assertLess(end, text.index(f'{index+2}. {queue["reviews"][index+1]["question"][lang]}'))
+
     def test_cli_reads_only_catalog_and_reports_errors_without_writing(self):
         with tempfile.TemporaryDirectory() as directory:
             catalog = Path(directory) / 'catalog.json'

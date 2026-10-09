@@ -1,6 +1,8 @@
 # Lab C# - Transaction và phục hồi
 
-Dùng .NET SDK **10.0.401** (latestPatch), **net10.0**, Microsoft.Data.Sqlite **10.0.9**, SQLitePCLRaw.bundle_e_sqlite3 **3.0.3** và lock file trong repo. Engine là **SQLite 3.50.4**. Restore đầu cần NuGet; các lần no-restore với package đã cache không cần database server.
+Tắt roll-forward cho SDK/runtime: dùng SDK 10.0.401 và runtime 10.0.12.
+
+Dùng .NET SDK **10.0.401**, **net10.0**, Microsoft.Data.Sqlite **10.0.9**, SQLitePCLRaw.bundle_e_sqlite3 **3.0.3** và lock file trong repo. Engine là **SQLite 3.50.4**. Restore đầu cần NuGet; các lần no-restore với package đã cache không cần database server.
 
 Tải [ZIP](https://nguyenan97.github.io/computer-science-learning-agent/labs/transactions-recovery/dotnet-lab.zip), giải nén và chạy trong `dotnet`; checkout dùng `labs/transactions-recovery/dotnet`.
 

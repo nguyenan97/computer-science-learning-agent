@@ -228,19 +228,23 @@ Giải nén ZIP rồi chạy trong `dotnet`; nếu dùng checkout, vào `labs/in
 
 `dotnet/global.json`:
 
+<!-- lab-file: global.json -->
 ```json
 {
-  "sdk": { "version": "10.0.401", "rollForward": "latestPatch" }
+  "sdk": { "version": "10.0.401", "rollForward": "disable" }
 }
 ```
 
 `dotnet/LessonLab/LessonLab.csproj`:
 
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -256,6 +260,7 @@ Giải nén ZIP rồi chạy trong `dotnet`; nếu dùng checkout, vào `labs/in
 
 `dotnet/LessonLab/packages.lock.json`:
 
+<!-- lab-file: LessonLab/packages.lock.json -->
 ```json
 {
   "version": 1,
@@ -337,6 +342,7 @@ Dòng có ID duy nhất từ 1-50000, tenant dương, phút nguyên có dấu ki
 
 `LessonLab/Database.cs` tạo schema/dữ liệu, gắn tham số, đọc plan và có phép quét điều kiện độc lập. `Exec` chỉ nhận SQL cố định trong bài, không nhận input tùy ý của người dùng. SQLite duy trì index, không có hàm tự cập nhật cây trong lab.
 
+<!-- lab-file: LessonLab/Database.cs -->
 ```csharp
 // Original MIT teaching code; SQLite source is linked, not copied.
 using Microsoft.Data.Sqlite;
@@ -498,6 +504,7 @@ public sealed class Database : IDisposable
 
 `LessonLab/Program.cs` chọn demo, kiểm tra hoặc thí nghiệm.
 
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 if (args is ["--check"]) Checks.Run();
 else if (args is ["--experiment"]) Experiment.Run();
@@ -519,6 +526,7 @@ else throw new ArgumentException("Use no arguments, --check or --experiment.");
 
 `LessonLab/Checks.cs` đối chiếu mọi khoảng trên dữ liệu nhỏ với điều kiện C# trực tiếp, qua cả bốn cách truy cập. Sau đó xét duy trì index khi update/delete/insert, mốc cực trị, input sai và rollback nguyên batch khi xung đột ID đã có. Thuật toán tham chiếu không dùng SQL hay tìm biên, giảm khả năng bỏ sót cùng một lỗi biên.
 
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 using Microsoft.Data.Sqlite;
 
@@ -588,6 +596,7 @@ public static class Checks
 
 `LessonLab/Experiment.cs` đo cùng truy vấn tổng hợp đã chuẩn bị, luân phiên thứ tự chạy. Thí nghiệm thứ hai dùng database mới với không hoặc một index; thời gian mỗi batch gồm toàn bộ lời gọi Insert, kiểm tra input, transaction và commit. Tạo schema/index và xác minh kết quả nằm ngoài khoảng đo ghi.
 
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 using System.Diagnostics;
 using System.Globalization;
@@ -716,6 +725,11 @@ Dự đoán xác định là gì, và vì sao truy vấn rộng qua index gọn 
 
 ### Một lần chạy đã quan sát, không phải thời gian bắt buộc
 
+Diễn giải lần chạy cache ấm đã ghi: điều gì hỗ trợ phép so sánh quan sát, và vì sao chưa thể bảo đảm hiệu năng chung?
+
+<details>
+<summary>Đáp án - kết quả đọc đã ghi</summary>
+
 Các median dưới đây được quan sát trong một lần chạy Linux, với runtime đã pin và đúng dữ liệu này. Số dòng/tổng ở trên đều khớp. Đây là ví dụ để diễn giải; máy của bạn và các lần chạy khác có thể cho số khác.
 
 | Mốc cuối | Median scan ms | Median index gọn ms | Median covering ms |
@@ -726,9 +740,16 @@ Các median dưới đây được quan sát trong một lần chạy Linux, v�
 
 Truy vấn rộng qua index gọn chậm hơn scan trong lần này. CSV còn báo min/max: index gọn rộng 2,1426-2,8583 ms và scan 1,5982-2,7117 ms có phần giao nhau. Bao phủ có lợi trong lần này, nhưng phép đo chưa tìm được ngưỡng đổi chiến lược chung hay latency kỳ vọng. INDEXED BY kiểm soát cách truy cập; nó chưa chứng minh planner không bị ép sẽ chọn gì ở mọi khoảng.
 
+</details>
+
 ### Thí nghiệm ghi và dung lượng
 
 Dùng database mới với cùng 5.000 dòng, lần lượt không index, chỉ index gọn hoặc chỉ covering. Tạo schema/index nằm ngoài đo. Insert mọi dòng trong một transaction; tính cả kiểm tra input, chuẩn bị command, thực thi và commit. Chạy một batch không ghi số đo cho mỗi cấu hình rồi năm batch được đo, luân phiên thứ tự cấu hình. So median/min/max và dung lượng database cấp phát logic (`page_count*page_size`), không phải RAM tối đa hay toàn bộ journal.
+
+Diễn giải phép so ghi/dung lượng đã ghi, nêu rõ các chi phí và số byte được tính.
+
+<details>
+<summary>Đáp án - kết quả ghi đã ghi</summary>
 
 Ví dụ đã quan sát:
 
@@ -739,6 +760,8 @@ Ví dụ đã quan sát:
 | Covering | 15,8131 | 659456 |
 
 Mọi batch cho 4.500 dòng tenant 1 và tổng 219489 trên `[0,2500)`. Thêm index chiếm nhiều dung lượng và có median insert cao hơn không index trong lần này. Dù rộng hơn, covering không chậm hơn index gọn theo median. Năm batch với khoảng số đo giao nhau chưa đủ suy ra thứ hạng ổn định giữa chúng. Database thí nghiệm đọc có cả hai index; dung lượng 2793472 byte lặp lại cho mọi cách đọc, nên các số đó chưa đo kích thước tăng thêm của từng index.
+
+</details>
 
 Biến thể: muốn xét đọc lạnh hoặc quyết định triển khai index thì cần đổi gì? Chỉ có median nhỏ hơn đã chứng minh khuyến nghị chưa?
 

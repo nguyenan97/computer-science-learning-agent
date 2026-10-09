@@ -12,6 +12,7 @@ import tempfile
 from zipfile import ZipFile
 
 from build_public_site import build
+from lesson_code import page_files, write_files
 
 ROOT = Path(__file__).resolve().parents[1]
 SDK_VERSION = '10.0.401'
@@ -136,6 +137,22 @@ def check_benchmarks(root, labs, env):
             run(command_for_python(command), copied, env)
 
 
+def check_page_labs(root, scratch, env):
+    entries = json.loads((root / 'lessons/catalog.json').read_text(encoding='utf-8'))['lessons']
+    for entry in entries:
+        for lab in entry.get('labs', []):
+            if lab['language'] != 'csharp':
+                continue
+            for language in ('en', 'vi'):
+                files = page_files(root, entry, lab, language)
+                copied = scratch / 'pages' / entry['id'] / language
+                write_files(files, copied)
+                print(f'Page-derived lab: {entry["id"]}/{language}', flush=True)
+                run(command_for_python(lab['check']), copied, env)
+                for project in sorted(copied.rglob('*.csproj')):
+                    run(['dotnet', 'build', '-c', 'Release', str(project.relative_to(copied))], copied, env)
+
+
 def check_all(root=ROOT, benchmarks_only=False):
     root = root.resolve()
     env = environment(root)
@@ -152,6 +169,7 @@ def check_all(root=ROOT, benchmarks_only=False):
         [sys.executable, 'scripts/add_lesson_navigation.py', '--check'],
         [sys.executable, 'scripts/validate_docs_navigation.py'],
         [sys.executable, 'scripts/check_lesson_parity.py'],
+        [sys.executable, 'scripts/check_lesson_contract.py'],
     ]
     for command in commands:
         run(command, root, env)
@@ -159,6 +177,7 @@ def check_all(root=ROOT, benchmarks_only=False):
         scratch = Path(temporary)
         site = scratch / 'site'
         print(f'Staged {build(root, site)} public files.', flush=True)
+        check_page_labs(root, scratch, env)
         check_labs(root, site, scratch, labs, env)
     print('All required lesson checks passed; lab outputs stayed in temporary copies.', flush=True)
 

@@ -802,6 +802,135 @@
         "statistics.uncertainty"
       ],
       "day_type": "build"
+    },
+    {
+      "id": "2026-10-12-experimental-design",
+      "date": "2026-10-12",
+      "title": {
+        "en": "Lesson 08 - Experimental design: a difference is not yet a causal effect",
+        "vi": "Bài 08 - Thiết kế thí nghiệm: chênh lệch chưa đủ để kết luận nhân quả"
+      },
+      "summary": {
+        "en": "Derive a randomized-pair estimator, inspect GrowthBook allocation and enumerate confounding, design spread and a sharp-null test in C#.",
+        "vi": "Suy ra ước lượng theo cặp ngẫu nhiên, đọc đường gán GrowthBook và liệt kê yếu tố gây nhiễu, độ phân tán thiết kế, kiểm định sharp null bằng C#."
+      },
+      "files": [
+        "lessons/2026-10-12-experimental-design/lesson.md",
+        "vi/lessons/2026-10-12-experimental-design/lesson.md",
+        "labs/experimental-design/assignments.csv",
+        "labs/experimental-design/dotnet/LICENSE-MIT.txt",
+        "labs/experimental-design/dotnet/LessonLab/Checks.cs",
+        "labs/experimental-design/dotnet/LessonLab/Design.cs",
+        "labs/experimental-design/dotnet/LessonLab/Experiment.cs",
+        "labs/experimental-design/dotnet/LessonLab/LessonLab.csproj",
+        "labs/experimental-design/dotnet/LessonLab/Program.cs",
+        "labs/experimental-design/dotnet/LessonLab/packages.lock.json",
+        "labs/experimental-design/dotnet/README.md",
+        "labs/experimental-design/dotnet/README.vi.md",
+        "labs/experimental-design/dotnet/global.json"
+      ],
+      "related": {
+        "en": [
+          {
+            "title": "Lesson 07 - Sampling uncertainty: more records need not mean more evidence",
+            "path": "lessons/2026-10-11-sampling-uncertainty/lesson.md",
+            "description": "Reuse expectation, variance and the distinction between rows and independent units."
+          },
+          {
+            "title": "Lesson 05 - Indexes and query plans: when a seek still does much work",
+            "path": "lessons/2026-10-09-index-query-plans/lesson.md",
+            "description": "A correct query/order does not establish that comparison cohorts are comparable."
+          },
+          {
+            "title": "Lesson 01 - Big-O and data structures: removing duplicate order IDs in C#",
+            "path": "lessons/2026-10-05-cost-model/lesson.md",
+            "description": "Revisit the workload and model limits of a benchmark."
+          },
+          {
+            "title": "C# lab guide",
+            "path": "labs/experimental-design/dotnet/README.md",
+            "description": "Pinned environment, assignment enumeration and inference limits."
+          }
+        ],
+        "vi": [
+          {
+            "title": "Bài 07 - Độ bất định khi lấy mẫu: nhiều record chưa chắc có thêm bằng chứng",
+            "path": "vi/lessons/2026-10-11-sampling-uncertainty/lesson.md",
+            "description": "Dùng lại kỳ vọng, phương sai và phân biệt dòng dữ liệu với đơn vị độc lập."
+          },
+          {
+            "title": "Bài 05 - Index và query plan: vì sao seek vẫn có thể tốn nhiều công",
+            "path": "vi/lessons/2026-10-09-index-query-plans/lesson.md",
+            "description": "Query/thứ tự đúng chưa xác minh hai nhóm so sánh tương đồng."
+          },
+          {
+            "title": "Bài 01 - Big-O và cấu trúc dữ liệu: dedupe mã đơn hàng bằng C#",
+            "path": "vi/lessons/2026-10-05-cost-model/lesson.md",
+            "description": "Ôn workload và giới hạn mô hình của benchmark."
+          },
+          {
+            "title": "Hướng dẫn lab C#",
+            "path": "labs/experimental-design/dotnet/README.vi.md",
+            "description": "Môi trường cố định, liệt kê cách gán và giới hạn suy luận."
+          }
+        ]
+      },
+      "labs": [
+        {
+          "language": "csharp",
+          "directory": "labs/experimental-design/dotnet",
+          "check": [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--project",
+            "LessonLab",
+            "--",
+            "--check"
+          ],
+          "archive": "labs/experimental-design/dotnet-lab.zip"
+        }
+      ],
+      "recall": [
+        {
+          "id": "assignment-target",
+          "question": {
+            "en": "Why does a randomized pair contrast target the fixed-cohort average effect but not recover every individual effect?",
+            "vi": "Vì sao chênh lệch cặp ngẫu nhiên hướng tới tác động trung bình nhóm cố định nhưng không khôi phục tác động từng đơn vị?"
+          },
+          "answer": {
+            "en": "The two equally likely orientations average half the sum of the pair effects; averaging pairs gives tau in assignment expectation. Each real unit exposes only its received outcome. This needs the stated allocation, consistency/no interference and complete outcomes; random assignment does not make the cohort representative.",
+            "vi": "Hai hướng gán cùng xác suất cho nửa tổng tác động cặp; trung bình các cặp cho tau theo kỳ vọng cách gán. Mỗi đơn vị thật chỉ cho kết quả hành động nhận được. Cần thiết kế gán đã nêu, nhất quán/không ảnh hưởng chéo và kết quả đầy đủ; phân nhóm ngẫu nhiên chưa làm nhóm đại diện."
+          }
+        },
+        {
+          "id": "confounding-policy",
+          "question": {
+            "en": "Why do equal arm counts not repair always assigning lighter units to treatment?",
+            "vi": "Vì sao số đếm hai nhánh bằng nhau chưa sửa việc luôn gán đơn vị nhẹ vào treatment?"
+          },
+          "answer": {
+            "en": "Size selects assignment and changes the outcome. With zero effect, always choosing each lower-baseline unit gives -14 in the close-pair fixture while tau=0. Fair pair assignment removes that systematic selection in expectation, not all realized imbalance.",
+            "vi": "Kích thước quyết định cách gán và đổi kết quả. Không có tác động, luôn chọn baseline thấp trong dữ liệu ghép gần cho -14 trong khi tau=0. Gán cặp đồng xác suất loại lựa chọn có hệ thống theo kỳ vọng, chưa loại mọi mất cân bằng thực."
+          }
+        },
+        {
+          "id": "sharp-null-scope",
+          "question": {
+            "en": "What does the paired sign-flip p-value test, and why is it invalid for an outcome-dependent allocation?",
+            "vi": "p-value đổi dấu theo cặp kiểm định điều gì, và vì sao không hợp lệ với cách gán phụ thuộc outcome?"
+          },
+          "answer": {
+            "en": "It tests the sharp null that every unit has identical potential outcomes under both actions, using equally likely within-pair flips and inclusive absolute tails. It is not posterior null probability or a zero-average-effect test. A deterministic selection policy does not have that assignment distribution, so the same reference p-value is unsupported.",
+            "vi": "Nó kiểm định sharp null: mọi đơn vị có kết quả tiềm năng bằng nhau dưới hai hành động, dùng đổi nhãn trong cặp đồng xác suất và đuôi trị tuyệt đối kể cả bằng nhau. Không phải xác suất hậu nghiệm null hay kiểm định tác động trung bình không. Chính sách chọn tất định không có phân phối gán đó, nên p tham chiếu thiếu cơ sở."
+          }
+        }
+      ],
+      "topic_ids": [
+        "statistics.experiments"
+      ],
+      "day_type": "build"
     }
   ]
 }

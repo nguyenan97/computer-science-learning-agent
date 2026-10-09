@@ -9,6 +9,7 @@
   - [Bài 05 - Index và query plan: vì sao seek vẫn có thể tốn nhiều công](/vi/lessons/2026-10-09-index-query-plans/lesson)
   - [Bài 06 - Transaction và phục hồi: ghi đúng vẫn có thể dùng quyết định đã cũ](/vi/lessons/2026-10-10-transactions-recovery/lesson)
   - [Bài 07 - Độ bất định khi lấy mẫu: nhiều record chưa chắc có thêm bằng chứng](/vi/lessons/2026-10-11-sampling-uncertainty/lesson)
+  - [Bài 08 - Thiết kế thí nghiệm: chênh lệch chưa đủ để kết luận nhân quả](/vi/lessons/2026-10-12-experimental-design/lesson)
 <!-- LESSON_SIDEBAR_END -->
 
 - **Khám phá**

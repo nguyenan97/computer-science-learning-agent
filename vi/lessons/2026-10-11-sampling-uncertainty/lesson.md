@@ -716,5 +716,5 @@ Kiểm tra danh tính request gốc, telemetry mất và các nhóm thời gian/
 
 ---
 
-[← Bài trước: Bài 06 - Transaction và phục hồi: ghi đúng vẫn có thể dùng quyết định đã cũ](../2026-10-10-transactions-recovery/lesson.md) · [Danh sách bài học](../../README.md)
+[← Bài trước: Bài 06 - Transaction và phục hồi: ghi đúng vẫn có thể dùng quyết định đã cũ](../2026-10-10-transactions-recovery/lesson.md) · [Danh sách bài học](../../README.md) · [Bài sau: Bài 08 - Thiết kế thí nghiệm: chênh lệch chưa đủ để kết luận nhân quả →](../2026-10-12-experimental-design/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

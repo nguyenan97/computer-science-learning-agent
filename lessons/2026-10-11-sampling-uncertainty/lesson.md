@@ -716,5 +716,5 @@ Audit original-request identities, telemetry losses and time/tenant strata; test
 
 ---
 
-[← Previous: Lesson 06 - Transactions and recovery: a correct write can use a stale decision](../2026-10-10-transactions-recovery/lesson.md) · [All lessons](../../README.md)
+[← Previous: Lesson 06 - Transactions and recovery: a correct write can use a stale decision](../2026-10-10-transactions-recovery/lesson.md) · [All lessons](../../README.md) · [Next: Lesson 08 - Experimental design: a difference is not yet a causal effect →](../2026-10-12-experimental-design/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

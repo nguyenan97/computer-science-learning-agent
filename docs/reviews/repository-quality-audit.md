@@ -142,7 +142,7 @@ Commands below are repository-root commands; staging outputs must be fresh paths
   language and neighbor navigation, 375 linked documents and 60 asset links;
   no runtime errors/third-party requests.
 - Browser interactions on all 16 pages at 1440x1000 and 390x844: 624 answer checks start closed and toggle; 484 exact rendered code blocks,
-  176 table checks, four plot loads, unclipped inline-code tokens, 60 keyboard horizontal-scroll checks, 32 language
+  176 table checks, four plot loads, unclipped inline-code tokens, 50 keyboard horizontal-scroll checks, 32 language
   switches/neighbor clicks and 32 actual downloaded candidate ZIP byte comparisons.
   Minimum tested link/inline-code/token text contrast is 4.674:1. Screenshots of
   desktop introduction and mobile code/trace/chart were also inspected.

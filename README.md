@@ -14,6 +14,7 @@ Understand how programs work, choose useful algorithms and test engineering deci
 5. **[Lesson 05 - Indexes and query plans: when a seek still does much work](lessons/2026-10-09-index-query-plans/lesson.md)** - Explain composite ranges and coverage, inspect SQLite source and real plans, and measure equivalent C# read/write workloads.
 6. **[Lesson 06 - Transactions and recovery: a correct write can use a stale decision](lessons/2026-10-10-transactions-recovery/lesson.md)** - Trace stale decisions, guard reservations, read SQLite WAL source and test two-client schedules and process-crash recovery in C#.
 7. **[Lesson 07 - Sampling uncertainty: more records need not mean more evidence](lessons/2026-10-11-sampling-uncertainty/lesson.md)** - Derive Wilson intervals, inspect SciPy source and simulate sampling variation, finite coverage and linked observations in C#.
+8. **[Lesson 08 - Experimental design: a difference is not yet a causal effect](lessons/2026-10-12-experimental-design/lesson.md)** - Derive a randomized-pair estimator, inspect GrowthBook allocation and enumerate confounding, design spread and a sharp-null test in C#.
 <!-- LESSON_LIST_END -->
 
 Start with Lesson 01 if you want to build your cost-analysis foundation. You can also open the topic that answers your current question. Each page ends with related reading and links to the previous or next available lesson.

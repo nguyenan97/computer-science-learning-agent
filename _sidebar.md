@@ -9,6 +9,7 @@
   - [Lesson 05 - Indexes and query plans: when a seek still does much work](/lessons/2026-10-09-index-query-plans/lesson)
   - [Lesson 06 - Transactions and recovery: a correct write can use a stale decision](/lessons/2026-10-10-transactions-recovery/lesson)
   - [Lesson 07 - Sampling uncertainty: more records need not mean more evidence](/lessons/2026-10-11-sampling-uncertainty/lesson)
+  - [Lesson 08 - Experimental design: a difference is not yet a causal effect](/lessons/2026-10-12-experimental-design/lesson)
 <!-- LESSON_SIDEBAR_END -->
 
 - **Explore**

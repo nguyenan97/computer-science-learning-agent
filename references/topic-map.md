@@ -15,7 +15,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Master | Leadership and risk | 0/2 | 0.0% |
 | Master | Research methods | 0/3 | 0.0% |
 | Master | Security | 0/1 | 0.0% |
-| Master | Statistics | 1/2 | 50.0% |
+| Master | Statistics | 2/2 | 100.0% |
 | Master | Systems | 0/4 | 0.0% |
 | Master | Visualization | 0/1 | 0.0% |
 | Doctoral | AI and learning | 0/2 | 0.0% |
@@ -24,7 +24,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Doctoral | Security | 0/1 | 0.0% |
 | Doctoral | Systems | 0/4 | 0.0% |
 
-**Total planned units: 8/43.**
+**Total planned units: 9/43.**
 
 [Course inventory and original study questions](topic-notes.md)
 
@@ -86,7 +86,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 
 ## Experimental design and causal limits
 
-- **Planned** · Master · Statistics · `build`
+- **Published** · Master · Statistics · `build`
 - **Foundations:** Probability, estimation and uncertainty
 - **Objective:** Control one experiment, report uncertainty and distinguish association from a causal claim.
 - **Practice:** Run baseline/treatment comparisons with confound checks and a reproducible notebook.

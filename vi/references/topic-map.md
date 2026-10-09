@@ -15,7 +15,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 | Thạc sĩ | Lãnh đạo và rủi ro | 0/2 | 0.0% |
 | Thạc sĩ | Phương pháp nghiên cứu | 0/3 | 0.0% |
 | Thạc sĩ | Bảo mật | 0/1 | 0.0% |
-| Thạc sĩ | Thống kê | 1/2 | 50.0% |
+| Thạc sĩ | Thống kê | 2/2 | 100.0% |
 | Thạc sĩ | Hệ thống | 0/4 | 0.0% |
 | Thạc sĩ | Trực quan hóa | 0/1 | 0.0% |
 | Tiến sĩ | AI và học máy | 0/2 | 0.0% |
@@ -24,7 +24,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 | Tiến sĩ | Bảo mật | 0/1 | 0.0% |
 | Tiến sĩ | Hệ thống | 0/4 | 0.0% |
 
-**Tổng chủ đề đã hoạch định: 8/43.**
+**Tổng chủ đề đã hoạch định: 9/43.**
 
 [Danh sách học phần và câu hỏi tự học viết mới](topic-notes.md)
 
@@ -86,7 +86,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 
 ## Thiết kế thí nghiệm và giới hạn nhân quả
 
-- **Chưa có bài** · Thạc sĩ · Thống kê · `build`
+- **Đã có bài** · Thạc sĩ · Thống kê · `build`
 - **Nền tảng:** Xác suất, ước lượng và độ bất định
 - **Mục tiêu:** Kiểm soát một thí nghiệm, báo bất định và phân biệt tương quan với kết luận nhân quả.
 - **Thực hành:** So baseline/treatment, kiểm tra confound trong notebook tái lập.

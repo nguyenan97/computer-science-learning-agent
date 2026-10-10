@@ -6,7 +6,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 
 | Thạc sĩ / Tiến sĩ | Nhóm | Chủ đề có bài / đã hoạch định | Độ phủ |
 |---|---|---:|---:|
-| Thạc sĩ | AI và học máy | 0/7 | 0.0% |
+| Thạc sĩ | AI và học máy | 1/7 | 14.3% |
 | Thạc sĩ | Thuật toán | 5/5 | 100.0% |
 | Thạc sĩ | Giao tiếp học thuật | 0/1 | 0.0% |
 | Thạc sĩ | Dữ liệu và cơ sở dữ liệu | 2/3 | 66.7% |
@@ -24,7 +24,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 | Tiến sĩ | Bảo mật | 0/1 | 0.0% |
 | Tiến sĩ | Hệ thống | 0/4 | 0.0% |
 
-**Tổng chủ đề đã hoạch định: 9/43.**
+**Tổng chủ đề đã hoạch định: 10/43.**
 
 [Danh sách học phần và câu hỏi tự học viết mới](topic-notes.md)
 
@@ -93,7 +93,7 @@ Map theo danh sách tên học phần trong đề cương IUH thạc sĩ (2020) 
 
 ## Hệ học và đánh giá trung thực
 
-- **Chưa có bài** · Thạc sĩ · AI và học máy · `build`
+- **Đã có bài** · Thạc sĩ · AI và học máy · `build`
 - **Nền tảng:** Thiết kế thí nghiệm và giới hạn nhân quả
 - **Mục tiêu:** Xây baseline, tránh leakage và giải thích trade-off metric trên tập hold-out.
 - **Thực hành:** Fit mô hình nhỏ, đọc lỗi và so với baseline quy tắc đơn giản.

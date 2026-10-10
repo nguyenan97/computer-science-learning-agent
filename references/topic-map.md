@@ -6,7 +6,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 
 | Master / Doctoral | Area | Published topics / planned | Coverage |
 |---|---|---:|---:|
-| Master | AI and learning | 0/7 | 0.0% |
+| Master | AI and learning | 1/7 | 14.3% |
 | Master | Algorithms | 5/5 | 100.0% |
 | Master | Academic communication | 0/1 | 0.0% |
 | Master | Data and databases | 2/3 | 66.7% |
@@ -24,7 +24,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 | Doctoral | Security | 0/1 | 0.0% |
 | Doctoral | Systems | 0/4 | 0.0% |
 
-**Total planned units: 9/43.**
+**Total planned units: 10/43.**
 
 [Course inventory and original study questions](topic-notes.md)
 
@@ -93,7 +93,7 @@ Mapped to the course-name inventory of IUH master (2020) and doctoral (October 2
 
 ## Learning systems and honest evaluation
 
-- **Planned** · Master · AI and learning · `build`
+- **Published** · Master · AI and learning · `build`
 - **Foundations:** Experimental design and causal limits
 - **Objective:** Build a baseline, prevent leakage and explain metric trade-offs on a held-out dataset.
 - **Practice:** Fit a small model, inspect errors and compare against a simple rule baseline.

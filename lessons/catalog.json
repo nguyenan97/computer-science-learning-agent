@@ -935,6 +935,125 @@
         "statistics.experiments"
       ],
       "day_type": "build"
+    },
+    {
+      "id": "2026-10-13-honest-evaluation",
+      "date": "2026-10-13",
+      "title": {
+        "en": "Lesson 09 - Honest evaluation: learn a rule without learning the test",
+        "vi": "Bài 09 - Đánh giá trung thực: học quy tắc, không học từ test"
+      },
+      "summary": {
+        "en": "Fit a finite threshold model, protect train/validation/test boundaries, inspect scikit-learn search/Pipeline and challenge metrics with synthetic leakage witnesses in C#.",
+        "vi": "Học mô hình ngưỡng hữu hạn, giữ ranh giới train/validation/test, đọc search/Pipeline scikit-learn và chất vấn metric bằng phản ví dụ leakage giả lập C#."
+      },
+      "files": [
+        "lessons/2026-10-13-honest-evaluation/lesson.md",
+        "vi/lessons/2026-10-13-honest-evaluation/lesson.md",
+        "labs/honest-evaluation/dotnet/LICENSE-MIT.txt",
+        "labs/honest-evaluation/dotnet/LessonLab/Checks.cs",
+        "labs/honest-evaluation/dotnet/LessonLab/Data.cs",
+        "labs/honest-evaluation/dotnet/LessonLab/Evaluation.cs",
+        "labs/honest-evaluation/dotnet/LessonLab/Experiment.cs",
+        "labs/honest-evaluation/dotnet/LessonLab/LessonLab.csproj",
+        "labs/honest-evaluation/dotnet/LessonLab/Program.cs",
+        "labs/honest-evaluation/dotnet/LessonLab/Transfer.cs",
+        "labs/honest-evaluation/dotnet/README.md",
+        "labs/honest-evaluation/dotnet/README.vi.md",
+        "labs/honest-evaluation/dotnet/global.json"
+      ],
+      "related": {
+        "en": [
+          {
+            "title": "Lesson 08 - Experimental design: a difference is not yet a causal effect",
+            "path": "lessons/2026-10-12-experimental-design/lesson.md",
+            "description": "Separate predictive evaluation from an intervention claim."
+          },
+          {
+            "title": "Lesson 07 - Sampling uncertainty: more records need not mean more evidence",
+            "path": "lessons/2026-10-11-sampling-uncertainty/lesson.md",
+            "description": "Revisit observation units and uncertainty assumptions."
+          },
+          {
+            "title": "C# lab guide",
+            "path": "labs/honest-evaluation/dotnet/README.md",
+            "description": "Pinned setup, oracle checks and synthetic experiment limits."
+          }
+        ],
+        "vi": [
+          {
+            "title": "Bài 08 - Thiết kế thí nghiệm: chênh lệch chưa đủ để kết luận nhân quả",
+            "path": "vi/lessons/2026-10-12-experimental-design/lesson.md",
+            "description": "Tách đánh giá dự đoán khỏi nhận định can thiệp."
+          },
+          {
+            "title": "Bài 07 - Độ bất định khi lấy mẫu: nhiều record chưa chắc có thêm bằng chứng",
+            "path": "vi/lessons/2026-10-11-sampling-uncertainty/lesson.md",
+            "description": "Ôn đơn vị quan sát và giả định về độ bất định."
+          },
+          {
+            "title": "Hướng dẫn lab C#",
+            "path": "labs/honest-evaluation/dotnet/README.vi.md",
+            "description": "Môi trường đã pin, oracle và giới hạn thí nghiệm giả lập."
+          }
+        ]
+      },
+      "labs": [
+        {
+          "language": "csharp",
+          "directory": "labs/honest-evaluation/dotnet",
+          "check": [
+            "dotnet",
+            "run",
+            "-c",
+            "Release",
+            "--project",
+            "LessonLab",
+            "--",
+            "--check"
+          ],
+          "archive": "labs/honest-evaluation/dotnet-lab.zip"
+        }
+      ],
+      "recall": [
+        {
+          "id": "information-boundary",
+          "question": {
+            "en": "Why does fitting only on train not prevent leakage if candidate selection or a feature uses test information?",
+            "vi": "Vì sao chỉ fit trên train chưa ngăn leakage nếu lựa chọn ứng viên hoặc feature dùng thông tin test?"
+          },
+          "answer": {
+            "en": "The boundary covers all data-dependent decisions, not only Fit. Select on validation, freeze the predictor and fit preprocessing within train. An outcome-derived intake feature is unavailable even with disjoint rows. A test used for revision needs fresh audit evidence; renaming it cannot restore independence.",
+            "vi": "Ranh giới bao phủ mọi quyết định phụ thuộc dữ liệu, không chỉ Fit. Chọn bằng validation, cố định predictor và học tiền xử lý trong train. Feature lúc nhận lấy từ outcome vẫn chưa sẵn có dù các dòng riêng. Test đã hướng dẫn sửa cần bằng chứng đánh giá mới; đổi tên không khôi phục độc lập."
+          }
+        },
+        {
+          "id": "cost-versus-accuracy",
+          "question": {
+            "en": "How can threshold 5 have lower accuracy than the majority baseline while lowering declared cost, and may you switch to cutoff 7 after seeing test?",
+            "vi": "Vì sao ngưỡng 5 có accuracy thấp hơn baseline nhãn phổ biến nhưng giảm chi phí đã nêu, và có được đổi sang 7 sau khi xem test không?"
+          },
+          "answer": {
+            "en": "Its test TP/FP/FN/TN is 2/3/1/4, accuracy 0.6 and FP+4*FN=7, versus the negative baseline accuracy 0.7 and cost 12. Error types and costs differ. The prespecified cutoff 7 costs 5 on this test, but switching from the validation-selected 5 would make the audit part of selection. Correct finite fitting does not guarantee the best test result.",
+            "vi": "Test TP/FP/FN/TN=2/3/1/4 cho accuracy 0,6 và FP+4*FN=7, so với baseline dự đoán 0 có accuracy 0,7, chi phí 12. Loại lỗi và chi phí khác nhau. Ngưỡng 7 định trước có chi phí 5 trên test này, nhưng đổi từ 5 đã chọn bằng validation sẽ dùng lần đánh giá để lựa chọn. Học hữu hạn đúng chưa bảo đảm kết quả test tốt nhất."
+          }
+        },
+        {
+          "id": "unit-and-generalization",
+          "question": {
+            "en": "Why are unique row IDs insufficient for an unseen-customer audit, and why does equal-customer loss need more than a global confusion table?",
+            "vi": "Vì sao ID dòng duy nhất chưa đủ cho đánh giá khách hàng chưa thấy, và loss khách hàng ngang nhau cần nhiều hơn bảng nhầm lẫn chung?"
+          },
+          "answer": {
+            "en": "Different rows can expose the same customer; hold out whole groups for that target and review timestamps separately. Equal-customer loss averages each customer's mean, so grouping/counts matter: four missed tickets from A and one correct ticket from B yield ticket mean 3.2 but customer mean 2 at missed cost 4. Neither split guards nor exact synthetic arithmetic prove independent representative future customers.",
+            "vi": "Các dòng khác vẫn có thể để lộ cùng khách hàng; giữ riêng cả nhóm cho mục tiêu đó và kiểm tra timestamp riêng. Loss khách hàng ngang nhau lấy trung bình các mean của khách hàng nên cần nhóm/số đếm: A có bốn ticket bỏ sót, B một ticket đúng cho mean ticket 3,2 nhưng mean khách hàng 2 khi chi phí bỏ sót 4. Guard hay phép tính giả lập chính xác chưa chứng minh khách hàng tương lai độc lập/đại diện."
+          }
+        }
+      ],
+      "topic_ids": [
+        "ml.evaluation"
+      ],
+      "day_type": "build"
     }
   ]
 }

@@ -778,5 +778,5 @@ Hỏi liệu treatment có đổi queue mà tenant control cùng dùng không. T
 
 ---
 
-[← Bài trước: Bài 07 - Độ bất định khi lấy mẫu: nhiều record chưa chắc có thêm bằng chứng](../2026-10-11-sampling-uncertainty/lesson.md) · [Danh sách bài học](../../README.md)
+[← Bài trước: Bài 07 - Độ bất định khi lấy mẫu: nhiều record chưa chắc có thêm bằng chứng](../2026-10-11-sampling-uncertainty/lesson.md) · [Danh sách bài học](../../README.md) · [Bài sau: Bài 09 - Đánh giá trung thực: học quy tắc, không học từ test →](../2026-10-13-honest-evaluation/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

@@ -10,6 +10,7 @@
   - [Bài 06 - Transaction và phục hồi: ghi đúng vẫn có thể dùng quyết định đã cũ](/vi/lessons/2026-10-10-transactions-recovery/lesson)
   - [Bài 07 - Độ bất định khi lấy mẫu: nhiều record chưa chắc có thêm bằng chứng](/vi/lessons/2026-10-11-sampling-uncertainty/lesson)
   - [Bài 08 - Thiết kế thí nghiệm: chênh lệch chưa đủ để kết luận nhân quả](/vi/lessons/2026-10-12-experimental-design/lesson)
+  - [Bài 09 - Đánh giá trung thực: học quy tắc, không học từ test](/vi/lessons/2026-10-13-honest-evaluation/lesson)
 <!-- LESSON_SIDEBAR_END -->
 
 - **Khám phá**

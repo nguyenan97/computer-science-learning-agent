@@ -778,5 +778,5 @@ Ask whether treatment changes a shared queue seen by control tenants. First audi
 
 ---
 
-[← Previous: Lesson 07 - Sampling uncertainty: more records need not mean more evidence](../2026-10-11-sampling-uncertainty/lesson.md) · [All lessons](../../README.md)
+[← Previous: Lesson 07 - Sampling uncertainty: more records need not mean more evidence](../2026-10-11-sampling-uncertainty/lesson.md) · [All lessons](../../README.md) · [Next: Lesson 09 - Honest evaluation: learn a rule without learning the test →](../2026-10-13-honest-evaluation/lesson.md)
 <!-- LESSON_NAVIGATION_END -->

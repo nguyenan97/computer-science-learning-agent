@@ -183,23 +183,34 @@ Lunch and rest - 30 minutes.
 
 **Lab · 75 minutes.** Run the demo, inspect the implementation, execute checks and explain the deliberate bug below. **Done when:** the correctness command passes and you can explain why the target is final at removal, including the zero-edge case.
 
-Use **.NET SDK 10.0.401**, target **net10.0**, with no external packages. Download and extract the ZIP; its top-level directory is `dotnet`. Or create that directory and the four `LessonLab/*.cs` files shown below. These are all the executable lab sources, so the page can be used without source downloads.
+Implement both solvers under section 2's contract, including parents, unreachable targets and strict updates. Run demo/checks/experiment, then explain the defect below. Use the worked route if setup exceeds 15 minutes.
 
-`dotnet/global.json`:
+<details>
+<summary>Answer - complete runnable lab</summary>
 
+Use SDK **10.0.401**, runtime **10.0.12**, target **net10.0** with SDK/runtime roll-forward disabled. No external packages or database are needed. Extract the ZIP, or create every file below relative to `dotnet`; run inside that directory. The initial SDK/reference-pack installation may need network access. After a successful restore, no-restore runs work offline.
+
+Graph copies adjacency arrays; ReadOnlySpan exposes a read-only view. Parent links reconstruct one optimal route, not every tied route or the identity of parallel edges. Null distance represents unreachable, distinct from zero cost. Strict improvements and finalized nodes prevent parent cycles through zero edges.
+
+`global.json`:
+
+<!-- lab-file: global.json -->
 ```json
 {
-  "sdk": { "version": "10.0.401", "rollForward": "latestPatch" }
+  "sdk": { "version": "10.0.401", "rollForward": "disable" }
 }
 ```
 
-`dotnet/LessonLab/LessonLab.csproj`:
+`LessonLab/LessonLab.csproj`:
 
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -207,29 +218,9 @@ Use **.NET SDK 10.0.401**, target **net10.0**, with no external packages. Downlo
 </Project>
 ```
 
-From a terminal inside the extracted `dotnet` directory:
+`LessonLab/Routes.cs`:
 
-```bash
-dotnet --version
-dotnet run -c Release --project LessonLab
-dotnet run -c Release --project LessonLab -- --check
-dotnet run -c Release --project LessonLab -- --experiment
-```
-
-Expected demo output:
-
-```text
-BFS unit projection: hops=1, path=0->3
-Dijkstra original: cost=3, path=0->1->2->3
-The BFS path costs 10 in the original graph. Dijkstra costs 3.
-```
-
-If the SDK is already installed, restore needs no third-party package. After one successful build, `dotnet run --no-restore -c Release --project LessonLab -- --check` works offline. Without the SDK, use the worked trace and answers; neither an online service nor SQL Server is needed. If the pinned SDK is missing, install that version rather than silently changing the target. The [lab guide](../../labs/shortest-paths/dotnet/README.md) has setup and source links.
-
-### Graph and route solvers
-
-`LessonLab/Routes.cs` copies edges into private adjacency arrays, so callers cannot change weights midway through a search. `ReadOnlySpan<Edge>` exposes a read-only view without allocating a new collection. Costs use `long`; node IDs use `int`. The graph is validated once, while source/target checks run for each query.
-
+<!-- lab-file: LessonLab/Routes.cs -->
 ```csharp
 // Original teaching code, MIT. This is not adapted from OSRM.
 public readonly record struct Link(int From, int To, long Cost);
@@ -346,12 +337,9 @@ public static class Routes
 }
 ```
 
-`parent` stores how the best route was reached. Follow parents backward from the target and reverse the list. `null` distance distinguishes an unreachable target from a reachable zero-cost route. With nonnegative weights and strict updates, a finalized node cannot acquire a better parent, so zero cycles do not form a parent cycle. Equal-cost alternatives may leave different valid routes; the contract promises one, not all routes. Node IDs alone cannot identify which of two parallel edges was taken. Return edge IDs too if the UI must show a particular service or corridor.
-
-### Demo entry point
-
 `LessonLab/Program.cs`:
 
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 if (args.Length == 0)
 {
@@ -367,26 +355,9 @@ else if (args is ["--experiment"]) Experiment.Run();
 else throw new ArgumentException("Use no arguments, --check or --experiment.");
 ```
 
-### Correctness checks and bug repair
+`LessonLab/Checks.cs`:
 
-Run `--check`. It compares Dijkstra against an independent repeated-relaxation oracle on small graphs, verifies that returned paths exist and have the stated cost, and compares BFS on unit-cost projections. It includes an improved target discovered early, an actually dequeued stale entry, disconnected nodes, equal-cost alternatives, parallel edges, self-loops, zero cycles, rejected negative costs and the numeric boundary.
-
-Exercise: a developer adds `if (edge.To == target) return ...;` immediately after enqueuing an improved distance. Explain the defect and repair it. Then explain why changing `candidate >= distance[edge.To]` to `candidate > distance[edge.To]` is also dangerous.
-
-<details>
-<summary>Answer</summary>
-
-The first change returns T at 10 in the demo before the route costing 3 is found. Remove that early return. Keep the target check after dequeue and after rejecting stale entries, as in `Routes.cs`. To reproduce the regression without changing the solver, the deterministic test checks that the demo graph returns 3.
-
-The second change enqueues equal-cost candidates and changes parents on ties. On a reachable zero-cost cycle, it can keep adding entries indefinitely; a zero self-loop can even set its own parent. Use a strict improvement: skip `candidate >= distance[edge.To]`. The tests include both a zero cycle and a zero self-loop, so they exercise this requirement. BFS's discovery marking is valid only for its own unit-cost contract; copying it into Dijkstra would prevent later improvements.
-
-</details>
-
-`LessonLab/Checks.cs` below is the complete check runner. The oracle is a small Bellman-Ford-style repeated relaxation without a priority queue. Its inputs are nonnegative with tiny weights, so it is independent of the heap policy and never approaches overflow. Its random seed fixes the cases for this SDK; passing a finite suite is evidence, not a proof for every graph.
-
-<details>
-<summary>Answer - complete correctness runner</summary>
-
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 public static class Checks
 {
@@ -507,38 +478,9 @@ public static class Checks
 }
 ```
 
-</details>
+`LessonLab/Experiment.cs`:
 
-The command prints a `PASS` line after the oracle/path comparisons and rejection checks. If it fails, first read which contract was violated: a non-unit graph is an invalid BFS input, while a weighted target returning 10 instead of 3 is an algorithm defect. An `OverflowException` reports a reached candidate outside the stated range; silently wrapping that sum could create a false negative priority.
-
-Pause - 10 minutes away from the screen.
-
-## 6. Controlled experiment: less work can answer the wrong question
-
-**Experiment · 45 minutes.** Predict counts, run `--experiment`, then change one cost or adjacency order. **Done when:** you can distinguish an observed counter from a complexity bound and a latency claim.
-
-Use a directed chain with n nodes, edges `0 -> 1 -> ... -> n-1`, plus a direct edge `0 -> n-1` stored first. For n=64, 256 and 1024, keep the topology and target fixed within each pair. In the unit case every edge costs 1. In the weighted case only the direct edge changes to `2*n`; the chain edges stay 1. Compare Dijkstra on the weighted graph with BFS on an explicit unit-cost projection, then evaluate the BFS path on the original graph.
-
-**Hypothesis:** projection-BFS does little work but minimizes the wrong objective for the weighted graph. Dijkstra must process the chain to certify its cheaper route. These are deterministic operation counts, not a timing benchmark. `Settled` counts current dequeues, including the target; `Scanned` counts examined outgoing edges; `Stale` counts discarded outdated entries. They exclude graph creation, array initialization, path reversal, heap comparison counts and SQL/API work.
-
-Predict the four n=64 rows and explain why unit-cost Dijkstra may process one more node than BFS.
-
-<details>
-<summary>Answer</summary>
-
-| Mode | Algorithm | Result | Cost in original graph | Settled | Scanned | Stale |
-|---|---|---|---|---|---|---|
-| Unit | BFS | 1 edge | 1 | 2 | 2 | 0 |
-| Unit | Dijkstra | Cost 1 | 1 | 3 | 3 | 0 |
-| Weighted projection | BFS | 1 edge | 128 | 2 | 2 | 0 |
-| Weighted | Dijkstra | Cost 63 | 63 | 64 | 64 | 0 |
-
-BFS sees the direct edge first and queues the target before node 1. Dijkstra's two candidates have equal cost 1, so its `(cost,node ID)` priority removes node 1 before node 63. Node 1 scans another edge before the target is removed. In the weighted case the target stays at 128 until the chain improves it to 63. The old target entry is still in the heap at return, so `Stale=0` does not mean no stale entries were created. The separate unreachable-target test drains an old entry and verifies the stale-skip branch.
-
-</details>
-
-`LessonLab/Experiment.cs`, the full generator and CSV writer:
-
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 public static class Experiment
 {
@@ -571,6 +513,62 @@ public static class Experiment
     }
 }
 ```
+
+```bash
+dotnet --version
+dotnet run -c Release --project LessonLab
+dotnet run -c Release --project LessonLab -- --check
+dotnet run -c Release --project LessonLab -- --experiment
+```
+
+Expected demo output:
+
+```text
+BFS unit projection: hops=1, path=0->3
+Dijkstra original: cost=3, path=0->1->2->3
+The BFS path costs 10 in the original graph. Dijkstra costs 3.
+```
+
+The repeated-relaxation oracle shares the nonnegative/tiny-weight model but uses no priority queue. Checks compare paths/distances and unit-cost BFS, including actually dequeued stale entries, unreachable nodes, equal-cost routes, parallel/self edges, zero cycles and numeric rejection boundaries. The seeded cases are finite evidence; the argument in section 2 justifies the general result. The check command prints a PASS line, or exits nonzero. First inspect the failing contract; do not silently wrap an overflowing candidate.
+
+</details>
+
+Exercise: a developer adds `if (edge.To == target) return ...;` immediately after enqueuing an improved distance. Explain the defect and repair it. Then explain why changing `candidate >= distance[edge.To]` to `candidate > distance[edge.To]` is also dangerous.
+
+<details>
+<summary>Answer</summary>
+
+The first change returns T at 10 in the demo before the route costing 3 is found. Remove that early return. Keep the target check after dequeue and after rejecting stale entries, as in `Routes.cs`. To reproduce the regression without changing the solver, the deterministic test checks that the demo graph returns 3.
+
+The second change enqueues equal-cost candidates and changes parents on ties. On a reachable zero-cost cycle, it can keep adding entries indefinitely; a zero self-loop can even set its own parent. Use a strict improvement: skip `candidate >= distance[edge.To]`. The tests include both a zero cycle and a zero self-loop, so they exercise this requirement. BFS's discovery marking is valid only for its own unit-cost contract; copying it into Dijkstra would prevent later improvements.
+
+</details>
+
+Pause - 10 minutes away from the screen.
+
+## 6. Controlled experiment: less work can answer the wrong question
+
+**Experiment · 45 minutes.** Predict counts, run `--experiment`, then change one cost or adjacency order. **Done when:** you can distinguish an observed counter from a complexity bound and a latency claim.
+
+Use a directed chain with n nodes, edges `0 -> 1 -> ... -> n-1`, plus a direct edge `0 -> n-1` stored first. For n=64, 256 and 1024, keep the topology and target fixed within each pair. In the unit case every edge costs 1. In the weighted case only the direct edge changes to `2*n`; the chain edges stay 1. Compare Dijkstra on the weighted graph with BFS on an explicit unit-cost projection, then evaluate the BFS path on the original graph.
+
+**Hypothesis:** projection-BFS does little work but minimizes the wrong objective for the weighted graph. Dijkstra must process the chain to certify its cheaper route. These are deterministic operation counts, not a timing benchmark. `Settled` counts current dequeues, including the target; `Scanned` counts examined outgoing edges; `Stale` counts discarded outdated entries. They exclude graph creation, array initialization, path reversal, heap comparison counts and SQL/API work.
+
+Predict the four n=64 rows and explain why unit-cost Dijkstra may process one more node than BFS.
+
+<details>
+<summary>Answer</summary>
+
+| Mode | Algorithm | Result | Cost in original graph | Settled | Scanned | Stale |
+|---|---|---|---|---|---|---|
+| Unit | BFS | 1 edge | 1 | 2 | 2 | 0 |
+| Unit | Dijkstra | Cost 1 | 1 | 3 | 3 | 0 |
+| Weighted projection | BFS | 1 edge | 128 | 2 | 2 | 0 |
+| Weighted | Dijkstra | Cost 63 | 63 | 64 | 64 | 0 |
+
+BFS sees the direct edge first and queues the target before node 1. Dijkstra's two candidates have equal cost 1, so its `(cost,node ID)` priority removes node 1 before node 63. Node 1 scans another edge before the target is removed. In the weighted case the target stays at 128 until the chain improves it to 63. The old target entry is still in the heap at return, so `Stale=0` does not mean no stale entries were created. The separate unreachable-target test drains an old entry and verifies the stale-skip branch.
+
+</details>
 
 For n=256 and 1024, weighted Dijkstra's route costs 255 and 1023, respectively; projection-BFS's original costs are 512 and 2048. Dijkstra settles n nodes and scans n edges in this topology. Run the command to compare these predictions with your output.
 

@@ -11,7 +11,7 @@ from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_FILES = (
-    '.nojekyll', 'index.html', '404.html', 'README.md', '_404.md', '_sidebar.md', '_navbar.md',
+    '.nojekyll', 'index.html', 'site.css', 'site.js', '404.html', 'README.md', '_404.md', '_sidebar.md', '_navbar.md',
     'vi/README.md', 'vi/_404.md', 'vi/_sidebar.md', 'vi/_navbar.md',
     'references/topic-map.md', 'references/topic-notes.md', 'references/topics.json',
     'vi/references/topic-map.md', 'vi/references/topic-notes.md', 'lessons/catalog.json',

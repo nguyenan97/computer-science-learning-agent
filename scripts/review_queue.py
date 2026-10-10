@@ -150,21 +150,19 @@ def render_markdown(queue, language):
     if language not in LANGUAGES:
         raise ValueError('language must be en or vi')
     heading = 'Review' if language == 'en' else 'Ôn lại'
-    instructions = ('Answer from memory before opening the answers.' if language == 'en'
-                    else 'Trả lời từ trí nhớ trước khi mở đáp án.')
-    lines = [f'## {heading} — {queue["on"]}', '', instructions, '']
+    instructions = ('You may recall from memory, or open each answer immediately.' if language == 'en'
+                    else 'Bạn có thể nhớ lại trước, hoặc mở ngay từng đáp án.')
+    lines = [f'## {heading} - {queue["on"]}', '', instructions, '']
     if not queue['reviews']:
         lines.append('No earlier lessons are due.' if language == 'en'
                      else 'Chưa có bài trước đến lịch ôn.')
         return '\n'.join(lines) + '\n'
+    summary = 'Answer' if language == 'en' else 'Đáp án'
     for index, review in enumerate(queue['reviews'], 1):
-        lines.append(f'{index}. {review["question"][language]}')
-    summary = 'Answers' if language == 'en' else 'Đáp án'
-    lines += ['', '<details>', f'<summary>{summary}</summary>', '']
-    for index, review in enumerate(queue['reviews'], 1):
-        lines += [f'{index}. **{review["title"][language]}**', '',
-                  review['answer'][language], '']
-    lines.append('</details>')
+        lines += [f'{index}. {review["question"][language]}', '', '<details>',
+                  f'<summary>{summary}</summary>', '',
+                  f'**{review["title"][language]}**', '', review['answer'][language],
+                  '', '</details>', '']
     return '\n'.join(lines) + '\n'
 
 

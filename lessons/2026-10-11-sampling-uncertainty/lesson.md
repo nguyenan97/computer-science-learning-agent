@@ -214,6 +214,7 @@ Extract the ZIP or create `dotnet` with all files below. Run from `dotnet`. Only
 
 `global.json`:
 
+<!-- lab-file: global.json -->
 ```json
 {
   "sdk": { "version": "10.0.401", "rollForward": "disable" }
@@ -222,6 +223,7 @@ Extract the ZIP or create `dotnet` with all files below. Run from `dotnet`. Only
 
 `LessonLab/LessonLab.csproj`:
 
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -240,6 +242,7 @@ Extract the ZIP or create `dotnet` with all files below. Run from `dotnet`. Only
 
 `LessonLab/packages.lock.json`:
 
+<!-- lab-file: LessonLab/packages.lock.json -->
 ```json
 {
   "version": 1,
@@ -262,6 +265,7 @@ dotnet run --no-restore -c Release --project LessonLab -- --experiment
 
 `LessonLab/Stats.cs`. Wilson is derived from the score inequality. Wald is retained as a counterexample. Binomial sums use BigInteger numerators, not simulation; endpoint decisions and ratio conversion still use double.
 
+<!-- lab-file: LessonLab/Stats.cs -->
 ```csharp
 // Original MIT teaching code, derived from the score inequality, not copied from SciPy.
 using System.Numerics;
@@ -322,6 +326,7 @@ public static class Stats
 
 `LessonLab/Draws.cs`. The generator has explicit state and seed. Rejection before taking a remainder avoids modulo bias if outputs are treated as uniform; it does not prove calls are independent. This is neither a security generator nor an RNG quality benchmark.
 
+<!-- lab-file: LessonLab/Draws.cs -->
 ```csharp
 // Small deterministic generator for reproducible teaching, not for security.
 public sealed class Draws
@@ -352,6 +357,7 @@ public sealed class Draws
 
 `LessonLab/Checks.cs`. The oracle finds two roots by binary search on the score condition, without the closed Wilson formula. Exhaustive small bit sequences independently check the binomial weights.
 
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 using System.Numerics;
 
@@ -429,6 +435,7 @@ public static class Checks
 
 `LessonLab/Experiment.cs`. Each repetition generates 320 observations and takes prefixes of 20/80/320 from that same sequence. Wilson/Wald receive identical counts. Rare-event and cluster cases have separate seeds and test different assumptions.
 
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 using System.Globalization;
 
@@ -481,6 +488,7 @@ public static class Experiment
 
 `LessonLab/Program.cs`. The demo updates the count after each observation. Arguments select checks or the experiment.
 
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 using System.Globalization;
 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;

@@ -20,7 +20,11 @@
         "labs/cost-model/dotnet/LessonLab/Program.cs",
         "labs/cost-model/dotnet/LessonLab/Checks.cs",
         "labs/cost-model/dotnet/Benchmarks/Benchmarks.csproj",
-        "labs/cost-model/dotnet/Benchmarks/Program.cs"
+        "labs/cost-model/dotnet/Benchmarks/Program.cs",
+        "labs/cost-model/dotnet/Benchmarks/packages.lock.json",
+        "labs/cost-model/dotnet/IdentityDemo/IdentityDemo.csproj",
+        "labs/cost-model/dotnet/IdentityDemo/Program.cs",
+        "labs/cost-model/dotnet/IdentityDemo/packages.lock.json"
       ],
       "related": {
         "en": [

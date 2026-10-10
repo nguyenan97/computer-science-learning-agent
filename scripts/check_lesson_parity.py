@@ -22,6 +22,17 @@ def without_comments(code, language):
     verbatim = False
     while index < len(code):
         char = code[index]
+        if quote is None and language in ('csharp', 'cs') and code.startswith('"""', index):
+            # Raw C# literals may contain ordinary quotes and comment-like text.
+            # Preserve the whole literal, including interpolated raw-string text.
+            count = 3
+            while index + count < len(code) and code[index + count] == '"':
+                count += 1
+            delimiter = '"' * count
+            end = code.find(delimiter, index + count)
+            if end < 0:
+                raise ValueError('unterminated C# raw string')
+            result.append(code[index:end + count]); index = end + count; continue
         if quote:
             result.append(char)
             if char == quote:

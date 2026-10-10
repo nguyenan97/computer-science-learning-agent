@@ -1,6 +1,8 @@
 # C# lab - Transactions and recovery
 
-Use .NET SDK **10.0.401** (latestPatch), **net10.0**, Microsoft.Data.Sqlite **10.0.9**, SQLitePCLRaw.bundle_e_sqlite3 **3.0.3** and the checked-in lock file. The engine is **SQLite 3.50.4**. First restore needs NuGet access; cached no-restore runs need no database server.
+SDK/runtime roll-forward is disabled: use SDK 10.0.401 and runtime 10.0.12.
+
+Use .NET SDK **10.0.401**, **net10.0**, Microsoft.Data.Sqlite **10.0.9**, SQLitePCLRaw.bundle_e_sqlite3 **3.0.3** and the checked-in lock file. The engine is **SQLite 3.50.4**. First restore needs NuGet access; cached no-restore runs need no database server.
 
 Download [the ZIP](https://nguyenan97.github.io/computer-science-learning-agent/labs/transactions-recovery/dotnet-lab.zip), extract and run inside `dotnet`; a checkout uses `labs/transactions-recovery/dotnet`.
 

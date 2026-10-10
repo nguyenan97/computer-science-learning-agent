@@ -228,7 +228,7 @@ Implement the stock-plus-receipt operation, then let two clients read before T1 
 <details>
 <summary>Answer - complete runnable lab</summary>
 
-Use SDK **10.0.401** (latestPatch roll-forward), **net10.0**, **Microsoft.Data.Sqlite 10.0.9**, **SQLitePCLRaw.bundle_e_sqlite3 3.0.3** and the checked-in lock file. The engine reports **SQLite 3.50.4**. The first restore needs NuGet; subsequent no-restore runs can use cached packages. No database server is required.
+Use SDK **10.0.401** (SDK/runtime roll-forward disabled), **net10.0**, **Microsoft.Data.Sqlite 10.0.9**, **SQLitePCLRaw.bundle_e_sqlite3 3.0.3** and the checked-in lock file. The engine reports **SQLite 3.50.4**. The first restore needs NuGet; subsequent no-restore runs can use cached packages. No database server is required.
 
 Extract into `dotnet`, or use `labs/transactions-recovery/dotnet` in a checkout. Rebuilding from the page requires every file below. [The lab guide](../../labs/transactions-recovery/dotnet/README.md) links individual sources. All databases live in generated temporary directories; the ZIP contains source/setup only.
 
@@ -236,19 +236,23 @@ Task.Run starts each client task; each owns a separate connection. TaskCompletio
 
 `dotnet/global.json`:
 
+<!-- lab-file: global.json -->
 ```json
 {
-  "sdk": { "version": "10.0.401", "rollForward": "latestPatch" }
+  "sdk": { "version": "10.0.401", "rollForward": "disable" }
 }
 ```
 
 `dotnet/LessonLab/LessonLab.csproj`:
 
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -264,6 +268,7 @@ Task.Run starts each client task; each owns a separate connection. TaskCompletio
 
 `dotnet/LessonLab/packages.lock.json`:
 
+<!-- lab-file: LessonLab/packages.lock.json -->
 ```json
 {
   "version": 1,
@@ -345,6 +350,7 @@ The controlled retry permits one fresh attempt. It is sufficient for this two-cl
 
 `LessonLab/Store.cs`. Store creates schema, binds values and keeps decrement plus receipt in one IMMEDIATE write transaction. The blind branch is intentionally wrong; the guarded branch checks version/current stock. Existing receipts are looked up before admission so a matching replay does not consume stock again.
 
+<!-- lab-file: LessonLab/Store.cs -->
 ```csharp
 // Original MIT teaching code; SQLite implementation is linked, not copied.
 using Microsoft.Data.Sqlite;
@@ -460,6 +466,7 @@ public sealed class Store : IDisposable
 
 `LessonLab/Schedules.cs`. Schedules logs two real connection-owning tasks with acknowledged gates, then runs a separate held-snapshot trace. The SQL statements are deliberately ordered; no sleep is used to manufacture a race.
 
+<!-- lab-file: LessonLab/Schedules.cs -->
 ```csharp
 using System.Collections.Concurrent;
 
@@ -529,6 +536,7 @@ public static class Schedules
 
 `LessonLab/Crash.cs`. Crash starts only this executable as a child. The child transfers ten between accounts in one transaction and inserts 64 noise blobs of 4096 bytes with a ten-page cache to force dirty-page spill. These artificial blobs exercise WAL presence, not a business workload. It signals before commit or after Commit returns, then waits; the parent kills it, waits for exit and opens a fresh connection. No setup connection remains open at that kill.
 
+<!-- lab-file: LessonLab/Crash.cs -->
 ```csharp
 using System.Diagnostics;
 using System.Reflection;
@@ -595,6 +603,7 @@ public static class Crash
 
 `LessonLab/Checks.cs`. Checks uses an independent serial admission model for all 225 combinations of initial 0-8 and quantities 1-5. It checks remaining stock, receipt sum, version and decisions, plus stale snapshots, injected rollback, replay, rejection cases and two crash boundaries.
 
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 public static class Checks
 {
@@ -659,6 +668,7 @@ public static class Checks
 
 `LessonLab/Experiment.cs`. Experiment varies strategy within a fixed schedule, then changes T2 quantity as a separate case. It counts conflicts/retries and checks the business outcome. No throughput or elapsed-time benchmark is performed.
 
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 public static class Experiment
 {
@@ -684,6 +694,7 @@ public static class Experiment
 
 `LessonLab/Program.cs`. Program selects the demo, checks, experiment or internal child mode. The normal commands never take an external database path.
 
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 if (args.Length == 3 && args[0] == "--child") { Crash.Child(args[1], args[2]); return; }
 if (args.Length == 1 && args[0] == "--check") { await Checks.Run(); return; }

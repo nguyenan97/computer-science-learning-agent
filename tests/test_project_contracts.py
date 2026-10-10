@@ -55,6 +55,9 @@ class ProjectContractTests(unittest.TestCase):
     def test_frontend_dependencies_are_local_versioned_and_intact(self):
         html = (ROOT / 'index.html').read_text()
         references = re.findall(r'<(?:script|link)\b[^>]*(?:src|href)="([^"]+)"', html)
+        self.assertEqual(set(reference for reference in references if not reference.startswith('vendor/')),
+                         {'site.css', 'site.js'})
+        references = [reference for reference in references if reference.startswith('vendor/')]
         self.assertEqual(len(references), 7)
         manifest = json.loads((ROOT / 'vendor/manifest.json').read_text())
         assets = {asset['path']: asset for asset in manifest['assets']}

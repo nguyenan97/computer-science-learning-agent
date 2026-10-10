@@ -1,5 +1,7 @@
 # Lab Bài 01 - C# / .NET
 
+Tắt roll-forward cho SDK/runtime: dùng SDK 10.0.401 và runtime 10.0.12.
+
 [English](README.md) · [Bài tiếng Việt](../../../vi/lessons/2026-10-05-cost-model/lesson.md)
 
 Lab này dùng C# để loại bỏ duplicate, kiểm tra tính đúng và đo thời gian chạy,
@@ -98,3 +100,12 @@ trên một máy không bảo đảm hiệu năng của service. Không so sánh
 
 Nếu chưa cài được lab, bạn vẫn có thể đọc trace, công thức và code lời giải trong
 bài học. Chỉ dùng kết quả từ benchmark đã chạy để nhận xét về hiệu năng.
+
+## Kiểm tra identity resolution tùy chọn
+
+[Project](IdentityDemo/IdentityDemo.csproj), [mã đầy đủ](IdentityDemo/Program.cs), [lock file](IdentityDemo/packages.lock.json). Chạy từ `dotnet` với cùng SDK/runtime đã pin:
+
+```bash
+dotnet restore IdentityDemo --locked-mode
+dotnet run --no-restore -c Release --project IdentityDemo
+```

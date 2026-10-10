@@ -56,7 +56,7 @@ Với mảng đầu, chỉ vị trí 0 có giá trị nhỏ hơn 4, nên biên l
 
 ## 2. Bài toán và dự đoán
 
-**Lý thuyết · khoảng 50 phút cho mục 2-4.** Dự đoán kết quả, chạy từng bước trên giấy, rồi viết lại bất biến. **Hoàn thành khi:** giải thích được bất biến ở mục 3 mà không nhìn tài liệu.
+**Dự đoán · 10 phút.** Đánh dấu hai biên. **Hoàn thành khi:** nêu được các giá trị trùng nào được tính.
 
 Một dịch vụ lưu các timestamp theo thứ tự không giảm:
 
@@ -83,6 +83,8 @@ Duyệt toàn bộ mảng cũng đếm đúng, nhưng tốn O(n) phép so sánh 
 Nếu chỉ tìm một phần tử bằng 30, thuật toán có thể trả vị trí 4, tức số 30 thứ hai. Dùng vị trí đó làm biên cuối sẽ tính thừa một sự kiện đáng lẽ phải loại. Ta cần **ranh giới giữa hai phần của mảng**, không chỉ một phần tử khớp. Giá trị biên không có trong mảng cũng phải xử lý được: `[11, 39)` chứa 20, 30 và 30, nên kết quả vẫn là 3.
 
 ## 3. Lower bound và khoảng chưa xác định
+
+**Bất biến · 25 phút.** Chạy phân hoạch từng bước và chứng minh khoảng giảm. **Hoàn thành khi:** giải thích được mỗi nhánh và vị trí cuối.
 
 Định nghĩa `lowerBound(values, x)` là index `i` đầu tiên có `values[i] >= x`, hoặc `n` nếu không có. Nó chia mảng đã sắp xếp thành hai phần:
 
@@ -130,6 +132,8 @@ Trả 2 ngay ở lần đầu gặp giá trị bằng `x` chỉ tìm được m�
 Với giá trị cần tìm nhỏ hơn phần tử nhỏ nhất, chẳng hạn 0, `hi` liên tục dịch trái và kết quả là 0. Với giá trị lớn hơn phần tử lớn nhất, chẳng hạn 10, `lo` dịch phải và kết quả là 4. Mảng rỗng bắt đầu với `lo == hi == 0`, nên trả 0 mà không đọc phần tử nào.
 
 ## 4. Cài đặt bằng C#
+
+**Cài đặt · 15 phút.** Nối mỗi câu lệnh với bất biến. **Hoàn thành khi:** ca trùng và biên số học khớp yêu cầu.
 
 Đây là mã nguồn trong [lab C#](../../../labs/boundary-search/dotnet/README.vi.md). Hàm nhận array hoặc `List<long>` qua `IReadOnlyList<long>` và truy cập phần tử bằng index.
 
@@ -284,14 +288,363 @@ Trong [`indexSlotRangeFor`](https://github.com/apache/kafka/blob/8ed535f41c2a8a7
 
 **Thực hành · khoảng 75 phút.** Viết lại `LowerBound` từ bất biến, dự đoán kết quả các trường hợp biên, chạy kiểm tra, rồi cố tình tạo lỗi để phân tích. **Hoàn thành khi:** các kiểm tra đều pass, giải thích được một lỗi đã tránh và một giả định của thuật toán.
 
-Chạy từ `labs/boundary-search/dotnet` với .NET SDK 10.0.401:
+Viết lower bound và phép đếm khoảng nửa mở từ bất biến. Đối chiếu với phép quét điều kiện độc lập, rồi sửa một nhánh sai. Bạn có thể dùng ngay lời giải đầy đủ.
+
+<details>
+<summary>Đáp án - môi trường, mã đầy đủ và kết quả</summary>
+
+SDK **10.0.401**, runtime **10.0.12**; tắt roll-forward cho SDK/runtime. Đường dẫn file tính từ `dotnet`. Không có package ngoài. Restore lần đầu cần SDK/reference pack đã pin; sau restore, các lệnh no-restore chạy được offline.
+
+`global.json`:
+
+<!-- lab-file: global.json -->
+```json
+{
+  "sdk": { "version": "10.0.401", "rollForward": "disable" }
+}
+```
+
+`LessonLab/LessonLab.csproj`:
+
+<!-- lab-file: LessonLab/LessonLab.csproj -->
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
+```
+
+`LessonLab/Program.cs`:
+
+<!-- lab-file: LessonLab/Program.cs -->
+```csharp
+using BoundarySearchLab;
+
+if (args.Length == 1 && args[0] == "--check")
+    return Checks.Run();
+if (args.Length == 1 && args[0] == "--observe")
+    return Observe.Run();
+if (args.Length != 0)
+{
+    Console.Error.WriteLine("Usage: LessonLab [--check | --observe]");
+    return 2;
+}
+
+long[] values = [10, 10, 20, 30, 30, 40];
+int match = Array.BinarySearch(values, 30L);
+Console.WriteLine($"Array.BinarySearch(30) found a match: {values[match] == 30}");
+Console.WriteLine($"LowerBound(30): {BoundarySearch.LowerBound(values, 30)}");
+
+List<long> list = [.. values];
+int result = list.BinarySearch(11L);
+int position = result >= 0 ? result : ~result;
+Console.WriteLine($"List.BinarySearch(11): {result}; insertion position: {position}");
+Console.WriteLine($"Count [10, 30): {BoundarySearch.CountWindow(values, 10, 30)}");
+Console.WriteLine($"Count [30, 30): {BoundarySearch.CountWindow(values, 30, 30)}");
+Console.WriteLine($"Count [11, 39): {BoundarySearch.CountWindow(values, 11, 39)}");
+return 0;
+```
+
+`LessonLab/BoundarySearch.cs`:
+
+<!-- lab-file: LessonLab/BoundarySearch.cs -->
+```csharp
+namespace BoundarySearchLab;
+
+public static class BoundarySearch
+{
+    public static int LowerBound(IReadOnlyList<long> values, long target)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        int lo = 0, hi = values.Count;
+        while (lo < hi)
+        {
+            int mid = lo + (hi - lo) / 2;
+            if (values[mid] < target)
+                lo = mid + 1;
+            else
+                hi = mid;
+        }
+        return lo;
+    }
+
+    public static int CountWindow(IReadOnlyList<long> timestamps, long start, long end)
+    {
+        ArgumentNullException.ThrowIfNull(timestamps);
+        if (end < start)
+            throw new ArgumentException("end precedes start", nameof(end));
+        return LowerBound(timestamps, end) - LowerBound(timestamps, start);
+    }
+}
+```
+
+`LessonLab/Extras.cs`:
+
+<!-- lab-file: LessonLab/Extras.cs -->
+```csharp
+namespace BoundarySearchLab;
+
+public sealed class CountedSequence(int n) : IReadOnlyList<long>
+{
+    public int Reads { get; private set; }
+    public int Count => n;
+
+    public long this[int index]
+    {
+        get
+        {
+            if ((uint)index >= (uint)n) throw new ArgumentOutOfRangeException(nameof(index));
+            Reads++;
+            return index * 2L;
+        }
+    }
+
+    public IEnumerator<long> GetEnumerator() => throw new NotSupportedException();
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+public sealed record Event(long Timestamp, string Id);
+
+public static class RecordSearch
+{
+    public static int LowerBound<T>(IReadOnlyList<T> items, long target, Func<T, long> key)
+    {
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(key);
+        int lo = 0, hi = items.Count;
+        while (lo < hi)
+        {
+            int mid = lo + (hi - lo) / 2;
+            if (key(items[mid]) < target)
+                lo = mid + 1;
+            else
+                hi = mid;
+        }
+        return lo;
+    }
+}
+
+public static class Observe
+{
+    public static int Run()
+    {
+        foreach (int n in new[] { 8, 1024, 65536 })
+        {
+            var values = new CountedSequence(n);
+            int index = BoundarySearch.LowerBound(values, n);
+            Console.WriteLine($"{n} {index} {values.Reads}");
+        }
+
+        Event[] events = [new(10, "A"), new(20, "B"), new(20, "C"), new(30, "D")];
+        int left = RecordSearch.LowerBound(events, 20, e => e.Timestamp);
+        int right = RecordSearch.LowerBound(events, 30, e => e.Timestamp);
+        Console.WriteLine($"records: {left} {right} {right - left}");
+        return 0;
+    }
+}
+```
+
+`LessonLab/Checks.cs`:
+
+<!-- lab-file: LessonLab/Checks.cs -->
+```csharp
+using System.Collections;
+
+namespace BoundarySearchLab;
+
+public static class Checks
+{
+    public static int Run()
+    {
+        long[] values = [10, 10, 20, 30, 30, 40];
+        (string Name, Action Body)[] checks =
+        [
+            ("empty boundary and window", () =>
+            {
+                Equal(0, BoundarySearch.LowerBound([], 4));
+                Equal(0, BoundarySearch.CountWindow([], 10, 30));
+            }),
+            ("first duplicate", () => Equal(3, BoundarySearch.LowerBound(values, 30))),
+            ("missing endpoint", () => Equal(2, BoundarySearch.LowerBound(values, 11))),
+            ("before minimum and after maximum", () =>
+            {
+                Equal(0, BoundarySearch.LowerBound(values, 0));
+                Equal(values.Length, BoundarySearch.LowerBound(values, 41));
+            }),
+            ("negative keys and extreme longs", () =>
+            {
+                long[] extremes = [long.MinValue, -10, -10, 0, long.MaxValue];
+                Equal(0, BoundarySearch.LowerBound(extremes, long.MinValue));
+                Equal(1, BoundarySearch.LowerBound(extremes, -10));
+                Equal(3, BoundarySearch.LowerBound(extremes, -1));
+                Equal(4, BoundarySearch.LowerBound(extremes, long.MaxValue));
+                Equal(4, BoundarySearch.CountWindow(extremes, long.MinValue, long.MaxValue));
+            }),
+            ("duplicate start included and end excluded", () =>
+                Equal(3, BoundarySearch.CountWindow(values, 10, 30))),
+            ("equal endpoints", () => Equal(0, BoundarySearch.CountWindow(values, 30, 30))),
+            ("missing window endpoints", () => Equal(3, BoundarySearch.CountWindow(values, 11, 39))),
+            ("outside windows", () =>
+            {
+                Equal(0, BoundarySearch.CountWindow(values, -10, 0));
+                Equal(0, BoundarySearch.CountWindow(values, 41, 50));
+            }),
+            ("reversed endpoints rejected", () =>
+                Throws<ArgumentException>(() => BoundarySearch.CountWindow(values, 30, 10))),
+            ("input preserved", () =>
+            {
+                long[] before = [.. values];
+                BoundarySearch.LowerBound(values, 30);
+                BoundarySearch.CountWindow(values, 10, 30);
+                if (!values.SequenceEqual(before)) throw new InvalidOperationException("Input changed");
+            }),
+            ("framework match and missing-value encoding", () =>
+            {
+                int match = Array.BinarySearch(values, 30L);
+                if (match < 0 || values[match] != 30) throw new InvalidOperationException("Expected a matching value");
+                List<long> list = [.. values];
+                foreach (long target in new long[] { 0, 11, 41 })
+                {
+                    int arrayResult = Array.BinarySearch(values, target);
+                    int listResult = list.BinarySearch(target);
+                    if (arrayResult >= 0 || listResult >= 0) throw new InvalidOperationException("Target is absent");
+                    Equal(BoundarySearch.LowerBound(values, target), ~arrayResult);
+                    Equal(BoundarySearch.LowerBound(values, target), ~listResult);
+                }
+            }),
+            ("null rejected", () =>
+            {
+                Throws<ArgumentNullException>(() => BoundarySearch.LowerBound(null!, 0));
+                Throws<ArgumentNullException>(() => BoundarySearch.CountWindow(null!, 0, 1));
+            }),
+            ("large logical array and overflow-safe midpoint", () =>
+            {
+                var logical = new LogicalSequence();
+                Equal(int.MaxValue - 1, BoundarySearch.LowerBound(logical, 2L * (int.MaxValue - 1)));
+                if (logical.Reads > 31) throw new InvalidOperationException("Too many element reads");
+            }),
+            ("element reads stay logarithmic", () =>
+            {
+                foreach (int n in new[] { 8, 1024, 65536 })
+                {
+                    var counted = new CountedSequence(n);
+                    Equal(n / 2, BoundarySearch.LowerBound(counted, n));
+                    if (counted.Reads > Math.Log2(n) + 1) throw new InvalidOperationException($"Too many reads for {n}");
+                }
+            }),
+            ("records searched by key", () =>
+            {
+                Event[] events = [new(10, "A"), new(20, "B"), new(20, "C"), new(30, "D")];
+                Equal(1, RecordSearch.LowerBound(events, 20, e => e.Timestamp));
+                Equal(3, RecordSearch.LowerBound(events, 30, e => e.Timestamp));
+                Equal(4, RecordSearch.LowerBound(events, 31, e => e.Timestamp));
+            }),
+            ("exhaustive small arrays against scan oracle", CheckSmallArrays)
+        ];
+
+        int failures = 0;
+        foreach (var check in checks)
+        {
+            try
+            {
+                check.Body();
+                Console.WriteLine($"PASS {check.Name}");
+            }
+            catch (Exception exception)
+            {
+                failures++;
+                Console.Error.WriteLine($"FAIL {check.Name}: {exception.Message}");
+            }
+        }
+        Console.WriteLine($"{checks.Length - failures}/{checks.Length} checks passed");
+        return failures == 0 ? 0 : 1;
+    }
+
+    private static void CheckSmallArrays()
+    {
+        for (int length = 0; length <= 5; length++)
+        {
+            int variants = 1;
+            for (int i = 0; i < length; i++) variants *= 3;
+            for (int variant = 0; variant < variants; variant++)
+            {
+                long[] values = new long[length];
+                int digits = variant;
+                for (int i = 0; i < length; i++)
+                {
+                    values[i] = digits % 3 - 1;
+                    digits /= 3;
+                }
+                Array.Sort(values);
+                for (long start = -2; start <= 2; start++)
+                {
+                    Equal(values.Count(value => value < start), BoundarySearch.LowerBound(values, start));
+                    for (long end = start; end <= 2; end++)
+                        Equal(values.Count(value => start <= value && value < end),
+                            BoundarySearch.CountWindow(values, start, end));
+                }
+            }
+        }
+    }
+
+    private static void Equal(int expected, int actual)
+    {
+        if (expected != actual) throw new InvalidOperationException($"Expected {expected}, got {actual}");
+    }
+
+    private static void Throws<TException>(Action action) where TException : Exception
+    {
+        try { action(); }
+        catch (TException) { return; }
+        throw new InvalidOperationException($"Expected {typeof(TException).Name}");
+    }
+
+    private sealed class LogicalSequence : IReadOnlyList<long>
+    {
+        public int Count => int.MaxValue;
+        public int Reads { get; private set; }
+        public long this[int index]
+        {
+            get
+            {
+                if ((uint)index >= (uint)Count) throw new ArgumentOutOfRangeException(nameof(index));
+                Reads++;
+                return 2L * index;
+            }
+        }
+        public IEnumerator<long> GetEnumerator() => throw new NotSupportedException("Use indexed access");
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+}
+```
 
 ```bash
+dotnet --version
 dotnet run -c Release --project LessonLab
 dotnet run -c Release --project LessonLab -- --check
 ```
 
-Lần chạy mặc định trả biên trái của 30 là 3. Số sự kiện trong `[10,30)`, `[30,30)` và `[11,39)` lần lượt là 3, 0 và 3. Bộ kiểm tra gồm 17 nhóm: duplicate, key không tồn tại, khoảng rỗng, hai biên bằng nhau hoặc bị đảo, key âm và cực trị, dữ liệu đầu vào không bị thay đổi, quy tắc mã hóa vị trí chèn của .NET, một mảng ảo có `int.MaxValue` vị trí, và các mảng nhỏ đối chiếu với cách duyệt toàn bộ. Nếu có kiểm tra thất bại, chương trình trả exit code khác 0. Nếu không chạy lab, có thể theo dõi từng bước trên giấy.
+Kết quả demo dự kiến:
+
+```text
+Array.BinarySearch(30) found a match: True
+LowerBound(30): 3
+List.BinarySearch(11): -3; insertion position: 2
+Count [10, 30): 3
+Count [30, 30): 0
+Count [11, 39): 3
+```
+
+Lệnh kiểm tra báo `17/17 checks passed`; `--observe` in số lần đọc đã giải thích ở mục 8. Phép quét độc lập liệt kê mảng dài tối đa 5 từ {-1,0,1}, target -2..2 và các khoảng hợp lệ; chưa bao phủ mọi mảng hay input chưa sắp xếp. Bên gọi phải giữ thứ tự và khả năng truy cập ngẫu nhiên ổn định.
+
+</details>
 
 Các bước thực hành:
 
@@ -337,6 +690,9 @@ Nếu `end < start`, chẳng hạn `[30,10)`, phải từ chối truy vấn trư
 5. **Kết thúc (5 phút).** Giải thích một lỗi đã tránh và một giả định cần giữ khi dùng hàm.
 
 **Gợi ý debug:** nếu trả sai duplicate đầu tiên, kiểm tra nhánh xử lý khi bằng nhau. Nếu lỗi với mảng rỗng, kiểm tra việc đọc phần tử có nằm trong vòng lặp `lo < hi` hay không. Nếu lỗi khi target lớn hơn mọi giá trị, kiểm tra xem hàm có cho phép trả `n` hay không.
+
+
+
 
 **Nghỉ 10 phút.** Rời màn hình.
 
@@ -517,28 +873,95 @@ Ví dụ mới: `[5, 5, 5, 7, 9]`, khoảng `[5, 9)`. Hãy tìm hai biên và s�
 
 </details>
 
-Bài luyện thêm: tìm biên của `[1,1,3]` với target 1, rồi `[2,4,4,9]` với target 5. Với `[10,10,20,30,30,40]`, đếm `[20,40)` và `[41,50)`. Giải thích cách xử lý khoảng đảo `[30,10)` và điều kiện cần giữ khi tìm record theo key.
+Bài luyện thêm: tìm biên của `[1,1,3]` với target 1.
 
 <details>
-<summary>Đáp án bài luyện thêm</summary>
+<summary>Đáp án</summary>
 
-- `[1,1,3]`, target 1: biên 0; không có phần tử nhỏ hơn target.
-- `[2,4,4,9]`, target 5: biên 3; ba phần tử trước đó đều nhỏ hơn target.
-- `[10,10,20,30,30,40]`, khoảng `[20,40)`: kết quả 3, từ hai biên 2 và 5.
-- Cùng mảng, khoảng `[41,50)`: kết quả 0, từ hai biên 6 và 6.
-- Khoảng bị đảo: từ chối truy vấn trước khi lấy hiệu hai biên.
-- Tìm record: target là một giá trị key; list phải giữ thứ tự theo cùng key khi cập nhật.
+Biên 0; không có phần tử nhỏ hơn target.
+
+</details>
+
+Tìm biên của `[2,4,4,9]` với target 5.
+
+<details>
+<summary>Đáp án</summary>
+
+Biên 3; ba phần tử trước đó đều nhỏ hơn target.
+
+</details>
+
+Với `[10,10,20,30,30,40]`, đếm `[20,40)`.
+
+<details>
+<summary>Đáp án</summary>
+
+Kết quả 3, từ hai biên 2 và 5.
+
+</details>
+
+Với cùng mảng, đếm `[41,50)`.
+
+<details>
+<summary>Đáp án</summary>
+
+Kết quả 0, từ hai biên 6 và 6.
+
+</details>
+
+Xử lý khoảng đảo `[30,10)` thế nào?
+
+<details>
+<summary>Đáp án</summary>
+
+Từ chối truy vấn trước khi lấy hiệu hai biên.
+
+</details>
+
+Cần giữ điều kiện gì khi tìm record theo key?
+
+<details>
+<summary>Đáp án</summary>
+
+Target là một giá trị key; list phải giữ thứ tự theo cùng key khi cập nhật.
 
 </details>
 
 Khi ôn lại, tự viết thuật toán và theo dõi một target có duplicate mới mà không nhìn tài liệu. Sau đó thay cách biểu diễn record hoặc các giá trị biên và giải thích kết quả. Nếu còn sai lập luận, ôn lại sớm hơn; khi đã chắc, có thể giãn khoảng cách ôn.
 
-Câu hỏi mở rộng: vì sao biên trái và biên phải xử lý giá trị bằng nhau khác nhau? Hàm lấy key thêm chi phí gì? Vì sao chèn vào list đã sắp xếp vẫn tuyến tính? Sau bước tìm trong index của Kafka còn công việc gì?
+Vì sao biên trái và biên phải xử lý giá trị bằng nhau khác nhau?
 
 <details>
 <summary>Đáp án</summary>
 
-Biên trái giữ giá trị bằng target ở phần bên phải bằng `hi = mid`. Biên phải đưa chúng sang phần bên trái bằng `lo = mid + 1` khi bằng nhau, để tìm vị trí đầu tiên có giá trị lớn hơn target. Hàm lấy key chạy trên mỗi record được kiểm tra nên thêm chi phí vào mỗi lần so sánh. Tìm vị trí chèn có chi phí O(log n), nhưng dịch các phần tử phía sau có thể tốn O(n). Kafka còn phải đổi offset sang vị trí byte trong file, duyệt batch và record, và có thể chờ đọc page từ đĩa. Số phép so sánh trong chỉ mục chưa mô tả toàn bộ chi phí truy vấn.
+Biên trái giữ giá trị bằng target ở phần bên phải (`hi = mid`); biên phải đưa chúng sang phần trái (`lo = mid + 1` khi bằng nhau) để tìm vị trí đầu tiên lớn hơn target.
+
+</details>
+
+Hàm lấy key thêm chi phí gì?
+
+<details>
+<summary>Đáp án</summary>
+
+Hàm chạy trên mỗi record được kiểm tra, nên thêm chi phí vào mỗi lần so sánh. Lấy key tốn nhiều công sẽ làm giả định so sánh có chi phí hằng số không còn đúng.
+
+</details>
+
+Vì sao chèn vào list đã sắp xếp vẫn tuyến tính?
+
+<details>
+<summary>Đáp án</summary>
+
+Tìm vị trí mất O(log n) phép so sánh, nhưng list dùng mảng có thể phải dịch O(n) phần tử phía sau.
+
+</details>
+
+Sau bước tìm trong index của Kafka còn công việc gì?
+
+<details>
+<summary>Đáp án</summary>
+
+Kafka đổi offset sang vị trí byte trong file, duyệt batch và record, và có thể chờ đọc page từ đĩa. Số phép so sánh trong chỉ mục thưa chưa mô tả toàn bộ chi phí truy vấn.
 
 </details>
 

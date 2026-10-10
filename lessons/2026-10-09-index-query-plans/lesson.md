@@ -228,19 +228,23 @@ Extract the ZIP and work inside `dotnet`; in a checkout, use `labs/index-query-p
 
 `dotnet/global.json`:
 
+<!-- lab-file: global.json -->
 ```json
 {
-  "sdk": { "version": "10.0.401", "rollForward": "latestPatch" }
+  "sdk": { "version": "10.0.401", "rollForward": "disable" }
 }
 ```
 
 `dotnet/LessonLab/LessonLab.csproj`:
 
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -256,6 +260,7 @@ Extract the ZIP and work inside `dotnet`; in a checkout, use `labs/index-query-p
 
 `dotnet/LessonLab/packages.lock.json`:
 
+<!-- lab-file: LessonLab/packages.lock.json -->
 ```json
 {
   "version": 1,
@@ -337,6 +342,7 @@ Rows have unique IDs in 1-50000, positive tenant IDs, signed `long` integer minu
 
 `LessonLab/Database.cs` creates schema and data, binds query parameters, exposes plans and runs the independent predicate scan. `Exec` is used only with fixed teaching SQL, never arbitrary user input. SQL index maintenance is performed by SQLite, not hand-written tree updates.
 
+<!-- lab-file: LessonLab/Database.cs -->
 ```csharp
 // Original MIT teaching code; SQLite source is linked, not copied.
 using Microsoft.Data.Sqlite;
@@ -498,6 +504,7 @@ public sealed class Database : IDisposable
 
 `LessonLab/Program.cs` selects demo, checks or experiment.
 
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 if (args is ["--check"]) Checks.Run();
 else if (args is ["--experiment"]) Experiment.Run();
@@ -519,6 +526,7 @@ else throw new ArgumentException("Use no arguments, --check or --experiment.");
 
 `LessonLab/Checks.cs` checks all windows over a small fixture against a direct C# predicate, across all four paths. It then tests update/delete/insert maintenance, extreme endpoints, invalid inputs and atomic rollback on an existing-ID conflict. It does not use SQL or boundary search as its reference, so a shared window-boundary defect is less likely to pass unnoticed.
 
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 using Microsoft.Data.Sqlite;
 
@@ -588,6 +596,7 @@ public static class Checks
 
 `LessonLab/Experiment.cs` measures identical prepared aggregate queries, rotating execution order. The second experiment uses fresh databases with zero or one index and includes the full Insert call, validation, transaction and commit in each measured batch. Creation of schema/indexes and result verification are outside that write interval.
 
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 using System.Diagnostics;
 using System.Globalization;
@@ -716,6 +725,11 @@ A narrow path skips most rows. At 90%, a thin path traverses index entries and f
 
 ### One observed run, not required timing output
 
+Interpret this recorded warm-cache run: what supports the observed comparison, and what prevents a universal performance claim?
+
+<details>
+<summary>Answer - recorded read results</summary>
+
 The following medians were observed on one Linux execution with the pinned runtime and this exact dataset. The counts above matched. Values are an example to interpret; your machine and repeated runs may differ.
 
 | End | Scan median ms | Thin median ms | Covering median ms |
@@ -726,9 +740,16 @@ The following medians were observed on one Linux execution with the pinned runti
 
 The broad thin query was slower than scan in this run. The CSV also reports min/max: broad thin 2.1426-2.8583 ms and scan 1.5982-2.7117 ms overlap. Coverage helped in this run, but the measurements do not locate a universal crossover or prove an expected latency. INDEXED BY controls access; it does not demonstrate the unforced planner's choice under every window.
 
+</details>
+
 ### Write and storage experiment
 
 Use fresh databases with the same 5,000 rows and either no index, thin only or covering only. Schema/index creation is outside timing. Insert all rows in one transaction; include validation, command setup, execution and commit. Run one unrecorded batch per layout and five recorded batches each, rotating layout order. Compare median/min/max and logical allocated database bytes (`page_count*page_size`), not peak RAM or total journal traffic.
+
+Interpret the recorded write/storage comparison, including which costs and bytes it measures.
+
+<details>
+<summary>Answer - recorded write results</summary>
 
 An observed example:
 
@@ -739,6 +760,8 @@ An observed example:
 | Covering | 15.8131 | 659456 |
 
 All batches produce 4,500 tenant-1 matches and amount 219489 over `[0,2500)`. Extra indexes occupied more space and had higher median insertion time than no index in this run. Covering was not slower than thin by the median, despite being wider. Five batches and overlapping ranges are not enough to infer a stable ranking between them. The query experiment's database has both indexes; its allocated size is 2793472 bytes for every read path, so those repeated sizes do not measure incremental index size.
+
+</details>
 
 Variation: what must change to test cold reads or decide which index to deploy? Does a smaller median alone prove the recommendation?
 

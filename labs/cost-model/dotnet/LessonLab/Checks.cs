@@ -65,7 +65,7 @@ internal static class Checks
             Equal(Deduplication.DuplicateSummary(new[] { "A", "B" }), Array.Empty<OrderCount>());
             Equal(Deduplication.DuplicateSummary(new[] { "A", "A", "A" }), new[] { new OrderCount("A", 3) });
         });
-        Console.WriteLine($"{passed} checks passed; reference-code verification, not learner mastery.");
+        Console.WriteLine($"{passed} checks passed.");
     }
 
     private sealed class CountingComparer(bool constantHash = false) : IEqualityComparer<string>

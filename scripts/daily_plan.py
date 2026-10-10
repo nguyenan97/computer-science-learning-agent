@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """Choose a repeatable IUH self-study objective and recall from public artifacts."""
 import argparse
+from datetime import timedelta
 import json
 from pathlib import Path
 
 from generate_topic_map import LEVELS, coverage, covered_topics, validate_topics
 from review_queue import load_catalog, parse_date, select_reviews
 from study_profile import ROOT, load_profile, study_date
+
+
+def next_date(entries, today=None):
+    """Continue the publication sequence, independently of the machine calendar."""
+    dates = [parse_date(entry['date']) for entry in entries
+             if entry.get('published', True) is True]
+    return (max(dates) + timedelta(days=1) if dates else today or study_date()).isoformat()
 
 
 def plan(data, entries, on, profile=None, day_type=None):
@@ -46,14 +54,19 @@ def plan(data, entries, on, profile=None, day_type=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--on', default=study_date().isoformat())
+    dates = parser.add_mutually_exclusive_group()
+    dates.add_argument('--on', help='explicit study date YYYY-MM-DD')
+    dates.add_argument('--next', action='store_true',
+                       help='day after the latest published catalog date; plan before editing the catalog')
     parser.add_argument('--topics', type=Path, default=ROOT/'references/topics.json')
     parser.add_argument('--catalog', type=Path, default=ROOT/'lessons/catalog.json')
     parser.add_argument('--day-type', choices=('build', 'paper'))
     args = parser.parse_args()
     try:
         data = json.loads(args.topics.read_text(encoding='utf-8'))
-        result = plan(data, load_catalog(args.catalog), args.on, day_type=args.day_type)
+        entries = load_catalog(args.catalog)
+        on = next_date(entries) if args.next else args.on or study_date().isoformat()
+        result = plan(data, entries, on, day_type=args.day_type)
     except (ValueError, KeyError, OSError) as error: parser.error(str(error))
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

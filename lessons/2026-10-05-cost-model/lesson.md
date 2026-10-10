@@ -58,7 +58,7 @@ Not sure about sequential search? Draw `[B2, A1]`. Looking for `B2` stops after 
 
 ## 2. A small production requirement
 
-**About 50 minutes for sections 2-5 - Analyze the algorithm:** work through each example by hand before reading its result table. **Stop when:** you can state the invariant in section 5 without looking.
+**Requirement · 10 minutes.** State order, equality and null rules. **Done when:** the five-ID example has one unambiguous result.
 
 A logistics job receives order IDs from a log or a message batch. An ID can appear many times. Return each ID **once, in the order it first appeared**.
 
@@ -85,6 +85,8 @@ n = 5 items and u = 3 different IDs. To check `C3` against `[B2, A1]` with a seq
 </details>
 
 ## 3. One loop, a lot of hidden work
+
+**Trace · 15 minutes.** Count each comparison and derive the all-distinct sum. **Done when:** you can reconstruct the sum rather than count loop lines.
 
 The familiar version:
 
@@ -130,7 +132,7 @@ Double the input and the work grows about four times. You cannot turn these numb
 
 ## 4. What Big-O says and does not say
 
-**Cost model** assumes that comparing or hashing one ID has constant cost, and n is the item count. This is appropriate when ID length is bounded; if ID length grows with the input, include that length in the model.
+**Cost model · 10 minutes.** Explain the asymptotic bound and its key-length assumption. **Done when:** you can reject a timing claim based only on Big-O.
 
 **Formal definition.** `T(n)` is `O(n²)` if there are constants C and n₀ such that `T(n) ≤ C·n²` for all `n ≥ n₀`. It means "grows no faster than n²", not "takes n² seconds".
 
@@ -150,6 +152,8 @@ Not yet. You must add up the cost of the loop body on each iteration. `Contains`
 </details>
 
 ## 5. Separate "seen it?" from "output order"
+
+**Mechanism · 15 minutes.** Prove the prefix invariant and account for extra storage. **Done when:** expected, amortized and worst-case claims remain distinct.
 
 There are two different jobs: "have I seen this ID?" and "in what order do I output?". Use a `HashSet` for the first and a `List` for the second.
 
@@ -323,18 +327,224 @@ Two `Post` rows, IDs 1 and 2, both refer to `BlogId = 1`. For each query mode, p
 <details>
 <summary>Answer</summary>
 
-From the repository root, create a scratch project. The first package restore needs internet access:
+The same lab ZIP includes `IdentityDemo`. SDK/runtime pins in its shared `global.json` and project match the main lab; its lock file fixes direct and transitive EF Core dependencies. The first restore needs NuGet access. Run from the extracted `dotnet` directory or `labs/cost-model/dotnet` in a checkout:
 
 ```bash
-mkdir -p work/ef-identity-demo
-cd work/ef-identity-demo
-dotnet new globaljson --sdk-version 10.0.401 --roll-forward latestPatch
-dotnet new console --framework net10.0
-dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version 10.0.12
+dotnet restore IdentityDemo --locked-mode
+dotnet run --no-restore -c Release --project IdentityDemo
 ```
 
-Replace `Program.cs` with this complete program:
+`IdentityDemo/IdentityDemo.csproj`:
 
+<!-- lab-file: IdentityDemo/IdentityDemo.csproj -->
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
+  </ItemGroup>
+</Project>
+```
+
+`IdentityDemo/packages.lock.json`:
+
+<!-- lab-file: IdentityDemo/packages.lock.json -->
+```json
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "Microsoft.EntityFrameworkCore.Sqlite": {
+        "type": "Direct",
+        "requested": "[10.0.12, )",
+        "resolved": "10.0.12",
+        "contentHash": "rRXkKBWHjtngj2DYqSXOThGpqiR0LQkxk0b0PIVDhVEzfwpgOR7dbKMw1/My8unDCTCwn/blclR7imxntYGvEg==",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Sqlite.Core": "10.0.12",
+          "Microsoft.Extensions.Caching.Memory": "10.0.12",
+          "Microsoft.Extensions.Configuration.Abstractions": "10.0.12",
+          "Microsoft.Extensions.DependencyModel": "10.0.12",
+          "Microsoft.Extensions.Logging": "10.0.12",
+          "SQLitePCLRaw.bundle_e_sqlite3": "2.1.12",
+          "SQLitePCLRaw.core": "2.1.12"
+        }
+      },
+      "Microsoft.Data.Sqlite.Core": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "2aL9eL5HQr0V4b8V909SD+jQAx6qnTTl7sT/v3D8dIvmr2UGdpZIQxqm1pj2Js3e4EYTvpw0oMH7DjapJJuPPw==",
+        "dependencies": {
+          "SQLitePCLRaw.core": "2.1.12"
+        }
+      },
+      "Microsoft.EntityFrameworkCore": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "e7OrVN8U5yr4kuwdTHWBHGVQIVsGfMkAr0Ej1/BnrS989Q0XBVANpIzNZ2bc1GvMZ0/XwMt5InTnmKskxGy99Q==",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Abstractions": "10.0.12",
+          "Microsoft.EntityFrameworkCore.Analyzers": "10.0.12",
+          "Microsoft.Extensions.Caching.Memory": "10.0.12",
+          "Microsoft.Extensions.Logging": "10.0.12"
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "kDrux7T6C3V/YYYe2LXr7x6AEsVyq5Y2YoTE9er1SwbDtap3z1g8RgxNh5eKQVyB4T+DKvBBJ4Ezd/VZzJQJZg=="
+      },
+      "Microsoft.EntityFrameworkCore.Analyzers": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "Kd4o2oO1A6dfKxjz5LS16QyLtpCFTUiFWwmBABETAXRsSImBdRdWeKjSgbbRhAMiV3a3/nWr95ZtzClT4uaADQ=="
+      },
+      "Microsoft.EntityFrameworkCore.Relational": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "OiHmr8XzX96dbgMsYGe8qoqg4KxibdZG2r0QUVJBGktFInOp8IrABe8jvcbo5hrqeWfbwpK7fCEBiEPbY/ik4A==",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "10.0.12",
+          "Microsoft.Extensions.Caching.Memory": "10.0.12",
+          "Microsoft.Extensions.Configuration.Abstractions": "10.0.12",
+          "Microsoft.Extensions.Logging": "10.0.12"
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Sqlite.Core": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "DAGu68RfIDD5d6qYhtQqMUsRS7hKKFqHI6h/9VUa4FjMcQ8+IJA0rK+1pDZtrDJ+yi3YAG0L2TSViZ0csEDM0w==",
+        "dependencies": {
+          "Microsoft.Data.Sqlite.Core": "10.0.12",
+          "Microsoft.EntityFrameworkCore.Relational": "10.0.12",
+          "Microsoft.Extensions.Caching.Memory": "10.0.12",
+          "Microsoft.Extensions.Configuration.Abstractions": "10.0.12",
+          "Microsoft.Extensions.DependencyModel": "10.0.12",
+          "Microsoft.Extensions.Logging": "10.0.12",
+          "SQLitePCLRaw.core": "2.1.12"
+        }
+      },
+      "Microsoft.Extensions.Caching.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "sI3A6MUAyZwccLnwq0cXuRmC3WBtXieimBWafXSfhRJ4jnM2uGVXrqImDDVyW27u4vVaTOGlJxNJd8d1FGvCNQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Primitives": "10.0.12"
+        }
+      },
+      "Microsoft.Extensions.Caching.Memory": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "fhC3DHcBcFF4bXvHIxFtXJYNut7q7ZItqNFcgWfrIgmpVImlcEKNHhE7ztpNSPJYMHYYStS5QGND2I5mC26yeA==",
+        "dependencies": {
+          "Microsoft.Extensions.Caching.Abstractions": "10.0.12",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.12",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.12",
+          "Microsoft.Extensions.Options": "10.0.12",
+          "Microsoft.Extensions.Primitives": "10.0.12"
+        }
+      },
+      "Microsoft.Extensions.Configuration.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "8xaGcvS/qZ1otoxPQCEJkNva389CVL/plNcvIETZhQTETYdRkYDPEYhUMoAGONo4FU45ufdfE0j29AfWVVj0wA==",
+        "dependencies": {
+          "Microsoft.Extensions.Primitives": "10.0.12"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "lXyK2O5GoYvfxW8eCFcD16JFbcoSTM1sJkAM0UHS1jZyl9NYMW64Tqm6OQFT0IDBjZi+xHt95/Zg+nxZhGFhZg==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.12"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "9/qymSh7hVDMGTGwrLz8MRp5zRyXy9adGDOs4HwRdnLil3oZGYuWeZjbmHgCQ9BL1qBroVfgUK3U/nb61617Cw=="
+      },
+      "Microsoft.Extensions.DependencyModel": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "rDPQVTxh/zMTDF7wHlRqL/jjZbwjAP6315ydBxj51pZW7qkAwGwjoSiMutxYI91xmOE3ZXjAGHbYRqzyJV7Urw=="
+      },
+      "Microsoft.Extensions.Logging": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "6I46fTPfgYkrjRYfRXbho9WOvOelTnNjWuZws/hzGHDASH1LEJeA4VKK9k3wJvido8o7jJSB5WkMTonX7HM1bA==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "10.0.12",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.12",
+          "Microsoft.Extensions.Options": "10.0.12"
+        }
+      },
+      "Microsoft.Extensions.Logging.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "+24lC4plfbEDNfLAdTV/SWKS7dW+16X4HdydO3R++134kSNTzcbYA4KpR1Hdh6uWisB8Za3AzwyOn+K+NxWIug==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.12"
+        }
+      },
+      "Microsoft.Extensions.Options": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "TDYD33TSRpXKZWlmTXNlj5kCihxatmv2Ec1u6C+bMYLphCS7PoSLE9Pjd/nunDoE7yETk+LLKjVJX78HYtWjpA==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.12",
+          "Microsoft.Extensions.Primitives": "10.0.12"
+        }
+      },
+      "Microsoft.Extensions.Primitives": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "dYfCLR52UA+3DL7C4I/pvSaRPkNqxrUAQmbFL2u0zvYKKzqgrFCJl08Df+F1aYc8leu9JvpC9bsURUdpExcBXQ=="
+      },
+      "SQLitePCLRaw.bundle_e_sqlite3": {
+        "type": "Transitive",
+        "resolved": "2.1.12",
+        "contentHash": "mAgscpQMLw5/nfA1Q5oJVAT29yROUo1ifZGbbTpx/lwZpSxMUGoYbKfmvdm8oXER+RzxqBmmQzeBEVKfeHv2nw==",
+        "dependencies": {
+          "SQLitePCLRaw.lib.e_sqlite3": "2.1.12",
+          "SQLitePCLRaw.provider.e_sqlite3": "2.1.12"
+        }
+      },
+      "SQLitePCLRaw.core": {
+        "type": "Transitive",
+        "resolved": "2.1.12",
+        "contentHash": "ETpNw9DY3ckWLgRRAeCHj+GKOuPi61aeczkXhgHexUvqoZBAYg8RYESE2J7O1M7+o6QbdSEZwrw9bfqztUVWXg=="
+      },
+      "SQLitePCLRaw.lib.e_sqlite3": {
+        "type": "Transitive",
+        "resolved": "2.1.12",
+        "contentHash": "fWi8Dbknuhgg72fWinIdjXVaqO1hHL4YBBwVLnr7e1c9TAZwJ0QE38j9syW1hwx6HaqEVTwI+O07WPdZn8Rp0w=="
+      },
+      "SQLitePCLRaw.provider.e_sqlite3": {
+        "type": "Transitive",
+        "resolved": "2.1.12",
+        "contentHash": "W3oH4XIfCzFrgUSDKHhN6N+dgzA5YHOR2VxX8GB6Qy7CyrJJgxPEG8NirgYWlPQC5P2jz2knSsexWu4tDUL33g==",
+        "dependencies": {
+          "SQLitePCLRaw.core": "2.1.12"
+        }
+      }
+    }
+  }
+}
+```
+
+`IdentityDemo/Program.cs`:
+
+<!-- lab-file: IdentityDemo/Program.cs -->
 ```csharp
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -423,43 +633,515 @@ The seed context is disposed before querying, and each mode gets a new context. 
 
 **About 75 minutes - Write and test code:** implement the method, predict edge cases, run tests, deliberately violate a requirement and repair it. **Stop when:** the checks pass and you can explain an avoided defect and an assumption the code needs.
 
-The method below includes the null policy. Put it in a class if you run it locally; the logic needs no database or framework.
+Implement stable deduplication under the ordinal/order/null rules. Predict edge cases and compare against the scan reference. You may open the complete solution immediately.
 
-```csharp
-public static List<string> StableUnique(IReadOnlyList<string> values)
+<details>
+<summary>Answer - setup, complete code and results</summary>
+
+SDK **10.0.401**, runtime **10.0.12**; SDK/runtime roll-forward is disabled. Copy paths relative to `dotnet`. Restore resolves only the pinned packages; the benchmark lock file fixes transitive dependencies too.
+
+`global.json`:
+
+<!-- lab-file: global.json -->
+```json
 {
-    ArgumentNullException.ThrowIfNull(values);
-    var seen = new HashSet<string>(StringComparer.Ordinal);
-    var result = new List<string>();
-    foreach (string id in values)
-    {
-        if (id is null)
-            throw new ArgumentException("Order IDs must not be null.");
-        if (seen.Add(id))
-            result.Add(id);
-    }
-    return result;
+  "sdk": { "version": "10.0.401", "rollForward": "disable" }
 }
 ```
 
-`seen` and `result` start empty for each batch. Every ID calls `Add` once. A new ID goes into the set and is appended to the list; an old ID changes neither. The method reads the input and does not change it. The list holds references to the same strings; it does not clone them.
+`Core/Core.csproj`:
 
-Example call:
-
-```csharp
-string[] input = ["B2", "A1", "B2", "C3", "A1"];
-var unique = StableUnique(input);
-Console.WriteLine(string.Join(", ", unique)); // B2, A1, C3
+<!-- lab-file: Core/Core.csproj -->
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
 ```
 
-To run the downloadable lab, install .NET SDK **10.0.401**, extract the ZIP and open a terminal in its `dotnet` directory, next to `global.json`. The main lab needs no database or third-party package:
+`Core/Deduplication.cs`:
+
+<!-- lab-file: Core/Deduplication.cs -->
+```csharp
+namespace CostModel;
+
+public sealed record OrderCount(string Id, int Count);
+
+// Contract: non-null IDs, ordinal equality, first-occurrence order, unchanged input.
+public static class Deduplication
+{
+    public static List<string> Scan(IReadOnlyList<string> values)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        var result = new List<string>();
+        foreach (string value in values)
+        {
+            RejectNull(value);
+            if (!result.Contains(value)) result.Add(value);
+        }
+        return result;
+    }
+
+    public static List<string> Hash(IReadOnlyList<string> values,
+        IEqualityComparer<string>? comparer = null)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        var seen = new HashSet<string>(comparer ?? StringComparer.Ordinal);
+        var result = new List<string>();
+        foreach (string value in values)
+        {
+            RejectNull(value);
+            // Add is false for an existing equal ID; no separate Contains lookup.
+            if (seen.Add(value)) result.Add(value);
+        }
+        return result;
+    }
+
+    public static List<OrderCount> DuplicateSummary(IReadOnlyList<string> values)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+        var order = new List<string>();
+        foreach (string value in values)
+        {
+            RejectNull(value);
+            if (counts.TryGetValue(value, out int count)) counts[value] = count + 1;
+            else { counts.Add(value, 1); order.Add(value); }
+        }
+        var result = new List<OrderCount>();
+        foreach (string id in order)
+            if (counts[id] > 1) result.Add(new OrderCount(id, counts[id]));
+        return result;
+    }
+
+    // Explicit equality-count model; do not benchmark this instrumented method.
+    public static (List<string> Result, long Comparisons) CountScan(IReadOnlyList<string> values)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        var result = new List<string>();
+        long comparisons = 0;
+        foreach (string value in values)
+        {
+            RejectNull(value);
+            bool found = false;
+            foreach (string previous in result)
+            {
+                comparisons++;
+                if (StringComparer.Ordinal.Equals(previous, value)) { found = true; break; }
+            }
+            if (!found) result.Add(value);
+        }
+        return (result, comparisons);
+    }
+
+    private static void RejectNull(string? value)
+    {
+        if (value is null) throw new ArgumentException("Order IDs must not be null.");
+    }
+
+    // Count only calls in the explicit model, not hash/equality/resize work.
+    public static (List<string> Result, int AddCalls) CountHash(IReadOnlyList<string> values)
+    {
+        ArgumentNullException.ThrowIfNull(values);
+        var result = new List<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        int calls = 0;
+        foreach (string value in values)
+        {
+            RejectNull(value);
+            calls++;
+            if (seen.Add(value)) result.Add(value);
+        }
+        return (result, calls);
+    }
+}
+
+public static class Dataset
+{
+    public static string[] Make(int n, int distinct)
+    {
+        if (n <= 0 || distinct <= 0 || distinct > n) throw new ArgumentOutOfRangeException();
+        return Enumerable.Range(0, n).Select(i => $"ORD-{i % distinct:D8}").ToArray();
+    }
+}
+```
+
+`LessonLab/LessonLab.csproj`:
+
+<!-- lab-file: LessonLab/LessonLab.csproj -->
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup><ProjectReference Include="../Core/Core.csproj" /></ItemGroup>
+</Project>
+```
+
+`LessonLab/Program.cs`:
+
+<!-- lab-file: LessonLab/Program.cs -->
+```csharp
+using CostModel;
+
+if (args.Contains("--check")) { Checks.Run(); return; }
+
+string[] example = ["B2", "A1", "B2", "C3", "A1"];
+Console.WriteLine($"Stable result: {string.Join(", ", Deduplication.Hash(example))}");
+Console.WriteLine($"Example scan comparisons: {Deduplication.CountScan(example).Comparisons}");
+Console.WriteLine("n,scan_equality_comparisons,hash_add_calls (not hash-table work)");
+foreach (int n in new[] { 128, 256, 512 })
+{
+    string[] values = Dataset.Make(n, n);
+    var hashed = Deduplication.CountHash(values);
+    Console.WriteLine($"{n},{Deduplication.CountScan(values).Comparisons},{hashed.AddCalls}");
+}
+Console.WriteLine($"128 identical IDs: {Deduplication.CountScan(Dataset.Make(128, 1)).Comparisons} scan comparisons");
+Console.WriteLine($"Duplicates: {string.Join(", ", Deduplication.DuplicateSummary(example).Select(x => $"{x.Id}={x.Count}"))}");
+```
+
+`LessonLab/Checks.cs`:
+
+<!-- lab-file: LessonLab/Checks.cs -->
+```csharp
+using CostModel;
+
+internal static class Checks
+{
+    public static void Run()
+    {
+        int passed = 0;
+        void Check(string name, Action test) { test(); passed++; Console.WriteLine($"PASS {name}"); }
+        void Equal<T>(IEnumerable<T> actual, IEnumerable<T> expected)
+        { if (!actual.SequenceEqual(expected)) throw new Exception("Sequence mismatch"); }
+        void Throws<T>(Action action) where T : Exception
+        { try { action(); } catch (T) { return; } throw new Exception($"Expected {typeof(T).Name}"); }
+
+        Check("stable order and unchanged input", () => {
+            string[] input = ["B2", "A1", "B2", "C3", "A1"]; var before = input.ToArray();
+            Equal(Deduplication.Scan(input), new[] { "B2", "A1", "C3" });
+            Equal(Deduplication.Hash(input), new[] { "B2", "A1", "C3" }); Equal(input, before);
+        });
+        Check("empty, singleton and repeated input", () => {
+            foreach (var (input, expected) in new[] {
+                (Array.Empty<string>(), Array.Empty<string>()),
+                (new[] { "A" }, new[] { "A" }), (new[] { "A", "A", "A" }, new[] { "A" }) })
+            { Equal(Deduplication.Scan(input), expected); Equal(Deduplication.Hash(input), expected); }
+        });
+        Check("ordinal identity and explicit alternative comparer", () => {
+            string[] input = ["a", "A", "a", " a ", ""];
+            Equal(Deduplication.Scan(input), new[] { "a", "A", " a ", "" });
+            Equal(Deduplication.Hash(input), new[] { "a", "A", " a ", "" });
+            Equal(Deduplication.Hash(input, StringComparer.OrdinalIgnoreCase), new[] { "a", " a ", "" });
+        });
+        Check("null policy", () => {
+            Throws<ArgumentNullException>(() => Deduplication.Scan(null!));
+            Throws<ArgumentNullException>(() => Deduplication.Hash(null!));
+            Throws<ArgumentException>(() => Deduplication.Scan(new[] { "A", null! }));
+            Throws<ArgumentException>(() => Deduplication.Hash(new[] { "A", null! }));
+            Throws<ArgumentException>(() => Deduplication.DuplicateSummary(new string[] { null! }));
+        });
+        Check("triangular count and repeated-ID count", () => {
+            foreach (int n in new[] { 1, 128, 256, 512 }) {
+                var input = Dataset.Make(n, n);
+                var hashModel = Deduplication.CountHash(input);
+                Equal(hashModel.Result, Deduplication.Hash(input));
+                if (hashModel.AddCalls != n) throw new Exception("Wrong Add-call model");
+                if (Deduplication.CountScan(Dataset.Make(n, n)).Comparisons != (long)n * (n - 1) / 2)
+                    throw new Exception("Wrong distinct count model");
+                if (Deduplication.CountScan(Dataset.Make(n, 1)).Comparisons != n - 1)
+                    throw new Exception("Wrong repeated count model");
+            }
+        });
+        Check("hash path avoids a membership scan on this workload", () => {
+            var comparer = new CountingComparer(); var input = Dataset.Make(512, 512);
+            Equal(Deduplication.Hash(input, comparer), input);
+            if (comparer.Equalities >= 512) throw new Exception("Unexpected equality scan");
+        });
+        Check("forced collisions preserve correctness and expose quadratic work", () => {
+            var comparer = new CountingComparer(constantHash: true); var input = Dataset.Make(128, 128);
+            Equal(Deduplication.Hash(input, comparer), input);
+            if (comparer.Equalities != 128L * 127 / 2) throw new Exception("Collision chain not exercised");
+            Equal(Deduplication.Hash(new[] { "B", "A", "B" }, comparer), new[] { "B", "A" });
+        });
+        Check("duplicate counts and first-occurrence order", () => {
+            Equal(Deduplication.DuplicateSummary(new[] { "B2", "A1", "B2", "C3", "A1" }),
+                new[] { new OrderCount("B2", 2), new OrderCount("A1", 2) });
+            Equal(Deduplication.DuplicateSummary(Array.Empty<string>()), Array.Empty<OrderCount>());
+            Equal(Deduplication.DuplicateSummary(new[] { "A", "B" }), Array.Empty<OrderCount>());
+            Equal(Deduplication.DuplicateSummary(new[] { "A", "A", "A" }), new[] { new OrderCount("A", 3) });
+        });
+        Console.WriteLine($"{passed} checks passed.");
+    }
+
+    private sealed class CountingComparer(bool constantHash = false) : IEqualityComparer<string>
+    {
+        public long Equalities { get; private set; }
+        public bool Equals(string? x, string? y) { Equalities++; return StringComparer.Ordinal.Equals(x, y); }
+        public int GetHashCode(string value) => constantHash ? 1 : StringComparer.Ordinal.GetHashCode(value);
+    }
+}
+```
+
+`Benchmarks/Benchmarks.csproj`:
+
+<!-- lab-file: Benchmarks/Benchmarks.csproj -->
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Core/Core.csproj" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+  </ItemGroup>
+</Project>
+```
+
+`Benchmarks/Program.cs`:
+
+<!-- lab-file: Benchmarks/Program.cs -->
+```csharp
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
+using CostModel;
+
+BenchmarkSwitcher.FromAssembly(typeof(DedupeBenchmarks).Assembly).Run(args);
+
+[MemoryDiagnoser]
+public class DedupeBenchmarks
+{
+    [Params(128, 512, 2048)] public int N { get; set; }
+    [Params(10, 100)] public int UniquePercent { get; set; }
+    private string[] values = [];
+
+    [GlobalSetup]
+    public void Setup() => values = Dataset.Make(N, Math.Max(1, N * UniquePercent / 100));
+
+    [Benchmark(Baseline = true)] public List<string> Scan() => Deduplication.Scan(values);
+    [Benchmark] public List<string> Hash() => Deduplication.Hash(values);
+}
+```
+
+`Benchmarks/packages.lock.json`:
+
+<!-- lab-file: Benchmarks/packages.lock.json -->
+```json
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "BenchmarkDotNet": {
+        "type": "Direct",
+        "requested": "[0.15.8, )",
+        "resolved": "0.15.8",
+        "contentHash": "paCfrWxSeHqn3rUZc0spYXVFnHCF0nzRhG0nOLnyTjZYs8spsimBaaNmb3vwqvALKIplbYq/TF393vYiYSnh/Q==",
+        "dependencies": {
+          "BenchmarkDotNet.Annotations": "0.15.8",
+          "CommandLineParser": "2.9.1",
+          "Gee.External.Capstone": "2.3.0",
+          "Iced": "1.21.0",
+          "Microsoft.CodeAnalysis.CSharp": "4.14.0",
+          "Microsoft.Diagnostics.Runtime": "3.1.512801",
+          "Microsoft.Diagnostics.Tracing.TraceEvent": "3.1.21",
+          "Microsoft.DotNet.PlatformAbstractions": "3.1.6",
+          "Perfolizer": "[0.6.1]",
+          "System.Management": "9.0.5"
+        }
+      },
+      "BenchmarkDotNet.Annotations": {
+        "type": "Transitive",
+        "resolved": "0.15.8",
+        "contentHash": "hfucY0ycAsB0SsoaZcaAp9oq5wlWBJcylvEJb9pmvdYUx6PD6S4mDiYnZWjdjAlLhIpe/xtGCwzORfzAzPqvzA=="
+      },
+      "CommandLineParser": {
+        "type": "Transitive",
+        "resolved": "2.9.1",
+        "contentHash": "OE0sl1/sQ37bjVsPKKtwQlWDgqaxWgtme3xZz7JssWUzg5JpMIyHgCTY9MVMxOg48fJ1AgGT3tgdH5m/kQ5xhA=="
+      },
+      "Gee.External.Capstone": {
+        "type": "Transitive",
+        "resolved": "2.3.0",
+        "contentHash": "2ap/rYmjtzCOT8hxrnEW/QeiOt+paD8iRrIcdKX0cxVwWLFa1e+JDBNeECakmccXrSFeBQuu5AV8SNkipFMMMw=="
+      },
+      "Iced": {
+        "type": "Transitive",
+        "resolved": "1.21.0",
+        "contentHash": "dv5+81Q1TBQvVMSOOOmRcjJmvWcX3BZPZsIq31+RLc5cNft0IHAyNlkdb7ZarOWG913PyBoFDsDXoCIlKmLclg=="
+      },
+      "Microsoft.CodeAnalysis.Analyzers": {
+        "type": "Transitive",
+        "resolved": "3.11.0",
+        "contentHash": "v/EW3UE8/lbEYHoC2Qq7AR/DnmvpgdtAMndfQNmpuIMx/Mto8L5JnuCfdBYtgvalQOtfNCnxFejxuRrryvUTsg=="
+      },
+      "Microsoft.CodeAnalysis.Common": {
+        "type": "Transitive",
+        "resolved": "4.14.0",
+        "contentHash": "PC3tuwZYnC+idaPuoC/AZpEdwrtX7qFpmnrfQkgobGIWiYmGi5MCRtl5mx6QrfMGQpK78X2lfIEoZDLg/qnuHg==",
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzers": "3.11.0"
+        }
+      },
+      "Microsoft.CodeAnalysis.CSharp": {
+        "type": "Transitive",
+        "resolved": "4.14.0",
+        "contentHash": "568a6wcTivauIhbeWcCwfWwIn7UV7MeHEBvFB2uzGIpM2OhJ4eM/FZ8KS0yhPoNxnSpjGzz7x7CIjTxhslojQA==",
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzers": "3.11.0",
+          "Microsoft.CodeAnalysis.Common": "[4.14.0]"
+        }
+      },
+      "Microsoft.Diagnostics.NETCore.Client": {
+        "type": "Transitive",
+        "resolved": "0.2.510501",
+        "contentHash": "juoqJYMDs+lRrrZyOkXXMImJHneCF23cuvO4waFRd2Ds7j+ZuGIPbJm0Y/zz34BdeaGiiwGWraMUlln05W1PCQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging": "6.0.0"
+        }
+      },
+      "Microsoft.Diagnostics.Runtime": {
+        "type": "Transitive",
+        "resolved": "3.1.512801",
+        "contentHash": "0lMUDr2oxNZa28D6NH5BuSQEe5T9tZziIkvkD44YkkCGQXPJqvFjLq5ZQq1hYLl3RjQJrY+hR0jFgap+EWPDTw==",
+        "dependencies": {
+          "Microsoft.Diagnostics.NETCore.Client": "0.2.410101"
+        }
+      },
+      "Microsoft.Diagnostics.Tracing.TraceEvent": {
+        "type": "Transitive",
+        "resolved": "3.1.21",
+        "contentHash": "/OrJFKaojSR6TkUKtwh8/qA9XWNtxLrXMqvEb89dBSKCWjaGVTbKMYodIUgF5deCEtmd6GXuRerciXGl5bhZ7Q==",
+        "dependencies": {
+          "Microsoft.Diagnostics.NETCore.Client": "0.2.510501",
+          "System.Reflection.TypeExtensions": "4.7.0"
+        }
+      },
+      "Microsoft.DotNet.PlatformAbstractions": {
+        "type": "Transitive",
+        "resolved": "3.1.6",
+        "contentHash": "jek4XYaQ/PGUwDKKhwR8K47Uh1189PFzMeLqO83mXrXQVIpARZCcfuDedH50YDTepBkfijCZN5U/vZi++erxtg=="
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "k6PWQMuoBDGGHOQTtyois2u4AwyVcIwL2LaSLlTZQm2CYcJ1pxbt6jfAnpWmzENA/wfrYRI/X9DTLoUkE4AsLw==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "xlzi2IYREJH3/m6+lUrQlujzX8wDitm4QGnUu6kUXTQAWPuZY8i+ticFJbzfqaetLA6KR/rO6Ew/HuYD+bxifg=="
+      },
+      "Microsoft.Extensions.Logging": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "eIbyj40QDg1NDz0HBW0S5f3wrLVnKWnDJ/JtZ+yJDFnDj90VoPuoPmFkeaXrtu+0cKm5GRAwoDf+dBWXK0TUdg==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "6.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
+          "Microsoft.Extensions.Options": "6.0.0"
+        }
+      },
+      "Microsoft.Extensions.Logging.Abstractions": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "/HggWBbTwy8TgebGSX5DBZ24ndhzi93sHUBDvP1IxbZD7FDokYzdAr6+vbWGjw2XAfR2EJ1sfKUotpjHnFWPxA=="
+      },
+      "Microsoft.Extensions.Options": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "dzXN0+V1AyjOe2xcJ86Qbo233KHuLEY0njf/P2Kw8SfJU+d45HNS2ctJdnEnrWbM9Ye2eFgaC5Mj9otRMU6IsQ==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
+          "Microsoft.Extensions.Primitives": "6.0.0"
+        }
+      },
+      "Microsoft.Extensions.Primitives": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "9+PnzmQFfEFNR9J2aDTfJGGupShHjOuGw4VUv+JB044biSHrnmCIMD+mJHmb2H7YryrfBEXDurxQ47gJZdCKNQ=="
+      },
+      "Perfolizer": {
+        "type": "Transitive",
+        "resolved": "0.6.1",
+        "contentHash": "CR1QmWg4XYBd1Pb7WseP+sDmV8nGPwvmowKynExTqr3OuckIGVMhvmN4LC5PGzfXqDlR295+hz/T7syA1CxEqA==",
+        "dependencies": {
+          "Pragmastat": "3.2.4"
+        }
+      },
+      "Pragmastat": {
+        "type": "Transitive",
+        "resolved": "3.2.4",
+        "contentHash": "I5qFifWw/gaTQT52MhzjZpkm/JPlfjSeO/DTZJjO7+hTKI+0aGRgOgZ3NN6D96dDuuqbIAZSeA5RimtHjqrA2A=="
+      },
+      "System.CodeDom": {
+        "type": "Transitive",
+        "resolved": "9.0.5",
+        "contentHash": "cuzLM2MWutf9ZBEMPYYfd0DXwYdvntp7VCT6a/wvbKCa2ZuvGmW74xi+YBa2mrfEieAXqM4TNKlMmSnfAfpUoQ=="
+      },
+      "System.Management": {
+        "type": "Transitive",
+        "resolved": "9.0.5",
+        "contentHash": "n6o9PZm9p25+zAzC3/48K0oHnaPKTInRrxqFq1fi/5TPbMLjuoCm/h//mS3cUmSy+9AO1Z+qsC/Ilt/ZFatv5Q==",
+        "dependencies": {
+          "System.CodeDom": "9.0.5"
+        }
+      },
+      "System.Reflection.TypeExtensions": {
+        "type": "Transitive",
+        "resolved": "4.7.0",
+        "contentHash": "VybpaOQQhqE6siHppMktjfGBw1GCwvCqiufqmP8F1nj7fTUNtW35LOEt3UZTEsECfo+ELAl/9o9nJx3U91i7vA=="
+      },
+      "core": {
+        "type": "Project"
+      }
+    }
+  }
+}
+```
 
 ```bash
+dotnet --version
 dotnet run -c Release --project LessonLab
 dotnet run -c Release --project LessonLab -- --check
 ```
 
-The sample run prints `Stable result: B2, A1, C3` and `Example scan comparisons: 6`; the check command reports eight passing checks. These commands run the provided implementation. After changing your local copy, run the checks again to catch changes in equality, order and null handling. If you cannot install the SDK, follow the same cases by hand.
+Expected demo output:
+
+```text
+Stable result: B2, A1, C3
+Example scan comparisons: 6
+n,scan_equality_comparisons,hash_add_calls (not hash-table work)
+128,8128,128
+256,32640,256
+512,130816,512
+128 identical IDs: 127 scan comparisons
+Duplicates: B2=2, A1=2
+```
+
+The check command reports `8 checks passed`. The scan/reference cases cover order, identity, empty input, null rejection and duplicate counts, not arbitrary comparer laws or production delivery.
+
+</details>
 
 Steps:
 
@@ -496,6 +1178,9 @@ Steps:
 
 **Debug hints:** duplicates remain -> append only when `Add` returns true; order changed -> keep a separate output list; `a` and `A` merged -> check the comparer; hashing is unexpectedly slow -> look for a hidden `List.Contains`; null behavior changed -> keep the explicit checks.
 
+
+
+
 **Break · 10 minutes.** Leave the screen.
 
 ## 9. Controlled experiment
@@ -518,6 +1203,11 @@ dotnet run -c Release --project Benchmarks -- --filter '*DedupeBenchmarks*' --jo
 
 This optional project needs a NuGet restore and runs 12 workload cases. Inspect the reports in `BenchmarkDotNet.Artifacts/results`; if setup exceeds your timebox, use the sample report below instead.
 
+Interpret this recorded ShortRun: what do its interval and allocation support, and what remains uncertain?
+
+<details>
+<summary>Answer - recorded benchmark</summary>
+
 Sample ShortRun from 5 October 2026, n = 512, all IDs distinct:
 
 | Approach | Mean | Error | Allocated per operation |
@@ -526,6 +1216,8 @@ Sample ShortRun from 5 October 2026, n = 512, all IDs distinct:
 | Hash | 22.218 µs | 19.147 µs | 42,896 B |
 
 The run used Debian 13, Intel Xeon Platinum 8573C, .NET 10.0.12, three warmup and three measurement iterations per case. The intervals are very wide, so the times only illustrate; they are not a trustworthy service speedup. The extra bytes show the trade-off, not whole-application memory. The [full report](benchmark-report.md) has the workload matrix.
+
+</details>
 
 ### Your experiment notebook
 

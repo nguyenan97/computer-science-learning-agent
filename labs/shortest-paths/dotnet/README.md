@@ -1,5 +1,7 @@
 # C# lab - BFS and Dijkstra
 
+SDK/runtime roll-forward is disabled: use SDK 10.0.401 and runtime 10.0.12.
+
 Use .NET SDK **10.0.401**, pinned by `global.json`, with **net10.0**. No third-party packages or network service is needed. Install the matching SDK from [Microsoft](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) if necessary.
 
 Download [the ZIP](https://nguyenan97.github.io/computer-science-learning-agent/labs/shortest-paths/dotnet-lab.zip), extract it and open a terminal inside its `dotnet` directory. From a repository checkout, the working directory is `labs/shortest-paths/dotnet`.

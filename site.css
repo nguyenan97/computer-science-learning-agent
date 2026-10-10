@@ -1,0 +1,25 @@
+/* Original MIT UI styles; dependency files retain their upstream bytes. */
+:root { --theme-color: #16724a; }
+.markdown-section code { color: #a33e00; }
+.markdown-section :not(pre) > code { white-space: pre-wrap; overflow-wrap: anywhere; }
+.token.comment, .token.prolog, .token.doctype, .token.cdata { color: #636660; }
+.token.boolean, .token.number, .token.function, .token.keyword { color: #a33e00; }
+.token.property { color: #805500; }
+.token.selector { color: #4955a8; }
+.token.entity, .token.url, .token.atrule, .token.regex, .token.statement,
+.language-css .token.string, .style .token.string { color: #126e86; }
+.token.placeholder, .token.variable { color: #24649b; }
+.token.namespace { opacity: 1; }
+.markdown-section summary { cursor: pointer; padding: .45rem 0; }
+.markdown-section details { margin: .8rem 0 1.2rem; }
+.markdown-section a:focus-visible, .markdown-section summary:focus-visible,
+.markdown-section table:focus-visible, .markdown-section pre:focus-visible,
+.sidebar a:focus-visible, .app-nav a:focus-visible, .sidebar-toggle:focus-visible {
+  outline: 3px solid #24649b;
+  outline-offset: 3px;
+}
+.markdown-section table, .markdown-section pre { max-width: 100%; }
+.markdown-section img { max-width: 100%; height: auto; }
+@media (max-width: 600px) {
+  .markdown-section { padding: 24px 18px; }
+}

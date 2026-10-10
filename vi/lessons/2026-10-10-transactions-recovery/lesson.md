@@ -228,7 +228,7 @@ Implement thao tác tồn cùng xác nhận, rồi để hai client đọc trư�
 <details>
 <summary>Đáp án - toàn bộ lab chạy được</summary>
 
-Dùng SDK **10.0.401** (cho phép roll-forward latestPatch), **net10.0**, **Microsoft.Data.Sqlite 10.0.9**, **SQLitePCLRaw.bundle_e_sqlite3 3.0.3** và lock file trong repo. Engine trả **SQLite 3.50.4**. Restore đầu cần NuGet; các lần no-restore sau có thể dùng package đã cache. Không cần database server.
+Dùng SDK **10.0.401** (tắt roll-forward cho SDK/runtime), **net10.0**, **Microsoft.Data.Sqlite 10.0.9**, **SQLitePCLRaw.bundle_e_sqlite3 3.0.3** và lock file trong repo. Engine trả **SQLite 3.50.4**. Restore đầu cần NuGet; các lần no-restore sau có thể dùng package đã cache. Không cần database server.
 
 Giải nén vào `dotnet`, hoặc dùng `labs/transactions-recovery/dotnet` trong checkout. Muốn dựng từ bài cần mọi file dưới đây. [Hướng dẫn lab](../../../labs/transactions-recovery/dotnet/README.vi.md) có link từng source. Database nằm trong thư mục tạm tự sinh; ZIP chỉ chứa mã và cấu hình.
 
@@ -236,19 +236,23 @@ Task.Run khởi chạy task của mỗi client; mỗi bên sở hữu connection
 
 `dotnet/global.json`:
 
+<!-- lab-file: global.json -->
 ```json
 {
-  "sdk": { "version": "10.0.401", "rollForward": "latestPatch" }
+  "sdk": { "version": "10.0.401", "rollForward": "disable" }
 }
 ```
 
 `dotnet/LessonLab/LessonLab.csproj`:
 
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -264,6 +268,7 @@ Task.Run khởi chạy task của mỗi client; mỗi bên sở hữu connection
 
 `dotnet/LessonLab/packages.lock.json`:
 
+<!-- lab-file: LessonLab/packages.lock.json -->
 ```json
 {
   "version": 1,
@@ -345,6 +350,7 @@ Retry có kiểm soát cho phép một lần thử từ dữ liệu mới. Nó �
 
 `LessonLab/Store.cs`. Store tạo schema, gắn tham số và giữ phần trừ cùng xác nhận trong transaction ghi IMMEDIATE. Nhánh ghi mù cố ý sai; nhánh có kiểm tra xét version/tồn hiện tại. Tra xác nhận đã có trước khi xét nhận request để request lặp khớp không trừ thêm.
 
+<!-- lab-file: LessonLab/Store.cs -->
 ```csharp
 // Original MIT teaching code; SQLite implementation is linked, not copied.
 using Microsoft.Data.Sqlite;
@@ -460,6 +466,7 @@ public sealed class Store : IDisposable
 
 `LessonLab/Schedules.cs`. Schedules ghi lịch của hai task sở hữu connection thật với các cổng xác nhận, rồi chạy trace giữ snapshot riêng. Thứ tự statement được chủ động kiểm soát; không dùng sleep để tạo race.
 
+<!-- lab-file: LessonLab/Schedules.cs -->
 ```csharp
 using System.Collections.Concurrent;
 
@@ -529,6 +536,7 @@ public static class Schedules
 
 `LessonLab/Crash.cs`. Crash chỉ khởi chạy chính executable này làm tiến trình con. Tiến trình con chuyển mười giữa hai tài khoản trong một transaction và thêm 64 blob phụ, mỗi blob 4096 byte, với cache mười trang để đẩy trang bẩn ra WAL. Dữ liệu phụ chỉ giúp kiểm tra WAL tồn tại, không phải workload nghiệp vụ. Nó báo trước commit hoặc sau khi Commit trả về rồi chờ; parent dừng nó, đợi thoát và mở connection mới. Không còn connection cài đặt nào mở tại lúc dừng.
 
+<!-- lab-file: LessonLab/Crash.cs -->
 ```csharp
 using System.Diagnostics;
 using System.Reflection;
@@ -595,6 +603,7 @@ public static class Crash
 
 `LessonLab/Checks.cs`. Checks dùng mô hình nhận request tuần tự độc lập cho 225 tổ hợp tồn đầu 0-8, lượng 1-5. Nó đối chiếu tồn, tổng xác nhận, version và quyết định, cùng snapshot cũ, rollback do lỗi chủ động, request lặp, input sai và hai điểm crash.
 
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 public static class Checks
 {
@@ -659,6 +668,7 @@ public static class Checks
 
 `LessonLab/Experiment.cs`. Experiment đổi chiến lược trong cùng lịch, rồi đổi lượng T2 ở ca riêng. Nó đếm xung đột/retry và xét kết quả nghiệp vụ. Không benchmark throughput hay thời gian.
 
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 public static class Experiment
 {
@@ -684,6 +694,7 @@ public static class Experiment
 
 `LessonLab/Program.cs`. Program chọn demo, kiểm tra, thí nghiệm hoặc chế độ con nội bộ. Các lệnh thông thường không nhận đường dẫn database ngoài.
 
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 if (args.Length == 3 && args[0] == "--child") { Crash.Child(args[1], args[2]); return; }
 if (args.Length == 1 && args[0] == "--check") { await Checks.Run(); return; }

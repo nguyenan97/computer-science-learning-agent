@@ -212,19 +212,23 @@ Use **.NET SDK 10.0.401**, target **net10.0**, without external packages. Extrac
 
 `dotnet/global.json`:
 
+<!-- lab-file: global.json -->
 ```json
 {
-  "sdk": { "version": "10.0.401", "rollForward": "latestPatch" }
+  "sdk": { "version": "10.0.401", "rollForward": "disable" }
 }
 ```
 
 `dotnet/LessonLab/LessonLab.csproj`:
 
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <RollForward>Disable</RollForward>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -253,6 +257,7 @@ Install the matching SDK from Microsoft if needed. Once built, `dotnet run --no-
 
 `LessonLab/Budget.cs`: `Validate` rejects repeated IDs rather than silently deduping. `Exact` reads only the previous row and reconstructs on strict improvement. `ExactValueRolling` returns only the value. The density comparator uses integer cross-products with `BigInteger` to avoid rounded ratios and `long` multiplication overflow; values/costs have fixed 64/32-bit bounds here. Equal densities use the original index as a tie-break. These methods do not mutate the input.
 
+<!-- lab-file: LessonLab/Budget.cs -->
 ```csharp
 // Original MIT teaching code. No PostgreSQL or textbook code is copied.
 using System.Numerics;
@@ -361,6 +366,7 @@ public static class Budget
 
 `LessonLab/Oracle.cs`: examine every subset. It shares input validation, but uses neither the DP recurrence nor ratio ordering, making it an independent reference for optimization on the accepted domain. For n>=1, time is O(n·2^n) and extra search memory O(n). The 22-job guard keeps an accidentally huge reference run bounded.
 
+<!-- lab-file: LessonLab/Oracle.cs -->
 ```csharp
 // Exhaustive independent reference for small instances, original MIT code.
 public static class Oracle
@@ -396,6 +402,7 @@ public static class Oracle
 
 `LessonLab/Program.cs`:
 
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 if (args.Length == 0)
 {
@@ -414,6 +421,7 @@ else throw new ArgumentException("Use no arguments, --check or --experiment.");
 
 `LessonLab/Checks.cs`: verify feasibility, no repeated index, exact optimum, the rolling result, no input mutation and the half-value inequality. Exhaust all three-job combinations with costs 1-3, values 0-3 and capacities 0-6; add seeded random and numeric-boundary cases. The comparison `2*A >= OPT` uses `BigInteger`, since twice a valid `long` result can exceed `long.MaxValue`. Tests with nearly equal large ratios catch a floating-point ordering mistake.
 
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 using System.Numerics;
 
@@ -515,6 +523,7 @@ public static class Checks
 
 `LessonLab/Experiment.cs`: generates the controlled workloads explained in section 6. `Work` uses different named units for different algorithms. Ratio comparisons are counted separately and do not include the final index sort. The printed quality uses decimal display rounding; the sorter and correctness inequality use exact arithmetic. If OPT is 0, quality is reported as 1 by convention because every feasible zero-value result is optimal, not because 0/0 was evaluated.
 
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 using System.Globalization;
 

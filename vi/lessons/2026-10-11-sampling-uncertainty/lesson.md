@@ -75,7 +75,7 @@ IID nghĩa là độc lập và cùng phân phối: các kết quả có cùng p
 
 Kỳ vọng là trung bình có trọng số xác suất trên các mẫu có thể xảy ra. Phương sai là kỳ vọng của bình phương khoảng cách tới trung bình đó; độ lệch chuẩn là căn phương sai. Vì X^2=X, E[X]=p và Var(X)=p(1-p). Đây là đại lượng mô hình, không phải trung bình quan sát của một lần chạy.
 
-Với K=X1+...+Xn và ước lượng h=K/n, tính tuyến tính cho E[h]=p. Hiệp phương sai đo hai kết quả cùng lệch khỏi trung bình thế nào: Cov(Xi,Xj)=E[(Xi-p)(Xj-p)]. Kết quả độc lập có hiệp phương sai không, còn bản sao của cùng kết quả có hiệp phương sai p(1-p). Khi tính phương sai tổng, tính độc lập vì thế loại các số hạng chéo, cho:
+Với K=X1+...+Xn và ước lượng h=K/n, tính tuyến tính cho E[h]=p. Hiệp phương sai đo hai kết quả cùng lệch khỏi trung bình thế nào: Cov(Xi,Xj)=E[(Xi-p)(Xj-p)]. Kết quả độc lập có hiệp phương sai bằng 0, còn bản sao của cùng kết quả có hiệp phương sai p(1-p). Khi tính phương sai tổng, tính độc lập vì thế loại các số hạng chéo, cho:
 
 ```text
 Var(h) = p(1-p)/n
@@ -96,7 +96,7 @@ sqrt(p(1-p)/(4n)) bằng một nửa sqrt(p(1-p)/n). Cần cùng p và đóng g�
 
 ### Lập khoảng bằng cách xét các xác suất ứng viên
 
-Với k=2,n=20, h=0,10. Khoảng Wilson dưới đây xấp xỉ [0,0279;0,3010], cho thấy tỷ lệ điểm chưa đủ. Khoảng giữ các xác suất ứng viên p mà độ lệch đã chuẩn hóa chưa quá lớn. Phân phối chuẩn có đường cong xác suất hình chuông; chuẩn tắc có trung bình không và độ lệch chuẩn một. Dùng z=1.959963984540054, ngưỡng chứa 95% ở giữa của phân phối chuẩn tắc; z là hằng số cho sẵn, không phải tỷ lệ suy ra từ mẫu.
+Với k=2,n=20, h=0,10. Khoảng Wilson dưới đây xấp xỉ [0,0279;0,3010], cho thấy tỷ lệ điểm chưa đủ. Khoảng giữ các xác suất ứng viên p mà độ lệch đã chuẩn hóa chưa quá lớn. Phân phối chuẩn có đường cong xác suất hình chuông; chuẩn tắc có trung bình 0 và độ lệch chuẩn 1. Dùng z=1.959963984540054, ngưỡng chứa 95% ở giữa của phân phối chuẩn tắc; z là hằng số cho sẵn, không phải tỷ lệ suy ra từ mẫu.
 
 Ứng viên được giữ thỏa `n(h-p)^2 <= z^2 p(1-p)`. Điều kiện score dùng phương sai của ứng viên. Chuyển vế cho `(n+z^2)p^2-(2nh+z^2)p+nh^2 <= 0`. Hệ số bậc hai dương nên tập được giữ nằm giữa hai nghiệm. Chia công thức nghiệm cho n thu được:
 
@@ -214,6 +214,7 @@ Giải nén ZIP hoặc tạo thư mục `dotnet` với đủ file dưới đây.
 
 `global.json`:
 
+<!-- lab-file: global.json -->
 ```json
 {
   "sdk": { "version": "10.0.401", "rollForward": "disable" }
@@ -222,6 +223,7 @@ Giải nén ZIP hoặc tạo thư mục `dotnet` với đủ file dưới đây.
 
 `LessonLab/LessonLab.csproj`:
 
+<!-- lab-file: LessonLab/LessonLab.csproj -->
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -240,6 +242,7 @@ Giải nén ZIP hoặc tạo thư mục `dotnet` với đủ file dưới đây.
 
 `LessonLab/packages.lock.json`:
 
+<!-- lab-file: LessonLab/packages.lock.json -->
 ```json
 {
   "version": 1,
@@ -262,6 +265,7 @@ dotnet run --no-restore -c Release --project LessonLab -- --experiment
 
 `LessonLab/Stats.cs`. Wilson được suy ra từ bất đẳng thức score. Wald được giữ làm phản ví dụ. Tổng nhị thức dùng tử số BigInteger, không mô phỏng; việc xét đầu mút và chuyển tỷ số vẫn dùng double.
 
+<!-- lab-file: LessonLab/Stats.cs -->
 ```csharp
 // Original MIT teaching code, derived from the score inequality, not copied from SciPy.
 using System.Numerics;
@@ -322,6 +326,7 @@ public static class Stats
 
 `LessonLab/Draws.cs`. Generator có trạng thái và seed xác định. Lấy dư sau bước loại bỏ phần thừa tránh lệch modulo nếu đầu ra được xem là đều; điều đó chưa chứng minh các lần gọi độc lập. Không dùng generator này cho bảo mật hay làm chuẩn chất lượng RNG.
 
+<!-- lab-file: LessonLab/Draws.cs -->
 ```csharp
 // Small deterministic generator for reproducible teaching, not for security.
 public sealed class Draws
@@ -352,6 +357,7 @@ public sealed class Draws
 
 `LessonLab/Checks.cs`. Oracle tìm hai nghiệm bằng binary search trên điều kiện score, không dùng công thức đóng Wilson. Liệt kê mọi chuỗi bit nhỏ để đối chiếu trọng số nhị thức độc lập.
 
+<!-- lab-file: LessonLab/Checks.cs -->
 ```csharp
 using System.Numerics;
 
@@ -429,6 +435,7 @@ public static class Checks
 
 `LessonLab/Experiment.cs`. Mỗi repetition sinh 320 quan sát, lấy prefix 20/80/320 từ cùng chuỗi. So Wilson/Wald trên đúng cùng số đếm. Hai ca rare và cluster dùng seed riêng, là phép thử giả định riêng.
 
+<!-- lab-file: LessonLab/Experiment.cs -->
 ```csharp
 using System.Globalization;
 
@@ -481,6 +488,7 @@ public static class Experiment
 
 `LessonLab/Program.cs`. Demo cập nhật số đếm sau từng quan sát. Tham số chỉ chọn check hoặc experiment.
 
+<!-- lab-file: LessonLab/Program.cs -->
 ```csharp
 using System.Globalization;
 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;

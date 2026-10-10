@@ -46,7 +46,7 @@
           "break": false,
           "output": {
             "en": "Trace one pinned implementation slice and predict edge cases.",
-            "vi": "Trace một phần implementation ở pin và dự đoán trường hợp biên."
+            "vi": "Đọc một phần mã nguồn tại commit đã pin và dự đoán trường hợp biên."
           }
         },
         {
@@ -64,7 +64,7 @@
           "break": false,
           "output": {
             "en": "Implement, test and explain one defect repair.",
-            "vi": "Implement, test và giải thích một lần sửa lỗi."
+            "vi": "Viết code, kiểm tra và giải thích một lần sửa lỗi."
           }
         },
         {
@@ -176,7 +176,7 @@
           "break": false,
           "output": {
             "en": "Reproduce one derivation, table or executable result.",
-            "vi": "Reproduce một phép suy diễn, bảng hoặc kết quả chạy được."
+            "vi": "Tái hiện một phép suy diễn, bảng hoặc kết quả chạy được."
           }
         },
         {
@@ -194,7 +194,7 @@
           "break": false,
           "output": {
             "en": "Compare a baseline, counterexample or related paper.",
-            "vi": "So baseline, phản ví dụ hoặc paper liên quan."
+            "vi": "Đối chiếu với baseline, phản ví dụ hoặc paper liên quan."
           }
         },
         {
@@ -221,7 +221,7 @@
           "break": false,
           "output": {
             "en": "Write a cited critique and the limits of reproduction.",
-            "vi": "Viết phản biện có nguồn và giới hạn của việc reproduce."
+            "vi": "Viết phản biện có nguồn và nêu giới hạn của phần đã tái hiện."
           }
         }
       ]

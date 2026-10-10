@@ -1,5 +1,7 @@
 # Lab Bài 02 - Tìm biên bằng C#
 
+Tắt roll-forward cho SDK/runtime: dùng SDK 10.0.401 và runtime 10.0.12.
+
 [English](README.md) · [Bài tiếng Việt](../../../vi/lessons/boundary-search/lesson.md)
 
 Lab console này tìm vị trí đầu tiên có giá trị lớn hơn hoặc bằng target, rồi đếm

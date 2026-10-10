@@ -1,5 +1,7 @@
 # Lab C# - BFS và Dijkstra
 
+Tắt roll-forward cho SDK/runtime: dùng SDK 10.0.401 và runtime 10.0.12.
+
 Dùng .NET SDK **10.0.401**, được pin trong `global.json`, với **net10.0**. Không cần package của bên thứ ba hay dịch vụ mạng. Nếu thiếu, cài SDK tương ứng từ [Microsoft](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
 
 Tải [ZIP](https://nguyenan97.github.io/computer-science-learning-agent/labs/shortest-paths/dotnet-lab.zip), giải nén và mở terminal trong thư mục `dotnet`. Nếu dùng repository, thư mục chạy là `labs/shortest-paths/dotnet`.

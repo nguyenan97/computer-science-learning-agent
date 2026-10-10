@@ -11,7 +11,11 @@ inventories, with original project objectives and prerequisites. Read the public
 [topic map](topic-map.md) and [source scope](../docs/content-provenance.md).
 No credits, admissions, degree award or verified proficiency are inferred.
 
-Run `python scripts/daily_plan.py --on YYYY-MM-DD`. The default date is the study date
+For the next lesson run `python scripts/daily_plan.py --next` **before editing the
+catalog**. It selects the day after the latest published catalog date, even when that
+date differs from the machine's today. An empty catalog uses today's study date.
+For an explicit date use `--on YYYY-MM-DD`; these date flags are mutually exclusive.
+Without either flag, the default date is the study date
 in **Asia/Ho_Chi_Minh**, including an evening or early-morning request. The script
 chooses the first uncovered eligible master topic, then doctoral topics after all
 master units are represented. Array order breaks ties; only published catalog
@@ -27,7 +31,7 @@ available for optional breadth; the inventory does not assert official enrollmen
 
 ## Build day and paper day
 
-[study-profile.json](study-profile.json) owns the default **420 elapsed minutes**,
+[study-profile.json](study-profile.json) owns the default elapsed-minute budget,
 the Vietnamese timezone and both block schedules. Both schedules sum to that budget
 and include breaks. Honor a shorter explicit request. A bridge replaces depth work;
 bound setup, stop a block at its timebox and carry unresolved questions forward.
@@ -43,6 +47,11 @@ Paper study is not forced to include a benchmark or a new code lab when analytic
 reproduction better tests the objective. Explain any unrun executable reproduction.
 
 Each block has the profile's concrete output plus an objective-specific stop condition.
+Sections may split or combine a block when the topic needs it, but the assigned minutes
+and outputs must still account for that block. Do not make the learner hunt in an earlier
+section for the current task/timebox. Supporting headings such as sources and licensing
+need not invent additional study time. The [template](lesson-template.md) is an authoring
+scaffold, not a mandated sequence of identical paragraphs.
 Offer a reading-only route through worked traces, lab explanations and answers.
 All tasks remain optional, and access to tomorrow's lesson requires no submission.
 
@@ -92,8 +101,8 @@ Each page independently teaches the whole objective in connected prose. Include:
   .NET/SQL Server/Angular/Azure system, then one case study from a well-known public
   repository (see Sources and code). Say what problem the project solves with the
   idea, what would break without it and what trade-off the maintainers accepted.
-- The selected build/paper plan for this particular day, followed by a concrete contract,
-  prediction, foundation, narrated example or trace and a counterexample.
+- The selected build/paper activities embedded in section task/timebox/stop lines,
+  with a concrete contract, prediction, foundation, narrated trace and a counterexample.
 - A few answerable research questions, source-backed explanations, an implementation
   slice and the assumptions that connect theory to behavior.
 - Complete runnable task code, copyable commands, expected observations, debugging
@@ -177,10 +186,30 @@ it; include a concrete C# bridge describing the equivalent API, invariant or des
 Choose the simplest tool that tests the objective, without unnecessary infrastructure.
 
 Give runtime/dependency pins, working directories, commands, deterministic cases and
-an offline fallback. Include the essential implementations and solutions on the page;
+an offline fallback. Pin the SDK with roll-forward disabled, the executable runtime
+version and its roll-forward policy, and external dependencies including their transitive
+lock file. Say which installation/first restore needs a network and which run is offline.
+Include the essential implementations and solutions on the page;
 a ZIP is a convenience copy. Code must run under the stated environment. Distinguish
 observed output from predictions and unrun examples. Measurements need a hypothesis,
 controls, workload and limitations; one machine cannot establish universal performance.
+
+A controlled experiment names assumptions, prediction, changed/fixed variables,
+observation and inference separately. Put its worked result in a closed answer block
+immediately below the task. Label simulated values even when they use real-world units.
+Exact calculation under a model does not validate the model against reality. Explain
+uncontrolled factors and what could falsify the claim. An independent oracle avoids
+the main algorithm's key mechanism; name any shared validation, assumptions or
+representation, finite cases covered and the argument needed for a general claim.
+
+Complete runnable lab fences have a visible filename and an adjacent invisible marker
+`<!-- lab-file: LessonLab/Program.cs -->` before the opening fence. Paths are relative
+to the lab directory, including `global.json`, project files and dependency locks.
+The catalog's declared source/config files determine the required set. Snippets and
+changed-context replacements have no marker. `check_all.py` compares those fences
+with downloads, builds/runs each language in isolation, and checks the source ZIP.
+Keep code/setup in the lab's closed answer and individual defect questions outside it.
+This checks executable agreement, not proof validity or translation quality.
 
 ## Repository workflow
 
@@ -189,16 +218,21 @@ next lesson authorizes writing them and opening a PR; merging or pushing main st
 requires an explicit instruction. There is no automatic daily schedule. The learner
 requests a lesson when ready, including the next morning after a skipped evening.
 
-1. Add EN and VI lesson pages and shared lab assets, then update the catalog with
+1. Save the planner result in ignored `work/` before changing the catalog. Explain
+   the choice, inherited knowledge and missing foundation briefly on the page.
+   Add EN and VI lesson pages and shared lab assets, then update the catalog with
    bilingual title, Vietnamese study date, `topic_ids`, `day_type`, files, related
    reading, recall and lab metadata.
 2. Run `python scripts/add_lesson_navigation.py`. The catalog generates lesson footers,
    sidebars, homepage lists and topic coverage; neither contract nor workflow maintains lesson order.
 3. Run `python scripts/check_all.py`; a fresh session bootstraps its environment automatically. Correctness,
-   structural parity and public-asset checks are required. Optional browser/benchmark diagnostics belong in verification,
+   structural parity, page-derived executable checks and public-asset checks are required. Optional browser/benchmark diagnostics belong in verification,
    with observed results reported honestly.
-4. Inspect the staged lesson, language switch, catalog links and downloads. Test the
-   extracted lab when producing a ZIP. Sources and downloads supplement the full page.
+4. Use the [review checklist](../docs/lesson-review.md) for semantic review and browser
+   verification. Check desktop/mobile collapse, code, table scrolling, formulas/plots,
+   keyboard use, language, neighbors and actual ZIP downloads as requested. Inspect
+   each CI step at the final PR head, including diagnostics with continue-on-error;
+   a green workflow alone is insufficient. Sources/downloads supplement the full page.
 5. Open a PR and return its link. After an explicitly authorized merge, verify Pages
    deployment before claiming the new public URL works.
 
